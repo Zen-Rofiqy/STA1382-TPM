@@ -1,0 +1,15 @@
+{
+	"nodes":[
+		{"id":"72c9684b06e8a869","type":"text","text":"# Pertemuan 1","x":-360,"y":-380,"width":240,"height":60},
+		{"id":"edb639e2865d023d","type":"text","text":"## Data hilang\nMerupakan tidak adanya nilai data yang terekam/tercatat pada pengamatan untuk suatu peubah.\n\n### Penyebab\n* **Non-Respon** di survei:\n\t\tPernyataan sensitif, tidak tahu jawaban, pengukuran berulang\n* **Kondisi pengamatan rusak**\n* **Kesalahan peneliti/entri data**\n\n### Kenapa perlu ditangani?\n* Jika analisis tetap menggunakan data hilang, kesimpulan yang diperoleh ==tidak merepresentasikan kondisi populasi== yang sebenarnya. \n* Agar data yang tersisa dapat tertangani dengan benar.\n* Jika data yang hilang secara **sistematis**, analisis nya mungkin akan ==bias.==","x":-360,"y":-300,"width":620,"height":540},
+		{"id":"990a163aca54e176","type":"text","text":"## Jenis Mekanisme Data hilang\n### 1. MCAR\n**Missing Completely at Random**\n* ==Gak bergantung== sama variabel lain\n* ==Gak ada hubungan==nya dengan obejek yang sedang dipelajari\n* ==Tidak bias== walau tidak ditangani\n\n### 2. MAR\n**Missing at Random**\n* Data hilang tergantung dari nilai yang diketahui (dapat ==diduga== oleh ==peubah lainnya==/penjelas)\n* ==Akan bias== jika tidak ditangani saat analisis. \n### 3. MNAR\n**Missing Not at Random**\n* ==Sulit ditangani==, karena diluar kendali penelitian\n* Perlu ditelusuri ==penyebab==nya dan ==penanganan== yang tepat","x":-360,"y":280,"width":560,"height":660},
+		{"id":"44b41b19297df53c","type":"text","text":"## Ilustrasi Kasus Data Hilang\n### 1. MCAR\n* Variabel ==jenis kelamin== \n### 2. MAR\n* Variabel ==tingkat pendapatan==, karena bisa di duga oleh: jenis pekerjaan, tingkat pendidikan, usia, dll\n### 3. MNAR\n* ==Gagal isi survei==, karena responden sedang depresi pada survei mengenai depresi","x":320,"y":280,"width":540,"height":660},
+		{"id":"6f5356fcd632cdc8","type":"text","text":"## Penanganan (Teknik Sederhana)\n### 1. Penghapusan Kasus\n**Listwise or Case Deletion**\n","x":-349,"y":1018,"width":549,"height":462},
+		{"id":"b33388e595989d00","type":"text","text":"## Implikasi Data Hilang dalam Analisis\n1. Mengurangi ==kekuatan statistik==, Uji yang dihasilkan akan cenderung untuk ==Tak Tolak H0==\n2. Meningkatkan ==galat baku== (standard error)\n3. ==Bias== dalam menduga parameter\n4. Mengurangi keterwakilan sampel, sehingga ==melemahkan generalisasi== dari hasil\n5. ==Mempersulit analisis== penelitian, karena sebagian besar metode$^2$ analisis statistika dirancang untuk data lengkap","x":320,"y":-188,"width":552,"height":316},
+		{"id":"9e700991bf5cb869","x":573,"y":1070,"width":250,"height":60,"type":"text","text":"## Pencilan"},
+		{"id":"c6c9429e37ea1b70","x":498,"y":1180,"width":400,"height":265,"type":"file","file":"WhatsApp Image 2024-01-26 at 17.07.51_abf51388.jpg"}
+	],
+	"edges":[
+		{"id":"ed232e6c924a17af","fromNode":"990a163aca54e176","fromSide":"right","toNode":"44b41b19297df53c","toSide":"left"}
+	]
+}
