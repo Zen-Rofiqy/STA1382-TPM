@@ -19,3 +19,41 @@ output:
 pkgdown:
   as_is: true
 ---
+
+# Pertemuan 1
+
+> **Penyiapan Data (R)**
+
+## 1. **Statistik Deskriptif**
+
+```{r message=FALSE, warning=FALSE}
+library(dplyr)
+library(ggplot2)
+library(gridExtra)
+```
+
+**Daftar variabel :**
+
+-   `Pregnancies` : Number of times pregnant
+
+-   `Glucose` : Plasma glucose concentration a 2 hours in an oral glucose tolerance test
+
+-   `BloodPressure` : Diastolic blood pressure (mm Hg)
+
+-   `SkinThickness` : Triceps skin fold thickness (mm)
+
+-   `Insulin` : 2-Hour serum insulin (mu U/ml)
+
+-   `BMI` : Body mass index (weight in kg/(height in m)\^2)
+
+-   `DiabetesPedigreeFunction` : Diabetes pedigree function
+
+-   `Age` : Age (years)
+
+-   `Outcome` : Class variable (0 or 1) 268 of 768 are 1 (diabetes), the others are 0 (tidak diabetes)
+
+```{r}
+data <- read.csv('/kaggle/input/pima-indians-diabetes-database/diabetes.csv')
+summary(data)
+head(data, 10)
+```
