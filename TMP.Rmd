@@ -42,7 +42,7 @@ install_load <- function (package1, ...)  {
    } 
 }
 
-install_load("DT","dplyr","ggplot2","gridExtra")
+install_load("DT","dplyr","ggplot2","gridExtra","httr")
 
 theme1.1 <- list(
   geom_hline(yintercept = 0, size = 1, colour="#333333"),
@@ -61,19 +61,13 @@ theme1.1 <- list(
 )
 ```
 
-> <mark style="background-color: #91CCDB">**Code/Syntax :** [File.rmd](https://github.com/Zen-Rofiqy/STA1312-PSB/blob/main/Project/Tugas%20Prak%201%20Pert%201/G1401211006_Angga-Fathan-Rofiqy_Tugas-Praktikum-1.Rmd) </mark>
+> <mark style="background-color: #91CCDB">**Code/Syntax :** [File.rmd](https://github.com/Zen-Rofiqy/STA1382-TPM/blob/main/TMP.Rmd) </mark>
 
 # Pertemuan 1
 
 > **Penyiapan Data (R)**
 
 ## 1. **Statistik Deskriptif**
-
-```{r message=FALSE, warning=FALSE}
-library(dplyr)
-library(ggplot2)
-library(gridExtra)
-```
 
 **Daftar variabel :**
 
@@ -96,7 +90,33 @@ library(gridExtra)
 -   `Outcome` : Class variable (0 or 1) 268 of 768 are 1 (diabetes), the others are 0 (tidak diabetes)
 
 ```{r}
+
 data <- read.csv('/kaggle/input/pima-indians-diabetes-database/diabetes.csv')
 summary(data)
 head(data, 10)
+```
+
+```{r}
+library(httr)
+
+# Gantilah 'your_username' dan 'your_authkey' dengan informasi akun Kaggle Anda
+username <- "zenrofiqy"
+authkey <- "594416325ca5f1711fb40cb5e1795b8c"
+
+url <- "https://www.kaggle.com/datasets/uciml/pima-indians-diabetes-database/download/diabetes.csv"
+
+# Lakukan permintaan GET dengan autentikasi
+dataset <- httr::GET(url, httr::authenticate(username, authkey, type = "basic"))
+
+# Simpan file zip ke tempat sementara
+temp <- tempfile(fileext = ".zip")
+writeBin(dataset$content, temp)
+
+# Buka file zip dan baca data CSV
+unzip(temp, exdir = tempdir())
+data <- read.csv(file.path(tempdir(), "diabetes.csv"))
+
+# Hapus file sementara
+file.remove(temp)
+
 ```
