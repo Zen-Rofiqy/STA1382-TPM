@@ -20,6 +20,49 @@ pkgdown:
   as_is: true
 ---
 
+```{r message=FALSE, warning=FALSE, include=FALSE}
+#                      -=( Install & Load Package Function )=-
+install_load <- function (package1, ...)  {   
+
+   # convert arguments to vector
+   packages <- c(package1, ...)
+
+   # start loop to determine if each package is installed
+   for(package in packages){
+
+       # if package is installed locally, load
+       if(package %in% rownames(installed.packages()))
+          do.call('library', list(package))
+
+       # if package is not installed locally, download, then load
+       else {
+          install.packages(package)
+          do.call("library", list(package))
+       }
+   } 
+}
+
+install_load("DT","dplyr","ggplot2","gridExtra")
+
+theme1.1 <- list(
+  geom_hline(yintercept = 0, size = 1, colour="#333333"),
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, 
+                                   margin = margin(b = 10, t=-20)),
+        axis.text.y = element_text(vjust = 0.5, face = "bold", 
+                                   margin = margin(l = 20, r = 0)),
+        plot.title = element_text(hjust = 0.5, face = "bold"),
+        text = element_text(size = 30),
+        plot.subtitle = element_text(hjust = 0.5),
+        panel.background = element_rect(fill = 'transparent'),
+        plot.background = element_rect(fill='transparent', color=NA),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()
+        ) 
+)
+```
+
+> <mark style="background-color: #91CCDB">**Code/Syntax :** [File.rmd](https://github.com/Zen-Rofiqy/STA1312-PSB/blob/main/Project/Tugas%20Prak%201%20Pert%201/G1401211006_Angga-Fathan-Rofiqy_Tugas-Praktikum-1.Rmd) </mark>
+
 # Pertemuan 1
 
 > **Penyiapan Data (R)**
