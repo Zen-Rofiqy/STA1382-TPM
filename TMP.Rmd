@@ -103,20 +103,35 @@ library(httr)
 username <- "zenrofiqy"
 authkey <- "594416325ca5f1711fb40cb5e1795b8c"
 
-url <- "https://www.kaggle.com/datasets/uciml/pima-indians-diabetes-database/download/diabetes.csv"
+url <- "https://www.kaggle.com/datasets/uciml/pima-indians-diabetes-database/download?datasetVersionNumber=1"
+
+
 
 # Lakukan permintaan GET dengan autentikasi
 dataset <- httr::GET(url, httr::authenticate(username, authkey, type = "basic"))
 
-# Simpan file zip ke tempat sementara
-temp <- tempfile(fileext = ".zip")
+# Simpan file CSV ke tempat sementara
+temp <- tempfile(fileext = ".csv")
 writeBin(dataset$content, temp)
 
-# Buka file zip dan baca data CSV
-unzip(temp, exdir = tempdir())
-data <- read.csv(file.path(tempdir(), "diabetes.csv"))
+# Baca data CSV langsung
+data <- read.csv(temp)
 
 # Hapus file sementara
 file.remove(temp)
 
+View(data)
+
+```
+
+# Pertemuan 3
+
+```{r}
+install_load("MASS","tree")
+str(cpus)
+cpus.ltr <- tree(log10(perf) ~ syct + mmin + mmax + chmin + chmax, data=cpus)
+plot(cpus.ltr)
+text(cpus.ltr)
+
+sumary(cpus.ltr)
 ```
