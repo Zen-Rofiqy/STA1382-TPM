@@ -61,8 +61,8 @@
 		{"id":"85e5b0a1a3f38e9c","type":"text","text":"Level 1","x":4726,"y":-334,"width":114,"height":60},
 		{"id":"31cf77b067b9ef62","type":"text","text":"Level 3","x":4726,"y":-76,"width":114,"height":60},
 		{"id":"64457d8dab8adbdc","type":"text","text":"Level 2","x":4726,"y":-202,"width":114,"height":60},
-		{"id":"5be3e2bc3a1909c9","x":3591,"y":463,"width":347,"height":157,"type":"text","text":"Pruning seperti lasso. Kalo alpha = 0, maka pohon semakin besar. \nSemakin besar alpha, semakin sedikit cabang nya"},
-		{"id":"b12ec6857db647d8","x":3972,"y":460,"width":448,"height":320,"type":"text","text":"Kapan menggunakan tree? \n* Ketika sangat sulit untuk menggunakan batasan asumsi pada regresi\n* Disarankan X nya itu kategorik\n\t  Bila numerik, bisa pake diskretisasi. Jika tidak maka akan lama membagi region nya\n* Jika Y nya kategorik, maka bukan JKG lagi"}
+		{"id":"5be3e2bc3a1909c9","type":"text","text":"Pruning seperti lasso. Kalo alpha = 0, maka pohon semakin besar. \nSemakin besar alpha, semakin sedikit cabang nya","x":3591,"y":463,"width":347,"height":157},
+		{"id":"b12ec6857db647d8","type":"text","text":"Kapan menggunakan tree? \n* Ketika sangat sulit untuk menggunakan batasan asumsi pada regresi\n* Disarankan X nya itu kategorik\n\t  Bila numerik, bisa pake diskretisasi. Jika tidak maka akan lama membagi region nya\n* Jika Y nya kategorik, maka bukan JKG lagi","x":3972,"y":460,"width":448,"height":320}
 	],
 	"edges":[
 		{"id":"ed232e6c924a17af","fromNode":"990a163aca54e176","fromSide":"right","toNode":"44b41b19297df53c","toSide":"left"},
