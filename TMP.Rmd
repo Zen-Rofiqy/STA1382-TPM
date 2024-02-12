@@ -134,3 +134,12 @@ text(cpus.ltr)
 
 summary(cpus.ltr)
 ```
+
+# Pertemuan 4
+
+```{r}
+entropy <- function(p) -p * log2(p) - (1-p) * log2(1-p)
+entropy(0.6919)
+entropy(0.6919)
+
+```
