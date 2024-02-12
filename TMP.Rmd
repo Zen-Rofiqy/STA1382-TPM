@@ -143,6 +143,7 @@ Entropy
 p <- 0.6919
 E <- function(p) -p * log2(p) - (1-p) * log2(1-p)
 E(p)
+E(p)
 ```
 
 Information Gain
