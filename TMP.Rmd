@@ -276,3 +276,32 @@ model.02 <- rpart(tertarik ~ jk + kota + single + usia + merokok + budget,
 method="class", control = rpart.control(minsplit = 50))
 rpart.plot(model.02, extra=6)
 ```
+
+```{r}
+data.training <- data.frame(jk, kota, single, usia, merokok, budget, tertarik) 
+prob.prediksi.02 <- predict(model.02, newdata=data.training)
+head(prob.prediksi.02)
+```
+
+```{r}
+prediksi.02 <- factor(ifelse(prob.prediksi.02[,2] > 0.5, 1, 0),
+levels = 0:1, labels = c("Tidak", "Te r t a r i k "))
+
+
+library(caret)
+confusionMatrix(prediksi.02, tertarik)
+```
+
+```{r}
+prediksi.02 <- factor(ifelse(prob.prediksi.02[,2] > 0.6, 1, 0),
+levels = 0:1, labels = c("Tidak", "Te r t a r i k "))
+
+confusionMatrix(prediksi.02, tertarik)
+```
+
+```{r}
+prediksi.02 <- factor(ifelse(prob.prediksi.02[,2] > 0.3, 1, 0),
+levels = 0:1, labels = c("Tidak", "Te r t a r i k "))
+
+confusionMatrix(prediksi.02, tertarik)
+```
