@@ -48,8 +48,27 @@ install_load <- function (package1, ...)  {
 }
 
 install_load("DT","dplyr","ggplot2","gridExtra","MASS","tree")
-
 ```
+
+# Pendahuluan
+
+## Deskripsi Tugas
+
+Suatu perusahaan perbank-kan meneliti 75 jenis skema pinjaman yang telah diberi rating oleh para customernya pada `data ann.csv`.
+
+Variabel yang digunakan ialah:
+
+-   Besar pinjaman (dalam juta rupiah)
+
+-   Lama pembayaran (dalam tahun)
+
+-   Tambahan bunga yang ditetapkan (dalam %)
+
+-   Pembayaran per bulan (dalam 10000)
+
+-   Banyak cash back yang diterapkan pada skema tersebut
+
+**Tujuan** penelitian yang dilakukan ialah **memprediksi rating skema pinjaman** berdasarkan variabel-variabel tersebut. Bantulah peneliti tersebut untuk memprediksi reating skema pinjaman dengan neural network, hitunglah RMSE prediksinya
 
 > **Ketentuan Tugas**
 

@@ -309,7 +309,9 @@ confusionMatrix(prediksi.02, tertarik)
 
 # Pertemuan 5
 
-## **Binary classification**
+## Syntax Kuliah {.tabset}
+
+### **Binary classification**
 
 ```{r}
 library(neuralnet)
@@ -319,7 +321,7 @@ print(nn)
 plot(nn)
 ```
 
-## **Multiclass classification**
+### **Multiclass classification**
 
 ```{r}
 nn2 <- neuralnet(Species ~ Petal.Length + Petal.Width, iris, linear.output = FALSE) 
@@ -329,7 +331,7 @@ print(nn2)
 plot(nn2)
 ```
 
-## **Custom activation function**
+### **Custom activation function**
 
 ```{r}
 softplus <- function(x) log(1 + exp(x))
