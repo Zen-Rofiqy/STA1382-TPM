@@ -221,7 +221,7 @@ scores.tanh <- model.tanh %>% evaluate(test_X, test_y)
 print(scores.tanh)
 ```
 
-MSE dan MAE cukup tinggi, mengindikasikan error prediksi yang besar
+MSE dan MAE cukup tinggi, mengindikasikan error prediksi yang besar.
 
 ```{r}
 keras_train.tanh <- model.tanh %>% predict(train_X)
@@ -232,7 +232,11 @@ postResample(keras_train.tanh[,1], train$rating)
 postResample(keras_test.tanh[,1], test$rating)
 ```
 
-Model dengan 3 hidden layer dengan 128 unit per layer nya yang dikombinasikan dengan fungsi aktifasi **tanh** menghasilkan RMSE sebesar 15.87. Dikatakan bahwa fungsi aktivasi Sigmoid & Tanh Kurang direkomendasikan karena efek "vanishing gradient", tapi kadang digunakan juga.
+Model dengan 3 hidden layer dengan 128 unit per layer nya yang dikombinasikan dengan fungsi aktifasi **tanh** menghasilkan RMSE sebesar 15.87, error cukup besar. Dikatakan bahwa fungsi aktivasi Sigmoid & Tanh Kurang direkomendasikan karena efek "vanishing gradient", tapi kadang digunakan juga. R-squared sangat kecil, model hanya bisa menjelaskan 5,7% variansi target. MAE training 11,65, error absolut cukup tinggi.
+
+> **Kesimpulan**
+
+Model memiliki performa buruk, ditunjukkan oleh error prediksi yang besar dan R-squared kecil. Terjadi overfitting yang ditunjukkan oleh gap antara metric training dan testing. Perlu dilakukan perbaikan arsitektur dan regularisasi model untuk meningkatkan performanya.
 
 # Model Regresi - ReLU
 
@@ -240,7 +244,7 @@ Model dengan 3 hidden layer dengan 128 unit per layer nya yang dikombinasikan de
 
 ```{r message=FALSE, warning=FALSE, echo = FALSE}
 # Membuat model neural network dengan 2 hidden layer
-model2 <- keras_model_sequential() %>%
+model.relu <- keras_model_sequential() %>%
   layer_dense(units = 128, activation = "relu", input_shape = ncol(train_X)) %>%
   layer_dropout(0.3) %>%
   layer_dense(units = 128, activation = "relu") %>%
@@ -250,14 +254,14 @@ model2 <- keras_model_sequential() %>%
   layer_dense(units = 1, activation = "linear")
 
 # Mengkompilasi model
-model2 %>% compile(
+model.relu %>% compile(
   loss = "mean_squared_error",
   optimizer = "adam",
   metrics = list("mean_squared_error", "mean_absolute_error")
 )
 
 # Melakukan tahapan pelatihan model
-history2 <- model2 %>% fit(
+history.relu <- model.relu %>% fit(
   train_X, train_y,
   shuffle = T,
   epochs = 100,
@@ -267,39 +271,39 @@ history2 <- model2 %>% fit(
 ```
 
 ```{r}
-print(model2)
+print(model.relu)
 ```
 
 ```{r dpi=300, fig.height = 15, fig.width = 10, fig.align = "center", message = FALSE, warning=FALSE}
-plot(history2)
+plot(history.relu)
 ```
 
 ## Prediksi
 
 ```{r}
 # Evaluasi Model dengan data Test
-prediksi2 <- predict(model2, test_X)
+prediksi.relu <- predict(model.relu, test_X)
 ```
 
 ```{r}
-head(prediksi2)
+head(prediksi.relu)
 ```
 
 ## Evaluasi Model
 
 ```{r}
 # Mengevaluasi model menggunakan data uji
-scores2 <- model2 %>% evaluate(test_X, test_y)
-print(scores2)
+scores.relu<- model.relu %>% evaluate(test_X, test_y)
+print(scores.relu)
 ```
 
 ```{r}
-keras_train2 <- model2 %>% predict(train_X)
-keras_test2 <- model2 %>% predict(test_X)
+keras_train.relu <- model.relu %>% predict(train_X)
+keras_test.relu <- model.relu %>% predict(test_X)
 # Training Evaluation
-postResample(keras_train2[,1], train$rating)
+postResample(keras_train.relu[,1], train$rating)
 # Testing Evaluation
-postResample(keras_test2[,1], test$rating)
+postResample(keras_test.relu[,1], test$rating)
 ```
 
 Model dengan 3 hidden layer dengan 128 unit per layer nya yang dikombinasikan dengan fungsi aktifasi **ReLU** menghasilkan RMSE yang lebih kecil yakni 6.972. Dikatakan bahwa ReLU Sering menjadi pilihan default untuk hidden layer pada model regresi. Menghasilkan non-linearitas tanpa efek "vanishing gradient".
