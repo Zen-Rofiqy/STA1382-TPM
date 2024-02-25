@@ -100,7 +100,7 @@ data <- read.csv("data ann.csv")
 str(data)
 ```
 
-Dari tipe datanya tidak ada yang perlu diubah.
+Semua peubah merupakan peubah numerik, tidak ada yang perlu diubah.
 
 ## Cek Missing Value
 
@@ -109,6 +109,14 @@ colSums(is.na(data))
 ```
 
 Terlihat bahwa tidak ada missing value.
+
+## Splitting Data & Scaling
+
+Data perlu dilakukan scaling, agar skala dari setiap peubah sama.
+
+```{r}
+
+```
 
 ```{r dpi=300, fig.height = 15, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
 # Memisahkan data menjadi data latih dan data uji (80% data latih, 20% data uji)
