@@ -68,7 +68,7 @@ Variabel yang digunakan ialah:
 
 -   Banyak cash back yang diterapkan pada skema tersebut
 
-**Tujuan** penelitian yang dilakukan ialah **memprediksi rating skema pinjaman** berdasarkan variabel-variabel tersebut. Bantulah peneliti tersebut untuk memprediksi reating skema pinjaman dengan neural network, hitunglah RMSE prediksinya
+**Tujuan** penelitian yang dilakukan ialah **memprediksi rating skema pinjaman** berdasarkan variabel-variabel tersebut. Bantulah peneliti tersebut untuk memprediksi reating skema pinjaman dengan **neural network**, hitunglah **RMSE prediksinya**.
 
 > **Ketentuan Tugas**
 
