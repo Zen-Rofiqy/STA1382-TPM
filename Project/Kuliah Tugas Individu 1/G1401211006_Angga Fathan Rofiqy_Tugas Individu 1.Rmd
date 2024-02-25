@@ -47,7 +47,7 @@ install_load <- function (package1, ...)  {
    } 
 }
 
-install_load("DT","dplyr","ggplot2","gridExtra","MASS","tree")
+install_load("DT","dplyr","ggplot2","gridExtra","MASS","neuralnet")
 ```
 
 # Pendahuluan
@@ -86,4 +86,55 @@ Variabel yang digunakan ialah:
 data <- read.csv("data ann.csv")
 #Data Type
 str(data)
+```
+
+Dari tipe datanya tidak ada yang perlu diubah.
+
+> Cek Missing Value
+
+```{r}
+colSums(is.na(data))
+```
+
+Terlihat bahwa tidak ada missing value.
+
+```{r dpi=300, fig.height = 15, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
+# Memisahkan data menjadi data latih dan data uji (80% data latih, 20% data uji)
+set.seed(123)  # untuk reproducibility
+sample_index <- sample(1:nrow(data), 0.8 * nrow(data))
+train_data <- data[sample_index, ]
+test_data <- data[-sample_index, ]
+
+# Membangun model neural network
+# Anda dapat menyesuaikan jumlah hidden layer dan neuron sesuai kebutuhan
+model <- neuralnet(rating ~ besar.pinjaman + lama.pembayaran + bunga + 
+                     pembayaran.per.bulan + banyak.cash.back,
+                   data = train_data, hidden = c(5, 3), linear.output = TRUE)
+plot(model)
+
+# Melakukan prediksi pada data uji
+predicted <- predict(model, test_data)
+
+# Menghitung RMSE
+rmse <- sqrt(mean((predicted - test_data$rating)^2))
+print(paste("RMSE:", rmse))
+```
+
+```{r dpi=300, fig.height = 15, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
+# Build the neural network model with modifications
+model <- neuralnet(rating ~ besar.pinjaman + lama.pembayaran + bunga + pembayaran.per.bulan + banyak.cash.back,
+                   data = train_data_norm, hidden = c(10, 5), linear.output = TRUE,
+                   act.fct = "logistic", algorithm = "backprop", learningrate = 0.01, 
+                   err.fct = "sse", threshold = 0.01)
+
+# Make predictions on the test data
+predicted <- predict(model, test_data_norm)
+
+# Inverse normalization of predicted values
+predicted_denorm <- predicted * (max(data$rating) - min(data$rating)) + min(data$rating)
+
+# Calculate RMSE
+rmse <- sqrt(mean((predicted_denorm - test_data_norm$rating)^2))
+print(paste("RMSE:", rmse))
+
 ```
