@@ -268,3 +268,5 @@ postResample(keras_train2[,1], train$rating)
 # Testing Evaluation
 postResample(keras_test2[,1], test$rating)
 ```
+
+Model dengan 3 hidden layer dengan 128 unit per layer nya yang dikombinasikan dengan fungsi aktifasi **tanh** menghasilkan RMSE sebesar 15.87. Dikatakan bahwa fungsi aktivasi Sigmoid & Tanh Kurang direkomendasikan karena efek "vanishing gradient", tapi kadang digunakan juga.
