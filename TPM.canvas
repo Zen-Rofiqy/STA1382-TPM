@@ -63,10 +63,11 @@
 		{"id":"64457d8dab8adbdc","type":"text","text":"Level 2","x":4726,"y":-202,"width":114,"height":60},
 		{"id":"5be3e2bc3a1909c9","type":"text","text":"Pruning seperti lasso. Kalo alpha = 0, maka pohon semakin besar. \nSemakin besar alpha, semakin sedikit cabang nya","x":3591,"y":463,"width":347,"height":157},
 		{"id":"b12ec6857db647d8","type":"text","text":"Kapan menggunakan tree? \n* Ketika sangat sulit untuk menggunakan batasan asumsi pada regresi\n* Disarankan X nya itu kategorik\n\t  Bila numerik, bisa pake diskretisasi. Jika tidak maka akan lama membagi region nya\n* Jika Y nya kategorik, maka bukan JKG lagi","x":3972,"y":460,"width":448,"height":320},
-		{"id":"80710b8a847e20d2","x":5359,"y":-437,"width":250,"height":60,"type":"text","text":"# Pertemuan 5"},
-		{"id":"54323b3339005afa","x":5409,"y":-345,"width":400,"height":225,"type":"file","file":"Pasted image 20240219130633.png"},
-		{"id":"520ba67265402020","x":5359,"y":-80,"width":361,"height":120,"type":"text","text":"Feed forward = jalannya informasi\nBack prop = pendugaan parameter"},
-		{"id":"d8813d0ce42baba1","x":5431,"y":89,"width":329,"height":91,"type":"text","text":"untuk tugasnya fungsi linier"}
+		{"id":"80710b8a847e20d2","type":"text","text":"# Pertemuan 5","x":5359,"y":-437,"width":250,"height":60},
+		{"id":"54323b3339005afa","type":"file","file":"Pasted image 20240219130633.png","x":5409,"y":-345,"width":400,"height":225},
+		{"id":"520ba67265402020","type":"text","text":"Feed forward = jalannya informasi\nBack prop = pendugaan parameter","x":5359,"y":-80,"width":361,"height":120},
+		{"id":"d8813d0ce42baba1","type":"text","text":"untuk tugasnya fungsi linier","x":5431,"y":89,"width":329,"height":91},
+		{"id":"9c33ce0ad822ea1e","x":5376,"y":285,"width":704,"height":495,"type":"text","text":"Neural Network harus di scaling dulu. Karena w nya itu dari rentang 0 sampe 1. \n\nOne hot encoder. \nKarena kalo as.factor gak bisa masukin ke funciton nya.\n\nBisa pake labelencoder\n\nEpoch itu beda sama iterasi. Itungannya kalo dipake udah semua data.\nBatch size semakin besar semakin bagus. \n\nFungsi call back \nItu digunain kalo perbedaannya itu sediikit. \n\n"}
 	],
 	"edges":[
 		{"id":"ed232e6c924a17af","fromNode":"990a163aca54e176","fromSide":"right","toNode":"44b41b19297df53c","toSide":"left"},

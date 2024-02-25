@@ -337,3 +337,18 @@ n <- 3
 mse <- 1/n * sum((y - y_)^2)
 print(mse)
 ```
+
+## Praktikum 5
+
+```{r}
+#install.packages("tensorflow")
+#install.packages("keras")
+
+#library("reticulate")
+#virtualenv_create("r-reticulate2", python = install_python())
+#tensorflow::install_tensorflow()
+#keras::install_keras()
+
+# Delete Installation
+#wunlink("~/.virtualenvs/r-tensorflow", recursive = TRUE)
+```

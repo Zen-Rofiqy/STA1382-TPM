@@ -1,0 +1,70 @@
+---
+title: "TMP"
+author: "Angga Fathan Rofiqy"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  rmdformats::downcute:
+    self_contained: true
+    thumbnails: false
+    lightbox: true
+    gallery: true
+    highlight: tango
+    code_folding: show
+    toc_depth: 3
+    number_sections: false
+    toc_float:
+      collapsed: true
+      smooth_scroll: true
+    fig_caption: true
+pkgdown:
+  as_is: true
+---
+
+```{r setup, include=FALSE, echo=FALSE, warning=FALSE, message = FALSE}
+path <- function() gsub  ( "\\\\",  "/",  readClipboard ()  )
+
+require("knitr")
+opts_knit$set(root.dir = "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 6/2. Teknik Pembelajaran Mesin/Project/Kuliah Tugas Individu 1")
+
+#                      -=( Install & Load Package Function )=-
+install_load <- function (package1, ...)  {   
+
+   # convert arguments to vector
+   packages <- c(package1, ...)
+
+   # start loop to determine if each package is installed
+   for(package in packages){
+
+       # if package is installed locally, load
+       if(package %in% rownames(installed.packages()))
+          do.call('library', list(package))
+
+       # if package is not installed locally, download, then load
+       else {
+          install.packages(package)
+          do.call("library", list(package))
+       }
+   } 
+}
+
+install_load("DT","dplyr","ggplot2","gridExtra","MASS","tree")
+
+```
+
+> **Ketentuan Tugas**
+
+-   Gunakan **data ann.csv**
+
+-   Kerjakan prediksi rating skema pinjaman dengan neural network, hitunglah RMSE prediksinya
+
+-   Kirimkan kode R beserta output dan interpretasinya pada file dengan format pdf
+
+-   Batas waktu pengiriman adalah **Hari Senin, tanggal 26 Februari 2024 jam 13:00 WIB** 
+
+# Data Preparation
+
+```{r}
+data <- read.csv("data ann.csv")
+#Data Type
+str(data)
+```
