@@ -309,6 +309,38 @@ confusionMatrix(prediksi.02, tertarik)
 
 # Pertemuan 5
 
+## **Binary classification**
+
+```{r}
+library(neuralnet)
+nn <- neuralnet(Species=="setosa" ~Petal.Length  +Petal.Width, iris, 
+                linear.output = FALSE)
+print(nn) 
+plot(nn)
+```
+
+## **Multiclass classification**
+
+```{r}
+nn2 <- neuralnet(Species ~ Petal.Length + Petal.Width, iris, linear.output = FALSE) 
+names(nn2)
+nn2$act.fct 
+print(nn2)
+plot(nn2)
+```
+
+## **Custom activation function**
+
+```{r}
+softplus <- function(x) log(1 + exp(x))
+nn3  <-  neuralnet((Species  ==  "setosa")  ~  Petal.Length  +  Petal.Width,  iris, 
+linear.output = FALSE, hidden = c(3, 2), act.fct = softplus)
+print(nn3) 
+plot(nn3)
+```
+
+## Tugas
+
 ```{r}
 f.act <- function(x) log(1 + exp(x))
 
