@@ -136,14 +136,18 @@ test_y <- test[, ncol(data)]
 ## Pemodelan
 
 ```{r message=FALSE, warning=FALSE, echo = FALSE}
-# Membuat model neural network dengan 2 hidden layer
+# Membuat model neural network 
 model.tanh <- keras_model_sequential() %>%
+  #Input
   layer_dense(units = 128, activation = "tanh", input_shape = ncol(train_X)) %>%
   layer_dropout(0.3) %>%
+  #Hidden layer 1
   layer_dense(units = 128, activation = "tanh") %>%
   layer_dropout(0.3) %>%
+  #Hidden layer 2
   layer_dense(units = 128, activation = "tanh") %>%
   layer_dropout(0.3) %>%
+  #Output
   layer_dense(units = 1, activation = "linear")
 
 # Mengkompilasi model
@@ -167,9 +171,33 @@ history.tanh <- model.tanh %>% fit(
 print(model.tanh)
 ```
 
+Dari hasil di atas, model ANN memiliki 2 hidden layer. Berikut merupakan informasi lengkapnya:
+
+1.  Model terdiri dari 3 lapisan Dense (fully connected) diikuti oleh Dropout.
+
+2.  Input Layer memiliki 64 unit dengan total parameter 384 (64\*input_dim + 64 bias units)
+
+3.  Dropout pertama tidak menambahkan parameter apa pun. Ini hanya men-dropout sebagian unit saat training.
+
+4.  Lapisan Dense kedua memiliki 64 unit dengan total parameter 4160 (64\*64 + 64 bias units)
+
+5.  Dropout kedua tidak menambahkan parameter lagi.
+
+6.  Lapisan Dense ketiga berfungsi sebagai output layer, memiliki 1 unit untuk regresi. Total parameter 65 (64\*1 + 1 bias unit)
+
+7.  Secara keseluruhan model memiliki 4609 parameter latih yang dapat dipelajari melalui backpropagation gradient descent.
+
+8.  Model menerapkan regularization berupa dropout untuk mencegah overfitting ke data latih.
+
+9.  Arsitektur model cukup sederhana dengan 3 lapisan dense tetapi dropout membantunya menangani overfitting dengan baik.
+
+> **Plot History**
+
 ```{r dpi=300, fig.height = 15, fig.width = 10, fig.align = "center", message = FALSE, warning=FALSE}
 plot(history.tanh)
 ```
+
+Overfitting terjadi ketika data training terus menurun sedangkan validasi malah menaik. Ketiga plot di atas menunjukkan bahwa model tidak mengalami overfitting. Ini berarti bisa dicobakan dengan `layer_dropout` yang lebih kecil.
 
 ## Prediksi
 
@@ -179,8 +207,11 @@ prediksi.tanh <- predict(model.tanh, test_X)
 ```
 
 ```{r}
-head(prediksi.tanh)
+datatable(prediksi.tanh, filter = 'top', 
+          options = list(pageLength = 6))
 ```
+
+Berikut merupakan hasil prediksi dari model ANN - tanh.
 
 ## Evaluasi Model
 
@@ -189,6 +220,8 @@ head(prediksi.tanh)
 scores.tanh <- model.tanh %>% evaluate(test_X, test_y)
 print(scores.tanh)
 ```
+
+MSE dan MAE cukup tinggi, mengindikasikan error prediksi yang besar
 
 ```{r}
 keras_train.tanh <- model.tanh %>% predict(train_X)
