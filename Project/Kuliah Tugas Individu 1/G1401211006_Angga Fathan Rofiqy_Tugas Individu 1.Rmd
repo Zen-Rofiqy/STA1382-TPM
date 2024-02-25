@@ -102,7 +102,7 @@ str(data)
 
 Semua peubah merupakan peubah numerik, tidak ada yang perlu diubah.
 
-## Cek Missing Value
+## Missing Value
 
 ```{r}
 colSums(is.na(data))
@@ -115,7 +115,58 @@ Terlihat bahwa tidak ada missing value.
 Data perlu dilakukan scaling, agar skala dari setiap peubah sama.
 
 ```{r}
+set.seed(123)
 
+# Train-Testing Split
+train.index <- createDataPartition(data$rating, p = 0.8, list = F)
+train <- data[train.index, ]
+test <- data[-train.index, ]
+
+# Feature Scaling (Min-Max)
+preprocessParams <- preProcess(train[, -ncol(data)], method = "range")
+train_X <- as.matrix(predict(preprocessParams, train[, -ncol(data)]))
+test_X <- as.matrix(predict(preprocessParams, test[, -ncol(data)]))
+
+train_y <- train[, ncol(data), drop = FALSE]  
+test_y <- test[, ncol(data), drop = FALSE]    
+```
+
+# Model 
+
+```{r}
+# Arsitektur Model
+model <- keras_model_sequential() %>%
+  layer_dense(units = 64, activation = "relu", input_shape = ncol(train_X)) %>%
+  layer_dense(units = ncol(train_y), activation = "softmax")
+
+# Kompilasi Model
+model %>% compile(
+  loss = "categorical_crossentropy",
+  optimizer = "adam",
+  metrics = c("accuracy")
+)
+
+print(model)
+```
+
+```{r}
+# Training Model
+history <- model %>% fit(
+  train_X, train_y,
+  shuffle = T,
+  epochs = 100,
+  batch_size = 32, 
+  validation_split = 0.2
+)
+```
+
+```{r}
+# Evaluasi Model dengan data Test
+scores <- model %>% evaluate(test_X, test_y)
+```
+
+```{r}
+print(scores)
 ```
 
 ```{r dpi=300, fig.height = 15, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
