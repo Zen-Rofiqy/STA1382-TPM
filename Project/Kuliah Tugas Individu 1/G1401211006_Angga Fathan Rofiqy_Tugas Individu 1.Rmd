@@ -137,7 +137,7 @@ test_y <- test[, ncol(data)]
 
 ```{r message=FALSE, warning=FALSE, echo = FALSE}
 # Membuat model neural network dengan 2 hidden layer
-model <- keras_model_sequential() %>%
+model.tanh <- keras_model_sequential() %>%
   layer_dense(units = 128, activation = "tanh", input_shape = ncol(train_X)) %>%
   layer_dropout(0.3) %>%
   layer_dense(units = 128, activation = "tanh") %>%
@@ -147,14 +147,14 @@ model <- keras_model_sequential() %>%
   layer_dense(units = 1, activation = "linear")
 
 # Mengkompilasi model
-model %>% compile(
+model.tanh %>% compile(
   loss = "mean_squared_error",
   optimizer = "adam",
   metrics = list("mean_squared_error", "mean_absolute_error")
 )
 
 # Melakukan tahapan pelatihan model
-history <- model %>% fit(
+history.tanh <- model.tanh %>% fit(
   train_X, train_y,
   shuffle = T,
   epochs = 100,
@@ -164,39 +164,39 @@ history <- model %>% fit(
 ```
 
 ```{r}
-print(model)
+print(model.tanh)
 ```
 
 ```{r dpi=300, fig.height = 15, fig.width = 10, fig.align = "center", message = FALSE, warning=FALSE}
-plot(history)
+plot(history.tanh)
 ```
 
 ## Prediksi
 
 ```{r}
 # Evaluasi Model dengan data Test
-prediksi <- predict(model, test_X)
+prediksi.tanh <- predict(model.tanh, test_X)
 ```
 
 ```{r}
-head(prediksi)
+head(prediksi.tanh)
 ```
 
 ## Evaluasi Model
 
 ```{r}
 # Mengevaluasi model menggunakan data uji
-scores <- model %>% evaluate(test_X, test_y)
-print(scores)
+scores.tanh <- model.tanh %>% evaluate(test_X, test_y)
+print(scores.tanh)
 ```
 
 ```{r}
-keras_train <- model %>% predict(train_X)
-keras_test <- model %>% predict(test_X)
+keras_train.tanh <- model.tanh %>% predict(train_X)
+keras_test.tanh <- model.tanh %>% predict(test_X)
 # Training Evaluation
-postResample(keras_train[,1], train$rating)
+postResample(keras_train.tanh[,1], train$rating)
 # Testing Evaluation
-postResample(keras_test[,1], test$rating)
+postResample(keras_test.tanh[,1], test$rating)
 ```
 
 Model dengan 3 hidden layer dengan 128 unit per layer nya yang dikombinasikan dengan fungsi aktifasi **tanh** menghasilkan RMSE sebesar 15.87. Dikatakan bahwa fungsi aktivasi Sigmoid & Tanh Kurang direkomendasikan karena efek "vanishing gradient", tapi kadang digunakan juga.
@@ -269,4 +269,4 @@ postResample(keras_train2[,1], train$rating)
 postResample(keras_test2[,1], test$rating)
 ```
 
-Model dengan 3 hidden layer dengan 128 unit per layer nya yang dikombinasikan dengan fungsi aktifasi **tanh** menghasilkan RMSE sebesar 15.87. Dikatakan bahwa fungsi aktivasi Sigmoid & Tanh Kurang direkomendasikan karena efek "vanishing gradient", tapi kadang digunakan juga.
+Model dengan 3 hidden layer dengan 128 unit per layer nya yang dikombinasikan dengan fungsi aktifasi **ReLU** menghasilkan RMSE yang lebih kecil yakni 6.972. Dikatakan bahwa ReLU Sering menjadi pilihan default untuk hidden layer pada model regresi. Menghasilkan non-linearitas tanpa efek "vanishing gradient".
