@@ -52,14 +52,14 @@ install_load <- function (package1, ...)  {
 
 #library("reticulate")
 #virtualenv_create("r-reticulate2", python = install_python())
-#tensorflow::install_tensorflow()
+tensorflow::install_tensorflow()
 #keras::install_keras()
 
 # Delete Installation
 #wunlink("~/.virtualenvs/r-tensorflow", recursive = TRUE)
 
 install_load("DT","dplyr","ggplot2","gridExtra","MASS","neuralnet","tensorflow"
-             ,"keras","caret","lattice")
+             ,"keras","caret","lattice","reticulate")
 ```
 
 # Pendahuluan
@@ -110,6 +110,8 @@ colSums(is.na(data))
 
 Terlihat bahwa tidak ada missing value.
 
+# Model Regresi - Tanh
+
 ## Splitting Data & Scaling
 
 Data perlu dilakukan scaling, agar skala dari setiap peubah sama.
@@ -118,94 +120,151 @@ Data perlu dilakukan scaling, agar skala dari setiap peubah sama.
 set.seed(123)
 
 # Train-Testing Split
-train.index <- createDataPartition(data$rating, p = 0.8, list = F)
+train.index <- createDataPartition(data$rating, p = 0.8, list = FALSE)
 train <- data[train.index, ]
 test <- data[-train.index, ]
 
-# Feature Scaling (Min-Max)
-preprocessParams <- preProcess(train[, -ncol(data)], method = "range")
+# Melakukan Feature Scaling min max (0, 1)
+preprocessParams <- preProcess(train[, -ncol(data)], method=c("range"))
 train_X <- as.matrix(predict(preprocessParams, train[, -ncol(data)]))
 test_X <- as.matrix(predict(preprocessParams, test[, -ncol(data)]))
 
-train_y <- train[, ncol(data), drop = FALSE]  
-test_y <- test[, ncol(data), drop = FALSE]    
+train_y <- train[, ncol(data)]
+test_y <- test[, ncol(data)]
 ```
 
-# Model 
+## Pemodelan
 
-```{r}
-# Arsitektur Model
+```{r message=FALSE, warning=FALSE, echo = FALSE}
+# Membuat model neural network dengan 2 hidden layer
 model <- keras_model_sequential() %>%
-  layer_dense(units = 64, activation = "relu", input_shape = ncol(train_X)) %>%
-  layer_dense(units = ncol(train_y), activation = "softmax")
+  layer_dense(units = 128, activation = "tanh", input_shape = ncol(train_X)) %>%
+  layer_dropout(0.3) %>%
+  layer_dense(units = 128, activation = "tanh") %>%
+  layer_dropout(0.3) %>%
+  layer_dense(units = 128, activation = "tanh") %>%
+  layer_dropout(0.3) %>%
+  layer_dense(units = 1, activation = "linear")
 
-# Kompilasi Model
+# Mengkompilasi model
 model %>% compile(
-  loss = "categorical_crossentropy",
+  loss = "mean_squared_error",
   optimizer = "adam",
-  metrics = c("accuracy")
+  metrics = list("mean_squared_error", "mean_absolute_error")
 )
 
-print(model)
-```
-
-```{r}
-# Training Model
+# Melakukan tahapan pelatihan model
 history <- model %>% fit(
   train_X, train_y,
   shuffle = T,
   epochs = 100,
-  batch_size = 32, 
+  batch_size = 32,
   validation_split = 0.2
 )
 ```
 
 ```{r}
+print(model)
+```
+
+```{r dpi=300, fig.height = 15, fig.width = 10, fig.align = "center", message = FALSE, warning=FALSE}
+plot(history)
+```
+
+## Prediksi
+
+```{r}
 # Evaluasi Model dengan data Test
-scores <- model %>% evaluate(test_X, test_y)
+prediksi <- predict(model, test_X)
 ```
 
 ```{r}
+head(prediksi)
+```
+
+## Evaluasi Model
+
+```{r}
+# Mengevaluasi model menggunakan data uji
+scores <- model %>% evaluate(test_X, test_y)
 print(scores)
 ```
 
-```{r dpi=300, fig.height = 15, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
-# Memisahkan data menjadi data latih dan data uji (80% data latih, 20% data uji)
-set.seed(123)  # untuk reproducibility
-sample_index <- sample(1:nrow(data), 0.8 * nrow(data))
-train_data <- data[sample_index, ]
-test_data <- data[-sample_index, ]
-
-# Membangun model neural network
-# Anda dapat menyesuaikan jumlah hidden layer dan neuron sesuai kebutuhan
-model <- neuralnet(rating ~ besar.pinjaman + lama.pembayaran + bunga + 
-                     pembayaran.per.bulan + banyak.cash.back,
-                   data = train_data, hidden = c(5, 3), linear.output = TRUE)
-plot(model)
-
-# Melakukan prediksi pada data uji
-predicted <- predict(model, test_data)
-
-# Menghitung RMSE
-rmse <- sqrt(mean((predicted - test_data$rating)^2))
-print(paste("RMSE:", rmse))
+```{r}
+keras_train <- model %>% predict(train_X)
+keras_test <- model %>% predict(test_X)
+# Training Evaluation
+postResample(keras_train[,1], train$rating)
+# Testing Evaluation
+postResample(keras_test[,1], test$rating)
 ```
 
-```{r dpi=300, fig.height = 15, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
-# Build the neural network model with modifications
-model <- neuralnet(rating ~ besar.pinjaman + lama.pembayaran + bunga + pembayaran.per.bulan + banyak.cash.back,
-                   data = train_data_norm, hidden = c(10, 5), linear.output = TRUE,
-                   act.fct = "logistic", algorithm = "backprop", learningrate = 0.01, 
-                   err.fct = "sse", threshold = 0.01)
+Model dengan 3 hidden layer dengan 128 unit per layer nya yang dikombinasikan dengan fungsi aktifasi **tanh** menghasilkan RMSE sebesar 15.87. Dikatakan bahwa fungsi aktivasi Sigmoid & Tanh Kurang direkomendasikan karena efek "vanishing gradient", tapi kadang digunakan juga.
 
-# Make predictions on the test data
-predicted <- predict(model, test_data_norm)
+# Model Regresi - ReLU
 
-# Inverse normalization of predicted values
-predicted_denorm <- predicted * (max(data$rating) - min(data$rating)) + min(data$rating)
+## Pemodelan
 
-# Calculate RMSE
-rmse <- sqrt(mean((predicted_denorm - test_data_norm$rating)^2))
-print(paste("RMSE:", rmse))
+```{r message=FALSE, warning=FALSE, echo = FALSE}
+# Membuat model neural network dengan 2 hidden layer
+model2 <- keras_model_sequential() %>%
+  layer_dense(units = 128, activation = "relu", input_shape = ncol(train_X)) %>%
+  layer_dropout(0.3) %>%
+  layer_dense(units = 128, activation = "relu") %>%
+  layer_dropout(0.3) %>%
+  layer_dense(units = 128, activation = "relu") %>%
+  layer_dropout(0.3) %>%
+  layer_dense(units = 1, activation = "linear")
 
+# Mengkompilasi model
+model2 %>% compile(
+  loss = "mean_squared_error",
+  optimizer = "adam",
+  metrics = list("mean_squared_error", "mean_absolute_error")
+)
+
+# Melakukan tahapan pelatihan model
+history2 <- model2 %>% fit(
+  train_X, train_y,
+  shuffle = T,
+  epochs = 100,
+  batch_size = 32,
+  validation_split = 0.2
+)
+```
+
+```{r}
+print(model2)
+```
+
+```{r dpi=300, fig.height = 15, fig.width = 10, fig.align = "center", message = FALSE, warning=FALSE}
+plot(history2)
+```
+
+## Prediksi
+
+```{r}
+# Evaluasi Model dengan data Test
+prediksi2 <- predict(model2, test_X)
+```
+
+```{r}
+head(prediksi2)
+```
+
+## Evaluasi Model
+
+```{r}
+# Mengevaluasi model menggunakan data uji
+scores2 <- model2 %>% evaluate(test_X, test_y)
+print(scores2)
+```
+
+```{r}
+keras_train2 <- model2 %>% predict(train_X)
+keras_test2 <- model2 %>% predict(test_X)
+# Training Evaluation
+postResample(keras_train2[,1], train$rating)
+# Testing Evaluation
+postResample(keras_test2[,1], test$rating)
 ```
