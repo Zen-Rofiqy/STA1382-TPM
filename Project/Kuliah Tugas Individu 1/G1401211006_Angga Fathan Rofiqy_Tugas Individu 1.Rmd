@@ -47,7 +47,19 @@ install_load <- function (package1, ...)  {
    } 
 }
 
-install_load("DT","dplyr","ggplot2","gridExtra","MASS","neuralnet")
+#install.packages("tensorflow")
+#install.packages("keras")
+
+#library("reticulate")
+#virtualenv_create("r-reticulate2", python = install_python())
+#tensorflow::install_tensorflow()
+#keras::install_keras()
+
+# Delete Installation
+#wunlink("~/.virtualenvs/r-tensorflow", recursive = TRUE)
+
+install_load("DT","dplyr","ggplot2","gridExtra","MASS","neuralnet","tensorflow"
+             ,"keras","caret","lattice")
 ```
 
 # Pendahuluan
@@ -80,7 +92,7 @@ Variabel yang digunakan ialah:
 
 -   Batas waktu pengiriman adalah **Hari Senin, tanggal 26 Februari 2024 jam 13:00 WIB** 
 
-# Data Preparation
+## Data
 
 ```{r}
 data <- read.csv("data ann.csv")
@@ -90,7 +102,7 @@ str(data)
 
 Dari tipe datanya tidak ada yang perlu diubah.
 
-> Cek Missing Value
+## Cek Missing Value
 
 ```{r}
 colSums(is.na(data))
