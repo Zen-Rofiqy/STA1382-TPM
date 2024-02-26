@@ -81,6 +81,8 @@ theme2 <- list(
 )
 ```
 
+> <mark style="background-color: #91CCDB">**Code/Syntax :** [File.rmd](https://github.com/Zen-Rofiqy/STA1382-TPM/blob/main/Project/Kuliah%20Tugas%20Individu%201/G1401211006_Angga%20Fathan%20Rofiqy_Tugas%20Individu%201.Rmd) </mark>
+
 # Pendahuluan
 
 ## Deskripsi Tugas
