@@ -266,7 +266,7 @@ Overfitting terjadi ketika data training terus menurun sedangkan validasi malah 
 
 ```{r}
 # Evaluasi Model dengan data Test
-prediksi.tanh <- predict(model.tanh, test_X)
+prediksi.tanh <- predict(model.tanh, test_X) %>% as.data.frame()
 ```
 
 ```{r}
@@ -274,7 +274,46 @@ datatable(prediksi.tanh, filter = 'top',
           options = list(pageLength = 6))
 ```
 
-Berikut merupakan hasil prediksi dari model ANN - tanh.
+```{r dpi=300, fig.height = 10, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
+chart <-
+ggplot(prediksi.tanh, aes(x=V1, 
+                     y='')) +
+  #Violin
+  geom_violin(scale="count", fill='#4692A0', color='black', alpha=.65, 
+                    trim = FALSE) +
+  #Boxplot
+  geom_boxplot(fill='#49535C', color='black',
+                     outlier.size=4, outlier.color='#49535C', 
+                     notch=F, width=0.2) +
+  #Mean Marker
+  stat_summary(fun = mean, geom = "point", shape = 16, size = 4, 
+               color = "#AB8264") +
+  theme(plot.title = element_text(hjust=0.5),legend.position = "none") +
+  labs(x = "\nPrediksi Rating", y='',
+       title = "Sebaran Prediksi Rating Skema Pinjaman") + theme2 +
+  #Tambah Mean Value
+  geom_richtext(
+    data = data.frame(x = mean(prediksi.tanh$V1), y = 1.25, 
+                      label = paste("Mean:", 
+                                    round(mean(prediksi.tanh$V1), 
+                                          2))),
+    aes(x, y, label = label), size = 7, color = "white", 
+    fill = "#AB8264", box.color = "white", parse = TRUE
+  ) +
+  #Tambah panah
+  geom_segment(aes(x = mean(prediksi.tanh$V1), 
+                   xend = mean(prediksi.tanh$V1), 
+                   y = 1, 
+                   yend = 1.2225), 
+               arrow = arrow(type = "closed", length = unit(0.1, "inches")), 
+               lineend = "round", color = "#AB8264", size=1.5)
+chart
+#Export Chart
+ggsave("02_Sebaran Prediksi Rating Skema Pinjaman.png", chart, path = export.chart,
+        dpi = 300, height = 10, width = 20)
+```
+
+Hasil prediksi nya justru lebih buruk daripada rating data aslinya, bahkan nilai tertinggi nya saja berada dibawah 35.
 
 ## Evaluasi Model
 
@@ -306,14 +345,18 @@ Model memiliki performa buruk, ditunjukkan oleh error prediksi yang besar dan R-
 ## Pemodelan
 
 ```{r message=FALSE, warning=FALSE, echo = FALSE}
-# Membuat model neural network dengan 2 hidden layer
+# Membuat model neural network 
 model.relu <- keras_model_sequential() %>%
+  #Input
   layer_dense(units = 128, activation = "relu", input_shape = ncol(train_X)) %>%
   layer_dropout(0.3) %>%
+  #Hidden layer 1
   layer_dense(units = 128, activation = "relu") %>%
   layer_dropout(0.3) %>%
+  #Hidden layer 2
   layer_dense(units = 128, activation = "relu") %>%
   layer_dropout(0.3) %>%
+  #Output
   layer_dense(units = 1, activation = "linear")
 
 # Mengkompilasi model
@@ -337,20 +380,74 @@ history.relu <- model.relu %>% fit(
 print(model.relu)
 ```
 
+Dari hasil di atas, model ANN memiliki 2 hidden layer. Berikut merupakan informasi lengkapnya:
+
+1.  Model neural network untuk regresi dengan 4 lapisan dense dan 3 lapisan dropout di antaranya.
+
+2.  Input layer memiliki 128 unit, hidden layer 1 dan 2 masing-masing 128 unit, output layer 1 unit.
+
+3.  Total parameter sebanyak 33,921 yang dilatihkan.
+
+4.  Dropout diterapkan untuk mencegah overfitting.
+
 ```{r dpi=300, fig.height = 15, fig.width = 10, fig.align = "center", message = FALSE, warning=FALSE}
 plot(history.relu)
 ```
+
+Overfitting terjadi ketika data training terus menurun sedangkan validasi malah menaik. Ketiga plot di atas menunjukkan bahwa model beberapa kali mengalami overfitting (jarang). Ini berarti bisa dicobakan dengan `layer_dropout` yang lebih besar.
 
 ## Prediksi
 
 ```{r}
 # Evaluasi Model dengan data Test
-prediksi.relu <- predict(model.relu, test_X)
+prediksi.relu <- predict(model.relu, test_X) %>% as.data.frame()
 ```
 
 ```{r}
-head(prediksi.relu)
+datatable(prediksi.relu, filter = 'top', 
+          options = list(pageLength = 6))
 ```
+
+```{r dpi=300, fig.height = 10, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
+chart <-
+ggplot(prediksi.tanh, aes(x=V1, 
+                     y='')) +
+  #Violin
+  geom_violin(scale="count", fill='#4692A0', color='black', alpha=.65, 
+                    trim = FALSE) +
+  #Boxplot
+  geom_boxplot(fill='#49535C', color='black',
+                     outlier.size=4, outlier.color='#49535C', 
+                     notch=F, width=0.2) +
+  #Mean Marker
+  stat_summary(fun = mean, geom = "point", shape = 16, size = 4, 
+               color = "#AB8264") +
+  theme(plot.title = element_text(hjust=0.5),legend.position = "none") +
+  labs(x = "\nPrediksi Rating", y='',
+       title = "Sebaran Prediksi Rating Skema Pinjaman") + theme2 +
+  #Tambah Mean Value
+  geom_richtext(
+    data = data.frame(x = mean(prediksi.tanh$V1), y = 1.25, 
+                      label = paste("Mean:", 
+                                    round(mean(prediksi.tanh$V1), 
+                                          2))),
+    aes(x, y, label = label), size = 7, color = "white", 
+    fill = "#AB8264", box.color = "white", parse = TRUE
+  ) +
+  #Tambah panah
+  geom_segment(aes(x = mean(prediksi.tanh$V1), 
+                   xend = mean(prediksi.tanh$V1), 
+                   y = 1, 
+                   yend = 1.2225), 
+               arrow = arrow(type = "closed", length = unit(0.1, "inches")), 
+               lineend = "round", color = "#AB8264", size=1.5)
+chart
+#Export Chart
+ggsave("03_Sebaran Prediksi Rating Skema Pinjaman.png", chart, path = export.chart,
+        dpi = 300, height = 10, width = 20)
+```
+
+Sama seperti sebelumnya, hasil prediksi nya justru lebih buruk daripada rating data aslinya, bahkan nilai tertinggi nya saja berada dibawah 35.
 
 ## Evaluasi Model
 
