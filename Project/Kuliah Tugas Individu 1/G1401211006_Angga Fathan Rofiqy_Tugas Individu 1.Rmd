@@ -54,6 +54,7 @@ install_load <- function (package1, ...)  {
 #install.packages("keras")
 
 library("reticulate")
+library(tensorflow); library(caret); library(keras); library(lattice)
 #virtualenv_create("r-reticulate2", python = install_python())
 #tensorflow::install_tensorflow()
 #keras::install_keras()
@@ -179,7 +180,6 @@ Rating Skema pinjaman ternyata tidak terlalu bagus. Dari skala 0 sampai 100, med
 Data perlu dilakukan scaling, agar skala dari setiap peubah sama.
 
 ```{r message=FALSE, warning=FALSE}
-library(tensorflow); library(caret); library(keras); library(lattice); library(reticulate)
 set.seed(123)
 
 # Train-Testing Split
