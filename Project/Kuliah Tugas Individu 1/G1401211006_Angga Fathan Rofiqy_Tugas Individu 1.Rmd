@@ -198,7 +198,7 @@ test_y <- test[, ncol(data)]
 
 ## Pemodelan
 
-```{r message=FALSE, warning=FALSE, echo = FALSE}
+```{r message=FALSE, warning=FALSE, results='hide', echo=TRUE}
 # Membuat model neural network 
 model.tanh <- keras_model_sequential() %>%
   #Input
@@ -344,7 +344,7 @@ Model memiliki performa buruk, ditunjukkan oleh error prediksi yang besar dan R-
 
 ## Pemodelan
 
-```{r message=FALSE, warning=FALSE, echo = FALSE}
+```{r message=FALSE, warning=FALSE, results='hide', echo=TRUE}
 # Membuat model neural network 
 model.relu <- keras_model_sequential() %>%
   #Input
