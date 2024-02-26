@@ -26,6 +26,9 @@ path <- function() gsub  ( "\\\\",  "/",  readClipboard ()  )
 require("knitr")
 opts_knit$set(root.dir = "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 6/2. Teknik Pembelajaran Mesin/Project/Kuliah Tugas Individu 1")
 
+#Export chart
+export.chart <- "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 6/2. Teknik Pembelajaran Mesin/Project/Kuliah Tugas Individu 1/Chart"
+
 #                      -=( Install & Load Package Function )=-
 install_load <- function (package1, ...)  {   
 
@@ -50,16 +53,31 @@ install_load <- function (package1, ...)  {
 #install.packages("tensorflow")
 #install.packages("keras")
 
-#library("reticulate")
+library("reticulate")
 #virtualenv_create("r-reticulate2", python = install_python())
-tensorflow::install_tensorflow()
+#tensorflow::install_tensorflow()
 #keras::install_keras()
 
 # Delete Installation
 #wunlink("~/.virtualenvs/r-tensorflow", recursive = TRUE)
 
-install_load("DT","dplyr","ggplot2","gridExtra","MASS","neuralnet","tensorflow"
-             ,"keras","caret","lattice","reticulate")
+install_load("DT","dplyr","ggplot2","gridExtra","MASS","neuralnet")
+
+
+theme2 <- list(
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, 
+                                   margin = margin(b = 10, t=0)),
+        axis.text.y = element_text(vjust = 0.5, face = "bold", 
+                                   margin = margin(l = 20, r = -40)),
+        plot.title = element_text(hjust = 0.5, face = "bold"),
+        text = element_text(size = 30),
+        plot.subtitle = element_text(hjust = 0.5),
+        panel.background = element_rect(fill = 'transparent'),
+        plot.background = element_rect(fill='transparent', color=NA),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()
+        ) 
+)
 ```
 
 # Pendahuluan
@@ -110,13 +128,58 @@ colSums(is.na(data))
 
 Terlihat bahwa tidak ada missing value.
 
+## Sebaran Rating
+
+```{r dpi=300, fig.height = 10, fig.width = 20, fig.align = "center", message = FALSE, warning=FALSE}
+install_load('ggtext')
+chart <-
+ggplot(data, aes(x=rating, 
+                     y='')) +
+  #Violin
+  geom_violin(scale="count", fill='#4692A0', color='black', alpha=.65, 
+                    trim = FALSE) +
+  #Boxplot
+  geom_boxplot(fill='#49535C', color='black',
+                     outlier.size=4, outlier.color='#49535C', 
+                     notch=T, width=0.2) +
+  #Mean Marker
+  stat_summary(fun = mean, geom = "point", shape = 16, size = 4, 
+               color = "#AB8264") +
+  theme(plot.title = element_text(hjust=0.5),legend.position = "none") +
+  labs(x = "\nRating", y='',
+       title = "Sebaran Rating Skema Pinjaman") + theme2 +
+  #Tambah Mean Value
+  geom_richtext(
+    data = data.frame(x = mean(data$rating), y = 1.25, 
+                      label = paste("Mean:", 
+                                    round(mean(data$rating), 
+                                          2))),
+    aes(x, y, label = label), size = 7, color = "white", 
+    fill = "#AB8264", box.color = "white", parse = TRUE
+  ) +
+  #Tambah panah
+  geom_segment(aes(x = mean(data$rating), 
+                   xend = mean(data$rating), 
+                   y = 1, 
+                   yend = 1.2225), 
+               arrow = arrow(type = "closed", length = unit(0.1, "inches")), 
+               lineend = "round", color = "#AB8264", size=1.5)
+chart
+#Export Chart
+ggsave("01_Sebaran Rating Skema Pinjaman.png", chart, path = export.chart,
+        dpi = 300, height = 10, width = 20)
+```
+
+Rating Skema pinjaman ternyata tidak terlalu bagus. Dari skala 0 sampai 100, median dan rata-rata rating nya berada dibawah 50.
+
 # Model Regresi - Tanh
 
 ## Splitting Data & Scaling
 
 Data perlu dilakukan scaling, agar skala dari setiap peubah sama.
 
-```{r}
+```{r message=FALSE, warning=FALSE}
+library(tensorflow); library(caret); library(keras); library(lattice); library(reticulate)
 set.seed(123)
 
 # Train-Testing Split
