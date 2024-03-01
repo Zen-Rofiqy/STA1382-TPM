@@ -1,0 +1,465 @@
+---
+title: "SVM"
+author: "Muhammad Irsyad Robbani"
+date: "2024-02-28"
+output: 
+    rmdformats::downcute:
+    downcute_theme: "chaos"
+    self_contained: true
+    code_download: false
+    toc_float: true
+    toc_depth: 3
+    df_print: paged
+    code_folding: show
+    theme: cerulean
+    highlight: "kate"
+    fig_height: 5
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Pendahuluan
+
+***Support Vector Machine*** **(SVM)** adalah algoritma pembelajaran mesin yang digunakan untuk masalah klasifikasi dan regresi. SVM mencari *hyperplane* (bidang pemisah) terbaik yang memisahkan kelas data yang berbeda dengan jarak maksimum antara kelas. SVM dapat digunakan untuk memproses data yang memiliki fitur berdimensi tinggi dan dapat menangani masalah klasifikasi biner (dua kelas) maupun multi-kelas.
+
+Konsep dasar di balik SVM adalah mencari hyperplane optimal yang dapat memaksimalkan margin antara dua kelas data. Margin adalah jarak antara *hyperplane* dan titik terdekat dari setiap kelas. SVM memilih *hyperplane* yang memberikan margin maksimum antara kelas, dengan harapan dapat memperbaiki kinerja model saat memprediksi data baru.
+
+SVM juga menggunakan *kernel function* yang memetakan data ke ruang dimensi yang lebih tinggi, di mana data dapat lebih mudah dipisahkan. Contohnya, kernel dapat digunakan untuk memetakan data linier yang tidak dapat dipisahkan secara linier ke dalam dimensi yang lebih tinggi agar dapat dipisahkan dengan *hyperplane*.
+
+## 
+
+Kegunaan
+
+SVM adalah algoritma yang sangat fleksibel dan dapat diterapkan dalam berbagai bidang yang membutuhkan pengolahan data. Beberapa kegunaan SVM antara lain:
+
+1.  Klasifikasi: SVM digunakan untuk memisahkan data menjadi kelas yang berbeda, misalnya untuk mengklasifikasikan email sebagai spam atau tidak spam, atau untuk membedakan antara gambar kucing dan anjing.
+
+2.  Regresi: SVM dapat digunakan untuk memprediksi nilai numerik, misalnya untuk memprediksi harga rumah berdasarkan fitur seperti lokasi, ukuran, dan jumlah kamar tidur.
+
+3.  Deteksi anomali: SVM digunakan untuk mendeteksi anomali atau pencilan dalam data, misalnya dalam deteksi fraud pada transaksi kartu kredit atau dalam mendeteksi kecelakaan pesawat.
+
+4.  *Clustering*: SVM digunakan untuk mengelompokkan data ke dalam kelompok yang berbeda, seperti dalam pengelompokan data pelanggan berdasarkan preferensi atau perilaku belanja.
+
+5.  Analisis citra: SVM digunakan dalam pengolahan citra untuk membedakan antara objek dan latar belakang dalam gambar, atau untuk mengklasifikasikan jenis objek dalam gambar.
+
+6.  Bioinformatika: SVM digunakan dalam bioinformatika untuk memprediksi protein atau untuk mengklasifikasikan tipe sel berdasarkan fitur seperti ukuran dan bentuk.
+
+## Kelebihan dan Kekurangan
+
+**Kelebihan SVM:**
+
+1.  Efektif pada data yang kompleks: SVM dapat bekerja dengan baik pada data yang sangat kompleks dengan banyak fitur dan tidak teratur.
+
+2.  Menangani masalah kelas yang tidak seimbang: SVM dapat menangani masalah kelas yang tidak seimbang dengan memperhatikan kelas minoritas dan mengoptimalkan margin untuk kelas tersebut.
+
+3.  Toleran terhadap *overfitting*: SVM dapat mengurangi risiko *overfitting* dengan menggunakan parameter yang tepat dan teknik kernel.
+
+4.  Tepat dan akurat: SVM merupakan salah satu algoritma pembelajaran mesin yang memiliki tingkat akurasi yang sangat baik dalam masalah klasifikasi dan regresi.
+
+5.  Dapat mengatasi masalah dengan dimensi yang tinggi: SVM efektif dalam menangani masalah dengan fitur berdimensi tinggi, seperti pada data citra dan teks.
+
+**Kekurangan SVM:**
+
+1.  Memiliki kompleksitas perhitungan yang tinggi: SVM membutuhkan waktu komputasi yang lama pada data yang sangat besar, sehingga dapat memakan waktu yang lama untuk proses pelatihan.
+
+2.  Memerlukan *tuning parameter* yang tepat: SVM memerlukan *tuning parameter* yang tepat untuk mengoptimalkan kinerja model. Jika parameter tidak dipilih dengan benar, kinerja model dapat menurun.
+
+3.  Tidak dapat menangani data yang hilang: SVM tidak dapat menangani data yang hilang atau data yang tidak lengkap.
+
+4.  Tidak cocok untuk data non-linier: SVM mungkin tidak efektif untuk data yang tidak dapat dipisahkan secara linier jika tidak menggunakan teknik kernel.
+
+5.  Tidak cocok untuk aplikasi *online*: SVM memerlukan waktu pelatihan yang lama, sehingga tidak cocok untuk aplikasi yang memerlukan pelatihan model secara *online* atau *real-time*.
+
+## Jenis SVM
+
+Ada beberapa jenis SVM yang dibedakan pada kernel dan parameter yang digunakan, dan cara mendefinisikan *hyperplane*. Beberapa jenis SVM yang umum digunakan adalah sebagai berikut:
+
+1.  **Linear SVM**: Linear SVM mencari hyperplane linier yang memisahkan kelas dengan jarak maksimum. Linear SVM efektif untuk data yang dapat dipisahkan secara linier. Linear SVM menggunakan fungsi kernel linier untuk memisahkan kelas dalam ruang fitur. Linear SVM lebih cepat dan lebih cocok untuk dataset dengan fitur yang tidak terlalu kompleks.
+
+2.  **Non-Linear SVM**: Non-Linear SVM menggunakan fungsi kernel non-linier untuk memisahkan kelas dalam ruang fitur yang tidak linear. Non-Linear SVM efektif untuk data yang tidak dapat dipisahkan secara linier. Beberapa jenis kernel non-linear yang digunakan pada SVM adalah kernel polinomial, kernel radial basis function (RBF), dan kernel sigmoid.
+
+3.  **SVM kernel radial basis function (RBF)**: SVM RBF menggunakan kernel RBF untuk memetakan data ke dalam dimensi yang lebih tinggi, dan kemudian mencari hyperplane yang memisahkan kelas. SVM RBF efektif untuk data yang memiliki banyak fitur dan tidak teratur.
+
+4.  **One-Class SVM**: One-Class SVM adalah variasi SVM yang digunakan untuk deteksi outlier. One-Class SVM mencoba untuk mempelajari model dari satu kelas data saja (kelas yang normal) dan kemudian menggunakan model ini untuk mengidentifikasi data yang bukan dari kelas tersebut (outlier).
+
+5.  **Multi-Class SVM**: Multi-Class SVM dapat menangani masalah dengan lebih dari dua kelas. Multi-Class SVM menggunakan teknik seperti one-vs-all atau one-vs-one untuk memecahkan masalah klasifikasi multi-kelas.
+
+6.  **Support Vector Regression (SVR)**: SVR adalah variasi SVM untuk regresi yang menggunakan margin sebagai batasan toleransi kesalahan dalam prediksi. SVR mencoba untuk meminimalkan jumlah titik data yang jatuh di luar margin batas toleransi kesalahan. SVR digunakan untuk memprediksi nilai numerik, dengan mencari hyperplane yang memberikan nilai prediksi yang paling dekat dengan nilai yang sebenarnya.
+
+7.  **Semi Supervised Support Vector Machine (S3VM)**: SVM yang standar (biasa) hanya diterapkan pada supervised learning. S3VM digunakan dalam kasus-kasus di mana data yang tersedia sebagian besar tidak berlabel atau hanya sebagian kecil yang berlabel. Dalam pembelajaran mesin tradisional, model yang dihasilkan hanya dapat belajar dari data yang memiliki label, yang mana label tersebut memberikan informasi mengenai kelas mana data tersebut termasuk. Namun, di dunia nyata, seringkali sulit dan mahal untuk mengumpulkan data yang berlabel secara lengkap. Oleh karena itu, S3VM digunakan untuk memanfaatkan data yang tidak berlabel atau kurang berlabel untuk meningkatkan akurasi klasifikasi.
+
+## Terminologi pada SVM
+
+Berikut adalah beberapa terminologi umum pada SVM:
+
+1.  **Kernel**: Fungsi kernel digunakan untuk memetakan data ke dalam dimensi yang lebih tinggi, di mana data dapat lebih mudah dipisahkan. Beberapa jenis kernel yang umum digunakan adalah linear, polynomial, dan radial basis function (RBF).
+
+2.  **Hyperplane**: Hyperplane adalah batas keputusan yang memisahkan kelas pada ruang fitur. Dalam kasus SVM linier, hyperplane adalah garis, sedangkan dalam SVM non-linier, hyperplane dapat berupa permukaan yang kompleks.
+
+3.  **Support vector**: Support vector adalah data yang paling dekat dengan hyperplane dan mempengaruhi lokasi hyperplane. Support vector digunakan dalam perhitungan margin dan dalam menentukan koefisien pembobotan.
+
+4.  **Margin**: Margin adalah jarak antara hyperplane dan support vector yang terdekat. Margin harus maksimum agar kelas dapat dipisahkan dengan jarak yang optimal.
+
+5.  **C**: Parameter C (Cost) pada SVM digunakan untuk mengontrol penalti pada kesalahan klasifikasi. C yang lebih besar akan memperbolehkan lebih banyak kesalahan klasifikasi pada data pelatihan, sedangkan C yang lebih kecil akan menghasilkan model yang lebih rumit dan lebih sensitif terhadap kesalahan.
+
+6.  **Gamma**: Parameter gamma pada SVM digunakan dalam kernel RBF untuk mengontrol bentuk hyperplane. Gamma yang lebih besar akan menghasilkan hyperplane yang lebih kompleks dan lebih sensitif terhadap data pelatihan, sedangkan gamma yang lebih kecil akan menghasilkan hyperplane yang lebih sederhana dan lebih bias terhadap data yang tidak terlihat.
+
+## 
+
+Konsep Dasar
+
+Konsep dasar SVM adalah mencari hyperplane terbaik yang dapat memisahkan dua kelas data dengan jarak maksimum. SVM memerlukan data pelatihan untuk menemukan hyperplane terbaik. Data pelatihan terdiri dari pasangan input dan output, di mana input adalah fitur atau atribut dari suatu objek, dan output adalah label atau kelas objek tersebut. SVM kemudian memetakan data pelatihan ke dalam ruang fitur yang lebih tinggi menggunakan teknik kernel, seperti kernel linear, kernel polinomial, atau kernel radial.
+
+Setelah data pelatihan dipetakan ke dalam ruang fitur yang lebih tinggi, SVM mencari hyperplane terbaik yang dapat memisahkan kelas data dengan jarak maksimum. Hyperplane terbaik adalah hyperplane yang memiliki margin terbesar di antara semua kemungkinan hyperplane.
+
+SVM juga memiliki parameter yang dapat diatur untuk mengoptimalkan kinerjanya, seperti parameter C yang mengatur trade-off antara margin dan kesalahan klasifikasi, dan parameter kernel yang menentukan jenis kernel yang digunakan untuk memetakan data ke dalam ruang fitur yang lebih tinggi.
+
+SVM dapat digunakan pada masalah klasifikasi biner dan multikelas, serta dapat menangani data yang tidak dapat dipisahkan secara linier dengan menggunakan teknik kernel. SVM juga dapat digunakan pada data dengan jumlah fitur yang besar, karena SVM hanya menggunakan subset dari data pelatihan yang merupakan support vector. Namun, SVM sensitif terhadap keberadaan pencilan (outlier) dan dapat menghasilkan model yang kompleks jika terlalu banyak fitur atau jika parameter kernel yang tidak tepat digunakan.
+
+## 
+
+Hyperplane
+
+Hyperplane pada SVM adalah batas keputusan yang memisahkan kelas pada ruang fitur. Hyperplane didefinisikan oleh model SVM sebagai fungsi linear atau non-linear yang digunakan untuk mengklasifikasikan data. Dalam SVM linier, hyperplane adalah garis linear yang memisahkan dua kelas data. Namun, dalam SVM non-linier, hyperplane bisa berbentuk permukaan yang kompleks untuk memisahkan kelas data.
+
+Hyperplane dihitung dalam SVM dengan menggunakan pembobotan dari setiap fitur pada data pelatihan. Pembobotan ini disebut vektor pembobotan, yang disesuaikan selama proses pelatihan untuk meminimalkan kesalahan klasifikasi dan memaksimalkan jarak margin antara kelas.
+
+Hyperplane memiliki peran yang penting dalam SVM, karena dapat membantu membedakan kelas data dengan jelas. Oleh karena itu, SVM berusaha untuk menemukan hyperplane yang optimal, yang memisahkan kelas data dengan jarak maksimum. Margin adalah jarak antara hyperplane dan support vector terdekat, dan SVM berusaha untuk memaksimalkan margin ini agar kelas dapat dipisahkan dengan jarak yang optimal. Dengan kata lain, SVM mencari hyperplane terbaik yang memaksimalkan margin antara kelas data sehingga memberikan keputusan klasifikasi yang lebih akurat pada data baru yang belum pernah dilihat sebelumnya.
+
+# Libraries
+
+```{r, warning = FALSE}
+# Attach Packages
+library(tidyverse)    # data manipulation and visualization
+library(kernlab)      # SVM methodology
+library(e1071)        # SVM methodology
+library(ISLR)         # contains example data set "Khan"
+library(RColorBrewer) # customized coloring of plots
+library(caret)
+```
+
+# Maximal Margin Classifier
+
+Margin pada SVM adalah jarak antara hyperplane dan support vector terdekat, yaitu titik-titik pada kelas yang paling dekat dengan hyperplane. Maximal Margin Classifier mencari hyperplane yang memiliki margin terbesar di antara semua kemungkinan hyperplane. Dengan kata lain, Maximal Margin Classifier mencari hyperplane yang memisahkan kelas dengan jarak maksimum, sehingga dapat mengurangi kemungkinan terjadinya kesalahan klasifikasi.
+
+Proses Maximal Margin Classifier dimulai dengan memilih dua support vector terdekat, yaitu titik-titik pada masing-masing kelas yang paling dekat dengan hyperplane. Kemudian, margin dihitung sebagai jarak antara kedua support vector tersebut. Maximal Margin Classifier akan mencari hyperplane yang memisahkan kelas dengan jarak maksimum di antara semua kemungkinan hyperplane yang memenuhi syarat bahwa semua data berada di sisi yang benar dari hyperplane.
+
+Maximal Margin Classifier dapat digunakan pada data yang dapat dipisahkan secara linier. Namun, pada kelas data yang tidak dapat dipisahkan secara linier, SVM non-linier dapat digunakan untuk menemukan hyperplane yang memisahkan kelas data dengan maksimal menggunakan teknik kernel. Dalam SVM non-linier, Maximal Margin Classifier mencari hyperplane terbaik yang memisahkan kelas dengan margin maksimum pada ruang fitur yang lebih tinggi setelah dilakukan pemetaan oleh fungsi kernel.
+
+Keuntungan dari Maximal Margin Classifier adalah dapat menghasilkan model SVM yang lebih stabil dan memiliki tingkat kesalahan klasifikasi yang lebih rendah. Namun, kekurangan dari pendekatan ini adalah sensitif terhadap pencilan (outlier) yang dapat mempengaruhi posisi hyperplane dan margin.
+
+```{r}
+set.seed(10)
+
+# Construct sample data set - completely separated
+x <- matrix(rnorm(20*2), ncol = 2)
+y <- c(rep(-1,10), rep(1,10))
+x[y==1, ] <- x[y==1, ] + 3/2
+dat <- data.frame(x = x, y = as.factor(y))
+
+# Plot data
+ggplot(data = dat, aes(x = x.2, y = x.1, color = y, shape = y)) + 
+  geom_point(size = 2) +
+  scale_color_manual(values=c("#000000", "#FF0000")) +
+  theme(legend.position = "none")
+```
+
+Tujuan dari maximal margin classifier adalah untuk mengidentifikasi batas linier yang memaksimalkan total jarak antara garis dan titik terdekat di setiap kelas. Kita dapat menggunakan fungsi `svm()` dalam paket `e1071` untuk menemukan batasan ini.
+
+Pada plot di atas, titik-titik yang diwakili oleh "X" adalah vektor pendukung, atau titik-titik yang secara langsung mempengaruhi garis klasifikasi. Titik yang ditandai dengan "o" adalah titik lainnya, yang tidak mempengaruhi perhitungan garis.
+
+```{r}
+# Fit Support Vector Machine model to data set
+svmfit <- svm(y~., data = dat, kernel = "linear", scale = FALSE)
+
+# Plot Results
+plot(svmfit, dat)
+```
+
+# Support Vector Classifier (SVC)
+
+Pada suatu kasus bisa saja kelas tidak dapat dipisahkan oleh hyperplane sehingga maximal marginal classifier tidak dapat digunakan. Generalisasi dari maximal margin classifier ke kasus yang tidak dapat dipisahkan dikenal sebagai support vector classifier. Dalam hal ini, kita mungkin bersedia mempertimbangkan classifier berdasarkan hyperplane yang tidak memisahkan dua kelas dengan sempurna, untuk kepentingan:
+
+-   ketahanan (robustness) yang lebih besar untuk pengamatan individu,
+
+-   klasifikasi yang lebih baik dari sebagian besar pengamatan data training
+
+Artinya, mungkin lebih bermanfaat untuk salah mengklasifikasikan beberapa pengamatan data training untuk melakukan pekerjaan yang lebih baik dalam mengklasifikasikan pengamatan yang tersisa (data testing).
+
+Berbeda dengan SVM yang mencari hyperplane yang memaksimalkan margin antara kelas, SVC mencari hyperplane yang dapat memisahkan kelas dengan menggunakan kriteria error minimal.
+
+SVC dapat digunakan untuk menyelesaikan masalah klasifikasi biner dan multikelas. Proses pembelajaran SVC dimulai dengan memilih hyperplane awal secara acak, kemudian menghitung kesalahan klasifikasi pada data pelatihan. Setelah itu, SVC memperbaiki hyperplane dengan meminimalkan kesalahan klasifikasi yang dihasilkan. SVC menggunakan teknik optimasi matematis untuk menemukan hyperplane terbaik yang dapat memisahkan kelas dengan kesalahan minimal.
+
+Sama seperti SVM, SVC juga menggunakan support vector sebagai titik-titik pada kelas yang paling dekat dengan hyperplane. Namun, dalam SVC, support vector dapat berada di sisi hyperplane yang salah, karena SVC hanya mencoba meminimalkan kesalahan klasifikasi dan tidak memaksimalkan margin.
+
+Keuntungan dari SVC adalah dapat menangani data yang tidak dapat dipisahkan secara linier, karena SVC menggunakan teknik kernel untuk memetakan data ke dalam dimensi yang lebih tinggi. Selain itu, SVC juga dapat digunakan pada dataset dengan jumlah fitur yang besar, karena SVC hanya menggunakan subset dari data pelatihan yang merupakan support vector. Kekurangan dari SVC adalah sensitif terhadap keberadaan pencilan (outlier) dan dapat menghasilkan model yang kompleks jika terlalu banyak fitur atau jika parameter kernel yang tidak tepat digunakan.
+
+```{r}
+# Construct sample data set - not completely separated
+x <- matrix(rnorm(20*2), ncol = 2)
+y <- c(rep(-1,10), rep(1,10))
+x[y==1,] <- x[y==1,] + 1
+dat <- data.frame(x=x, y=as.factor(y))
+
+# Plot data set
+ggplot(data = dat, aes(x = x.2, y = x.1, color = y, shape = y)) + 
+  geom_point(size = 2) +
+  scale_color_manual(values=c("#000000", "#FF0000")) +
+  theme(legend.position = "none")
+```
+
+Dalam kasus data yang tidak dapat dipisahkan secara sempurna, argumen `cost =` menjadi sangat penting. Ini menghitung penalti yang terkait dengan pengamatan di sisi yang salah dari batas klasifikasi.
+
+## Kernel Linier
+
+```{r}
+# Fit Support Vector Machine model to data set
+svmfit <- svm(y ~ ., data = dat, kernel = "linear", cost = 10)
+# Plot Results
+plot(svmfit, dat)
+```
+
+## Kernel Polinomial
+
+```{r}
+svmfit2 <- svm(y~., data = dat, kernel = "polynomial", gamma = 2, cost = 10)
+# Plot Results
+plot(svmfit2, dat)
+```
+
+## Kernel Radial
+
+```{r}
+svmfit3 <- svm(y~., data = dat, kernel = "radial", gamma = 2)
+# Plot Results
+plot(svmfit3, dat)
+```
+
+## Kernel Sigmoid
+
+```{r}
+svmfit4 <- svm(y~., data = dat, kernel = "sigmoid", gamma = 2, cost = 10)
+# Plot Results
+plot(svmfit4, dat)
+```
+
+Dari keempat bentuk SVM di atas, terlihat SVM bisa membuat batas yang berbeda-beda, namun tidak semuanya baik dalam memisahkan data. Jadi jenis pemisah yang digunakan harus juga juga sesuai (Atau dicek kesesuainya dengan data yang ada).
+
+# Support Vector Machine (SVM)
+
+Support vector classifier adalah pendekatan alami untuk klasifikasi dalam pengaturan dua kelas, jika batas antara kedua kelas adalah linier. Namun, dalam praktiknya kita terkadang dihadapkan pada batasan kelas yang tidak linier. Dalam kasus support vector classifier, kita dapat mengatasi masalah kemungkinan batas non-linear antar kelas dengan cara memperbesar ruang fitur menggunakan fungsi polinomial kuadrat, kubik, dan bahkan orde lebih tinggi dari prediktor (fungsi polynomial dari variabel prediktor). Tidak sulit untuk melihat bahwa ada banyak cara yang memungkinkan untuk memperbesar ruang fitur, dan jika kita tidak hati-hati, kita bisa mendapatkan banyak fitur. Kemudian perhitungan akan menjadi tidak terkendali. Support vector machines, memungkinkan untuk memperbesar ruang fitur yang digunakan oleh support vector classifier dengan cara yang mengarah pada komputasi yang efisien.
+
+Berikutnya kita akan melakukan ilustrasi menggunakan data non-linear. Untuk kernel polinomial kita menggunakan parameter `degree` untuk menyesuaikan urutan polinomial. Untuk kernel radial kita menggunakan parameter `gamma` untuk menyesuaikan nilai y.
+
+```{r}
+# Generate some test data
+set.seed (100)
+x <- matrix(rnorm(200*2), ncol=2)
+x[1:100,]=x[1:100,]+2
+x[101:150,]=x[101:150,]-2
+
+y <- c(rep(1,150),rep(2,50))
+dat <- data.frame(x = x,y = as.factor(y))
+
+plot(x, col = y)
+```
+
+Berikutnya split data secara acak menjadi data latih dan data uji. Dan lakukan pemodelan dengan kernel radial karena berdasarkan plot dapat dilihat bahwa pengelompokan data berbentuk radial.
+
+```{r}
+set.seed(100)
+train <- sample(200, 100)
+
+svm.fit <- svm(y ~., data = dat[train,], kernel = 'radial', gamma = 1, cost = 1)
+
+plot(svm.fit, dat[train,])
+
+# Summary Model
+summary(svm.fit)
+```
+
+```{r}
+# Prediksi Model
+yhat <- predict(svm.fit, dat[-train,])
+
+# Evaluasi Model
+confusionMatrix(yhat, dat[-train,'y'])
+```
+
+## Mengatur parameter Cost (C)
+
+```{r}
+svm.fit <- svm(y ~., dat[train,], kernel = 'radial', gamma = 1, cost = 1e5)
+
+plot(svm.fit, dat[train,])
+
+# Summary Model
+summary(svm.fit)
+```
+
+## Hyperparameter Tuning
+
+Kita juga dapat melakukan validasi silang. Kita dapat menggunakan perintah `tune()` untuk mencoba beberapa nilai cost yang berbeda serta beberapa nilai gamma yang berbeda agar sesuai dengan batas nonlinear.
+
+```{r}
+set.seed(100)
+tune.out <- tune(svm, y ~., data = dat[train,], 
+                 kernel = 'radial', 
+                 ranges = list(cost = c(0.1,1,10,100,1000),
+                 gamma = c(0.5, 1,2,3,4)))
+
+summary(tune.out)
+```
+
+```{r}
+# Best Model
+tune.out$best.model
+
+# Hasil Prediksi
+yhat <- predict(tune.out$best.model, dat[-train,])
+confusionMatrix(yhat, dat[-train, 'y'])
+```
+
+Model yang paling banyak mengurangi kesalahan pada data pelatihan adalah yang menggunakan cost = 10 dan gamma= 0.5. Kemudian kita akan lihat bagaimana performa dari model dalam memprediksi kelas dari 100 data uji.
+
+## ROC Curve
+
+```{r}
+library(ROCR)
+
+# function to handle the different models
+rocplot <- function(pred, truth, ...){
+  predob =  prediction(pred, truth)
+  perf = performance(predob, 'tpr', 'fpr')
+  plot(perf, ...)
+
+}
+
+svm.opt <- svm(y ~., data=dat[train,], kernel='radial',
+               gamma=2, cost=1, decision.values=T)
+
+fitted <- attributes(predict(svm.opt, dat[train,], decision.values = T))$decision.values
+
+rocplot(fitted, dat[train,'y'], main='Training Data')
+```
+
+# SVM dengan Package `caret`
+
+## Data
+
+```{r}
+library(ISLR)
+library(caret)
+
+attach(Auto)
+
+str(Auto)
+
+head(Auto)
+```
+
+```{r}
+# Create a binary variable that takes on 1 for cars with gas mileage > median
+Auto$y <- NA
+Auto$y[Auto$mpg > median(Auto$mpg)] <- 1
+Auto$y[Auto$mpg <= median(Auto$mpg)] <- 0
+Auto$y <- as.factor(Auto$y)
+length(Auto[is.na(Auto$y)]) # make sure there are no NA's
+```
+
+## Kernel Linear
+
+```{r}
+set.seed(123)
+split <- createDataPartition(y=Auto$y, p = .7, list=FALSE)
+train <- Auto[split,]
+test <- Auto[-split,]
+# Remove mpg / name features
+train <- train[-c(1,9)]
+test <- test[-c(1,9)]
+
+# 10 fold cross validation
+ctr <- trainControl(method='repeatedcv',
+                    number=10,
+                    repeats=3)
+
+# Recall as C increases, the margin tends to get wider
+grid <- data.frame(C = seq(0.01,10,0.5))
+
+svm.linear <- train(y ~., train,
+                 method = 'svmLinear',
+                 preProc = c('center','scale'),
+                 trControl = ctr,
+                 tuneGrid = grid)
+svm.linear
+```
+
+```{r}
+# Best Parameter
+svm.linear$bestTune
+
+# Evaluasi Data Train
+confusionMatrix(predict(svm.linear, train), train$y)
+
+# Evaluasi Data Test
+yhat <- predict(svm.linear, test)
+confusionMatrix(yhat, test$y)
+```
+
+## Kernel Polinomial
+
+```{r}
+set.seed(123)
+
+# Try a polynomial function
+svm.poly <- train(y ~., train,
+                 method = 'svmPoly',
+                 trControl = ctr,
+                 tuneLength = 4)
+                 
+svm.poly
+```
+
+```{r}
+# Best Parameter
+svm.poly$bestTune
+
+# Plot
+plot(svm.poly)
+
+# Evaluasi Data Training
+confusionMatrix(predict(svm.poly, train), train$y)
+
+# Evaluasi Data Testing
+yhat <- predict(svm.poly, test)
+confusionMatrix(yhat, test$y)
+```
+
+## Kernel Radial
+
+```{r}
+set.seed(123)
+# Try a radial function
+svm.radial <- train(y ~., train,
+                 method = 'svmRadial',
+                 trControl = ctr,
+                 tuneLength = 10)
+svm.radial
+```
+
+```{r}
+# Best Parameter
+svm.radial$bestTune
+
+# Plot
+plot(svm.radial)
+
+# Evaluasi Data Training
+confusionMatrix(predict(svm.radial, train), train$y)
+
+# Evaluasi Data Testing
+yhat <- predict(svm.radial, test)
+confusionMatrix(yhat, test$y)
+```

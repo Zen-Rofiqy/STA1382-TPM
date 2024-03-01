@@ -67,7 +67,18 @@
 		{"id":"54323b3339005afa","type":"file","file":"Pasted image 20240219130633.png","x":5409,"y":-345,"width":400,"height":225},
 		{"id":"520ba67265402020","type":"text","text":"Feed forward = jalannya informasi\nBack prop = pendugaan parameter","x":5359,"y":-80,"width":361,"height":120},
 		{"id":"d8813d0ce42baba1","type":"text","text":"untuk tugasnya fungsi linier","x":5431,"y":89,"width":329,"height":91},
-		{"id":"9c33ce0ad822ea1e","x":5376,"y":285,"width":704,"height":495,"type":"text","text":"Neural Network harus di scaling dulu. Karena w nya itu dari rentang 0 sampe 1. \n\nOne hot encoder. \nKarena kalo as.factor gak bisa masukin ke funciton nya.\n\nBisa pake labelencoder\n\nEpoch itu beda sama iterasi. Itungannya kalo dipake udah semua data.\nBatch size semakin besar semakin bagus. \n\nFungsi call back \nItu digunain kalo perbedaannya itu sediikit. \n\n"}
+		{"id":"9c33ce0ad822ea1e","type":"text","text":"Neural Network harus di scaling dulu. Karena w nya itu dari rentang 0 sampe 1. \n\nOne hot encoder. \nKarena kalo as.factor gak bisa masukin ke funciton nya.\n\nBisa pake labelencoder\n\nEpoch itu beda sama iterasi. Itungannya kalo dipake udah semua data.\nBatch size semakin besar semakin bagus. \n\nFungsi call back \nItu digunain kalo perbedaannya itu sediikit. \n\n","x":5376,"y":285,"width":704,"height":495},
+		{"id":"100a4905e8fa1e5c","type":"text","text":"# Pertemuan 6","x":6267,"y":-421,"width":250,"height":60},
+		{"id":"d2fbac33368b194c","type":"text","text":"Bisa klasifikasi non linier seperti ANN, contohnya kalo ada yang ditengah berbentuk lingkaran. Kalo CART gak bisa","x":6267,"y":-315,"width":474,"height":83},
+		{"id":"56b4113767c8932d","type":"file","file":"Pasted image 20240226131024.png","x":6304,"y":-189,"width":399,"height":169},
+		{"id":"f7d802bb7f9af20c","type":"file","file":"Pasted image 20240226131150.png","x":6741,"y":-189,"width":400,"height":172},
+		{"id":"68010bfb8fb9cd79","type":"text","text":"Garisnya berupa rumus ini","x":6816,"y":0,"width":250,"height":60},
+		{"id":"5d4fa8356536aaa6","type":"file","file":"Pasted image 20240226131450.png","x":6741,"y":80,"width":399,"height":185},
+		{"id":"3bec0b3dfc5689b7","type":"file","file":"Pasted image 20240226132800.png","x":6304,"y":22,"width":400,"height":151},
+		{"id":"0722af7026dea533","type":"text","text":"1. Jarak antara garis dengan amatan A dan B terdekat dari garis harus sama\n2. Setelah dicoba segala kemungkinan yang bisa dibagi dua jaraknya. Cari yang paling besar margin nya","x":6323,"y":200,"width":363,"height":174},
+		{"id":"0718fa4b9eee4d5c","type":"file","file":"Pasted image 20240226133130.png","x":6304,"y":400,"width":400,"height":223},
+		{"id":"e3f14ad3252b8b78","type":"text","text":"### Cari model terbaik dari ANN?\n\nBisa pake : \n[fractional factorial design](https://www.google.com/search?q=fractional+factorial+design&oq=fractional+fac&gs_lcrp=EgZjaHJvbWUqBwgAEAAYgAQyBwgAEAAYgAQyBwgBEAAYgAQyBggCEEUYOTIHCAMQABiABDIHCAQQABiABDIHCAUQABiABDIHCAYQABiABDIHCAcQABiABDIHCAgQABiABDIHCAkQABiABNIBCDYwODBqMGo3qAIAsAIA&sourceid=chrome&ie=UTF-8)\n[recommendation engine](https://www.google.com/search?q=recommendation+engine&oq=recomentadion+eng&gs_lcrp=EgZjaHJvbWUqCQgBEAAYDRiABDIGCAAQRRg5MgkIARAAGA0YgAQyCQgCEAAYDRiABDIJCAMQABgNGIAEMgkIBBAAGA0YgAQyCQgFEAAYDRiABDIJCAYQABgNGIAEMgkIBxAAGA0YgAQyCQgIEAAYDRiABDIJCAkQABgNGIAE0gEINzEwN2owajeoAgCwAgA&sourceid=chrome&ie=UTF-8)","x":5398,"y":840,"width":422,"height":215},
+		{"id":"fb8947baef1acaa1","x":6118,"y":824,"width":400,"height":323,"type":"file","file":"Pasted image 20240227173418.png"}
 	],
 	"edges":[
 		{"id":"ed232e6c924a17af","fromNode":"990a163aca54e176","fromSide":"right","toNode":"44b41b19297df53c","toSide":"left"},
@@ -81,6 +92,11 @@
 		{"id":"df2633088d60bb74","fromNode":"7f0472f8b1637de0","fromSide":"bottom","toNode":"31574e2d027fbdee","toSide":"top"},
 		{"id":"519e67d8651b8e5c","fromNode":"7e823ce6ce849566","fromSide":"bottom","toNode":"85e5b0a1a3f38e9c","toSide":"top"},
 		{"id":"74af526ed8f0b73d","fromNode":"85e5b0a1a3f38e9c","fromSide":"bottom","toNode":"64457d8dab8adbdc","toSide":"top"},
-		{"id":"fe3935b607c1cbf7","fromNode":"64457d8dab8adbdc","fromSide":"bottom","toNode":"31cf77b067b9ef62","toSide":"top"}
+		{"id":"fe3935b607c1cbf7","fromNode":"64457d8dab8adbdc","fromSide":"bottom","toNode":"31cf77b067b9ef62","toSide":"top"},
+		{"id":"f5d517d3d3dc0290","fromNode":"56b4113767c8932d","fromSide":"right","toNode":"f7d802bb7f9af20c","toSide":"left"},
+		{"id":"e3b9cbc5501018d0","fromNode":"f7d802bb7f9af20c","fromSide":"bottom","toNode":"68010bfb8fb9cd79","toSide":"top"},
+		{"id":"a0006e5e3b044927","fromNode":"68010bfb8fb9cd79","fromSide":"bottom","toNode":"5d4fa8356536aaa6","toSide":"top"},
+		{"id":"3285ca9635cf3a8f","fromNode":"3bec0b3dfc5689b7","fromSide":"bottom","toNode":"0722af7026dea533","toSide":"top"},
+		{"id":"105b8c4e7e78aa52","fromNode":"0722af7026dea533","fromSide":"bottom","toNode":"0718fa4b9eee4d5c","toSide":"top"}
 	]
 }
