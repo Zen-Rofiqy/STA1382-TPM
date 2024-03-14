@@ -404,7 +404,7 @@ model %>% compile(
 print(model)
 ```
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 # Training Model
 history <- model %>% fit(
   train_X, train_y,
