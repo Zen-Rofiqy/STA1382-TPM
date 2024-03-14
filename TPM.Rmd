@@ -351,6 +351,21 @@ str(dt4)
 colSums(is.na(dt4))
 ```
 
+## Encoding Peubah Kategorik
+
+```{r message=FALSE, warning=FALSE}
+library(tensorflow); library(keras); library(caret)
+# One-Hot Encoder
+for(i in 1:(dim(dt4)[2] - 1)){
+  if(is.factor(dt4[,i]) == TRUE){
+    dt4[,i] <- to_categorical(as.integer(dt4[,i]) - 1)
+  }
+}
+
+# Contoh Hasil One-Hot Encoder
+head(dt4$MTRANS)
+```
+
 # Kuliah 5
 
 ## Syntax Kuliah {.tabset}
