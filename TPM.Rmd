@@ -415,6 +415,10 @@ history <- model %>% fit(
 )
 ```
 
+```{r dpi=300, fig.height = 15, fig.width = 10, fig.align = "center", message = FALSE, warning=FALSE}
+plot(history)
+```
+
 ```{r}
 # Evaluasi Model dengan data Test
 scores <- model %>% evaluate(test_X, test_y)
