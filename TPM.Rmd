@@ -458,11 +458,109 @@ data.ab <-  read.csv("https://raw.githubusercontent.com/Zen-Rofiqy/STA1382-TPM/m
 datatable(data.ab)
 ```
 
-##  
+```{r}
+str(data.ab)
+```
+
+```{r}
+# Cek Missing Value
+colSums(is.na(data.ab))
+```
+
+### Feature Engineering 
+
+```{r}
+# Menambahkan Kolom 'Age'
+data.ab$Age <- data.ab$Rings + 1.5
+
+# Menghapus Kolom 'Rings'
+data.ab$Rings <- NULL
+
+# One-Hot Encoding Kolom 'Sex'
+data.ab$Sex <- to_categorical(as.integer(data.ab$Sex) - 1)
+```
+
+### Splitting & Scaling
+
+```{r}
+set.seed(123)
+
+train.index <- createDataPartition(data.ab$Age, p = 0.8, list = FALSE)
+train <- data.ab[train.index, ]
+test <- data.ab[-train.index, ]
+
+# Melakukan Feature Scaling min max (0, 1)
+preprocessParams <- preProcess(train[, -9], method=c("range"))
+train_X <- as.matrix(predict(preprocessParams, train[, -9]))
+test_X <- as.matrix(predict(preprocessParams, test[, -9]))
+
+train_y <- train[, 9]
+test_y <- test[, 9]
+```
+
+### Pemodelan
+
+```{r message=FALSE, warning=FALSE}
+# Membuat model neural network dengan 2 hidden layer
+model <- keras_model_sequential() %>%
+  layer_dense(units = 64, activation = "relu", input_shape = ncol(train_X)) %>%
+  layer_dropout(0.3) %>%
+  layer_dense(units = 64, activation = "relu") %>%
+  layer_dropout(0.3) %>%
+  layer_dense(units = 1, activation = "linear")
+
+# Mengkompilasi model
+model %>% compile(
+  loss = "mean_squared_error",
+  optimizer = "adam",
+  metrics = list("mean_squared_error", "mean_absolute_error")
+)
+
+# Melakukan tahapan pelatihan model
+history <- model %>% fit(
+  train_X, train_y,
+  shuffle = T,
+  epochs = 50,
+  batch_size = 32,
+  validation_split = 0.2
+)
+```
+
+```{r dpi=300, fig.height = 15, fig.width = 10, fig.align = "center", message = FALSE, warning=FALSE}
+plot(history)
+```
+
+```{r}
+print(model)
+```
+
+### Prediksi
+
+```{r}
+prediksi <- predict(model, test_X)
+head(prediksi)
+```
+
+### Evaluasi Model
+
+```{r}
+# Mengevaluasi model menggunakan data uji
+scores <- model %>% evaluate(test_X, test_y)
+print(scores)
+```
+
+```{r}
+keras_train <- model %>% predict(train_X)
+keras_test <- model %>% predict(test_X)
+# Training Evaluation
+postResample(keras_train[,1], train$Age)
+# Testing Evaluation
+postResample(keras_test[,1], test$Age)
+```
 
 # Kuliah 5
 
-## Syntax Kuliah {.tabset}
+## Sy ntax Kuliah {.tabset}
 
 ### **Binary classification**
 
