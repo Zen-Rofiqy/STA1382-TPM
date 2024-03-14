@@ -78,7 +78,7 @@
 		{"id":"0722af7026dea533","type":"text","text":"1. Jarak antara garis dengan amatan A dan B terdekat dari garis harus sama\n2. Setelah dicoba segala kemungkinan yang bisa dibagi dua jaraknya. Cari yang paling besar margin nya","x":6323,"y":200,"width":363,"height":174},
 		{"id":"0718fa4b9eee4d5c","type":"file","file":"Pasted image 20240226133130.png","x":6304,"y":400,"width":400,"height":223},
 		{"id":"e3f14ad3252b8b78","type":"text","text":"### Cari model terbaik dari ANN?\n\nBisa pake : \n[fractional factorial design](https://www.google.com/search?q=fractional+factorial+design&oq=fractional+fac&gs_lcrp=EgZjaHJvbWUqBwgAEAAYgAQyBwgAEAAYgAQyBwgBEAAYgAQyBggCEEUYOTIHCAMQABiABDIHCAQQABiABDIHCAUQABiABDIHCAYQABiABDIHCAcQABiABDIHCAgQABiABDIHCAkQABiABNIBCDYwODBqMGo3qAIAsAIA&sourceid=chrome&ie=UTF-8)\n[recommendation engine](https://www.google.com/search?q=recommendation+engine&oq=recomentadion+eng&gs_lcrp=EgZjaHJvbWUqCQgBEAAYDRiABDIGCAAQRRg5MgkIARAAGA0YgAQyCQgCEAAYDRiABDIJCAMQABgNGIAEMgkIBBAAGA0YgAQyCQgFEAAYDRiABDIJCAYQABgNGIAEMgkIBxAAGA0YgAQyCQgIEAAYDRiABDIJCAkQABgNGIAE0gEINzEwN2owajeoAgCwAgA&sourceid=chrome&ie=UTF-8)","x":5398,"y":840,"width":422,"height":215},
-		{"id":"fb8947baef1acaa1","x":6118,"y":824,"width":400,"height":323,"type":"file","file":"Pasted image 20240227173418.png"}
+		{"id":"fb8947baef1acaa1","type":"file","file":"Pasted image 20240227173418.png","x":6118,"y":824,"width":400,"height":323}
 	],
 	"edges":[
 		{"id":"ed232e6c924a17af","fromNode":"990a163aca54e176","fromSide":"right","toNode":"44b41b19297df53c","toSide":"left"},
