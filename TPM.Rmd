@@ -42,7 +42,7 @@ install_load <- function (package1, ...)  {
    } 
 }
 
-install_load("DT","dplyr","ggplot2","gridExtra","MASS","tree")
+install_load("DT","dplyr","ggplot2","gridExtra","MASS","tree","rio")
 
 theme1.1 <- list(
   geom_hline(yintercept = 0, size = 1, colour="#333333"),
@@ -71,7 +71,7 @@ export.chart <- "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 6/2. Tek
 
 > <mark style="background-color: #91CCDB">**Code/Syntax :** [File.rmd](https://github.com/Zen-Rofiqy/STA1382-TPM/blob/main/TMP.Rmd) </mark>
 
-# Pertemuan 1
+# Kuliah 1
 
 > **Penyiapan Data (R)**
 
@@ -132,7 +132,7 @@ View(data)
 
 ```
 
-# Pertemuan 3
+# Kuliah 3
 
 ```{r}
 str(cpus)
@@ -143,7 +143,7 @@ text(cpus.ltr)
 summary(cpus.ltr)
 ```
 
-# Pertemuan 4
+# Kuliah 4
 
 Entropy
 
@@ -315,7 +315,43 @@ levels = 0:1, labels = c("Tidak", "Te r t a r i k "))
 confusionMatrix(prediksi.02, tertarik)
 ```
 
-# Pertemuan 5
+# Praktikum 4
+
+## Library
+
+```{r message=FALSE, warning=FALSE}
+#install.packages("tensorflow")
+#install.packages("keras")
+
+#library("reticulate")
+#virtualenv_create("r-reticulate2", python = install_python())
+#tensorflow::install_tensorflow()
+#keras::install_keras()
+
+# Delete Installation
+#wunlink("~/.virtualenvs/r-tensorflow", recursive = TRUE)
+```
+
+## Model Klasifikasi NN
+
+### Data
+
+```{r}
+dt4 <- import("https://raw.githubusercontent.com/Zen-Rofiqy/STA1382-TPM/main/Materi/Prak%2004/ObesityDataSet.csv")
+datatable(dt4)
+```
+
+```{r}
+str(dt4)
+```
+
+### Cek Missing Value
+
+```{r}
+colSums(is.na(dt4))
+```
+
+# Kuliah 5
 
 ## Syntax Kuliah {.tabset}
 
@@ -378,27 +414,4 @@ print(y_)
 n <- 3
 mse <- 1/n * sum((y - y_)^2)
 print(mse)
-```
-
-## Praktikum 5
-
-### Libarary
-
-```{r}
-#install.packages("tensorflow")
-#install.packages("keras")
-
-#library("reticulate")
-#virtualenv_create("r-reticulate2", python = install_python())
-#tensorflow::install_tensorflow()
-#keras::install_keras()
-
-# Delete Installation
-#wunlink("~/.virtualenvs/r-tensorflow", recursive = TRUE)
-```
-
-### Model Klasifikasi NN
-
-```{r}
-
 ```
