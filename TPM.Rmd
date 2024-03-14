@@ -337,7 +337,7 @@ confusionMatrix(prediksi.02, tertarik)
 ### Data
 
 ```{r}
-dt4 <- import("https://raw.githubusercontent.com/Zen-Rofiqy/STA1382-TPM/main/Materi/Prak%2004/ObesityDataSet.csv")
+dt4 <- read.csv("https://raw.githubusercontent.com/Zen-Rofiqy/STA1382-TPM/main/Materi/Prak%2004/ObesityDataSet.csv", stringsAsFactors = TRUE)
 datatable(dt4)
 ```
 
@@ -351,7 +351,7 @@ str(dt4)
 colSums(is.na(dt4))
 ```
 
-## Encoding Peubah Kategorik
+### Encoding Peubah Kategorik
 
 ```{r message=FALSE, warning=FALSE}
 library(tensorflow); library(keras); library(caret)
@@ -365,6 +365,96 @@ for(i in 1:(dim(dt4)[2] - 1)){
 # Contoh Hasil One-Hot Encoder
 head(dt4$MTRANS)
 ```
+
+### Splitting Data & Scaling
+
+```{r}
+set.seed(123)
+
+# Train-Testing Split
+train.index <- createDataPartition(dt4$NObeyesdad, p = 0.8, list = F)
+train <- dt4[train.index, ]
+test <- dt4[-train.index, ]
+
+# Feature Scaling (Min-Max)
+preprocessParams <- preProcess(train[, -17], method = "range")
+train_X <- as.matrix(predict(preprocessParams, train[, -17]))
+test_X <- as.matrix(predict(preprocessParams, test[, -17]))
+
+# Encoding Variabel Respons
+train_y <- to_categorical(as.integer(train[, 17])-1)
+test_y <- to_categorical(as.integer(test[, 17])-1)
+```
+
+## Model 1 Layer
+
+```{r message=FALSE, warning=FALSE}
+# Arsitektur Model
+model <- keras_model_sequential() %>%
+  layer_dense(units = 64, activation = "relu", input_shape = ncol(train_X)) %>%
+  layer_dense(units = ncol(train_y), activation = "softmax")
+
+# Kompilasi Model
+model %>% compile(
+  loss = "categorical_crossentropy",
+  optimizer = "adam",
+  metrics = c("accuracy")
+)
+
+print(model)
+```
+
+```{r}
+# Training Model
+history <- model %>% fit(
+  train_X, train_y,
+  shuffle = T,
+  epochs = 100,
+  batch_size = 32, 
+  validation_split = 0.2
+)
+```
+
+```{r}
+# Evaluasi Model dengan data Test
+scores <- model %>% evaluate(test_X, test_y)
+print(scores)
+```
+
+### Prediksi Model
+
+```{r}
+# Prediksi dalam bentuk peluang
+pred <- predict(model, test_X)
+head(pred)
+```
+
+```{r}
+# Prediksi Label
+label_pred <- apply(pred, 1, which.max)
+label_pred
+```
+
+```{r}
+# Nilai aktual
+label_true <- as.integer(test$NObeyesdad)
+label_true
+```
+
+### Evaluasi Model
+
+```{r}
+confusionMatrix(as.factor(label_true), as.factor(label_pred))
+```
+
+## Model Regresi 
+
+```{r}
+data.ab <-  read.csv("https://raw.githubusercontent.com/Zen-Rofiqy/STA1382-TPM/main/Materi/Prak%2004/abalone.csv", stringsAsFactors = TRUE)
+datatable(data.ab)
+```
+
+##  
 
 # Kuliah 5
 
