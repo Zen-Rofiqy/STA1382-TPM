@@ -332,9 +332,9 @@ confusionMatrix(prediksi.02, tertarik)
 #wunlink("~/.virtualenvs/r-tensorflow", recursive = TRUE)
 ```
 
-## Model Klasifikasi NN
+### Preparation
 
-### Data
+#### Data
 
 ```{r}
 dt4 <- read.csv("https://raw.githubusercontent.com/Zen-Rofiqy/STA1382-TPM/main/Materi/Prak%2004/ObesityDataSet.csv", stringsAsFactors = TRUE)
@@ -345,13 +345,13 @@ datatable(dt4)
 str(dt4)
 ```
 
-### Cek Missing Value
+#### Cek Missing Value
 
 ```{r}
 colSums(is.na(dt4))
 ```
 
-### Encoding Peubah Kategorik
+#### Encoding Peubah Kategorik
 
 ```{r message=FALSE, warning=FALSE}
 library(tensorflow); library(keras); library(caret)
@@ -366,7 +366,11 @@ for(i in 1:(dim(dt4)[2] - 1)){
 head(dt4$MTRANS)
 ```
 
-### Splitting Data & Scaling
+```{r}
+unique(dt4$NObeyesdad)
+```
+
+#### Splitting Data & Scaling
 
 ```{r}
 set.seed(123)
@@ -386,7 +390,9 @@ train_y <- to_categorical(as.integer(train[, 17])-1)
 test_y <- to_categorical(as.integer(test[, 17])-1)
 ```
 
-## Model 1 **(1 hidden layer)**
+## Klasifikasi Multikelas
+
+### Model 1 **(1 hidden layer)**
 
 ```{r message=FALSE, warning=FALSE}
 # Arsitektur Model
@@ -425,7 +431,7 @@ scores <- model %>% evaluate(test_X, test_y)
 print(scores)
 ```
 
-### Prediksi Model
+#### Prediksi Model
 
 ```{r}
 # Prediksi dalam bentuk peluang
@@ -445,17 +451,17 @@ label_true <- as.integer(test$NObeyesdad)
 label_true
 ```
 
-### Evaluasi Model
+#### Evaluasi Model
 
 ```{r}
 confusionMatrix(as.factor(label_true), as.factor(label_pred))
 ```
 
-## Model 2 **(2 Hidden layers + dropout)**
+### Model 2 **(2 Hidden layers + dropout)**
 
 ```{r}
 # Membuat model neural network dengan 2 hidden layer
-model <- keras_model_sequential() %>%
+model.2 <- keras_model_sequential() %>%
   layer_dense(units = 128, activation = "relu", input_shape = ncol(train_X)) %>%
   layer_dropout(0.2) %>%
   layer_dense(units = 64, activation = "relu") %>%
@@ -463,14 +469,14 @@ model <- keras_model_sequential() %>%
   layer_dense(units = ncol(train_y), activation = "softmax")
 
 # Mengkompilasi model
-model %>% compile(
+model.2 %>% compile(
   loss = "categorical_crossentropy",
   optimizer = "adam",
   metrics = c("accuracy")
 )
 
 # Melakukan tahapan pelatihan model
-history <- model %>% fit(
+history <- model.2 %>% fit(
   train_X, train_y,
   shuffle = T,
   epochs = 100,
@@ -478,8 +484,10 @@ history <- model %>% fit(
   validation_split = 0.2, 
   verbose = F       # tidak menampilkan teks ouput pada setiap epoch
 )
+```
 
-print(model)
+```{r}
+print(model.2)
 ```
 
 ```{r dpi=300, fig.height = 7, fig.width = 10, fig.align = "center", message = FALSE, warning=FALSE}
@@ -488,14 +496,14 @@ plot(history)
 
 ```{r}
 # Mengevaluasi model menggunakan data uji
-scores <- model %>% evaluate(test_X, test_y)
+scores <- model.2 %>% evaluate(test_X, test_y)
 print(scores)
 ```
 
-### Prediksi Model
+#### Prediksi Model
 
 ```{r}
-prediksi <- predict(model, test_X)
+prediksi <- predict(model.2, test_X)
 head(prediksi)
 ```
 
@@ -511,25 +519,25 @@ label_true <- as.integer(test$NObeyesdad)
 label_true
 ```
 
-### Evaluasi Model
+#### Evaluasi Model
 
 ```{r}
 confusionMatrix(as.factor(label_true), as.factor(label_pred))
 ```
 
-## Save Model
+#### Save Model
 
 ```{r message=FALSE, warning=FALSE}
 # Menyimpan model dalam format HDF5
-model %>% save_model_hdf5("model_nn.h5")
+model.2 %>% save_model_hdf5("model_nn.h5")
 
 # Memuat model dari file HDF5
-model <- load_model_hdf5("model_nn.h5")
+model.2 <- load_model_hdf5("model_nn.h5")
 
 print(model)
 ```
 
-## Model 3 (**2 hidden layer + dropout + callback)**
+### Model 3 (**2 hidden layer + dropout + callback)**
 
 ```{r}
 # Multiclass Model dengan 2 hidden layers + dropout + checkpoint + earlyStopping
@@ -593,6 +601,65 @@ plot(history)
 # evaluasi model
 scores <- model.3 %>% evaluate(test_X, test_y)
 print(scores)
+```
+
+#### **Memuat Model Hasil Checkpoint + Prediksi**
+
+```{r}
+# memuat model yang disimpan hasil checkpoint
+last.model <- load_model_tf("model_check_x.keras")
+
+pred.3 <- predict(last.model, test_X)
+
+label_pred <- apply(pred.3, 1, which.max)
+label_pred
+
+# label_true <- apply(test_y, 1, which.max)
+# label_true
+
+confusionMatrix(as.factor(label_true), as.factor(label_pred))
+```
+
+## Klasifikasi Biner
+
+Note: Agar lebih praktis, pada bagian ini akan kita gunakan dataset yang sama, namun targetnya adalah (Overweight vs Tidak Overweight)
+
+```{r}
+data.biner <- data.frame(dt4)
+
+str(data.biner)
+```
+
+```{r}
+to.binary <- function(level){
+    is.overweight <- (level %in% c("Overweight", "Obesity"))
+    as.integer(is.overweight)
+}
+
+# Mengubah 4 kelas menjadi 2 kelas (0: Tidak Overweight, 1: Overweight)
+data.biner$NObeyesdad <- sapply(data.biner$NObeyesdad, to.binary)
+
+str(data.biner)
+```
+
+```{r}
+# Membagi data menjadi data latih dan data uji
+set.seed(111)
+train.index <- createDataPartition(data.biner$NObeyesdad, p = 0.7, list = FALSE)
+train <- data.biner[train.index, ]
+test <- data.biner[-train.index, ]
+
+# Features Scaling MinMax (0, 1)
+preprocessParams <- preProcess(train[, -17], method=c("range"))
+train_X <- as.matrix(predict(preprocessParams, train[, -17]))
+test_X <- as.matrix(predict(preprocessParams, test[, -17]))
+
+# Peubah target sudah dalam bentuk 0 dan 1 
+# (tidak perlu one-hot encoding)
+train_y = train[, 17]
+test_y = test[, 17]
+
+head(train_y)
 ```
 
 ## Model Regresi 
