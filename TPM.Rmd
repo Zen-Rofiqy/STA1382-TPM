@@ -42,7 +42,8 @@ install_load <- function (package1, ...)  {
    } 
 }
 
-install_load("DT","dplyr","ggplot2","gridExtra","MASS","tree","rio","skimr")
+install_load("DT","dplyr","ggplot2","gridExtra","MASS","tree","rio","skimr",
+             "tidyverse","kernlab","e1071","ISLR","RColorBrewer")
 
 theme1.1 <- list(
   geom_hline(yintercept = 0, size = 1, colour="#333333"),
@@ -59,6 +60,24 @@ theme1.1 <- list(
         panel.grid.minor = element_blank()
         ) 
 )
+
+#install.packages("tensorflow")
+#install.packages("keras")
+
+#library("reticulate")
+#virtualenv_create("r-reticulate2", python = install_python())
+#tensorflow::install_tensorflow()
+#keras::install_keras()
+
+# Delete Installation
+#wunlink("~/.virtualenvs/r-tensorflow", recursive = TRUE)
+
+library(tensorflow); library(keras); library(caret)
+
+suppressMessages({
+    library(e1071)
+    library(caret)
+})
 ```
 
 ```{r setup, include=FALSE, echo=FALSE, warning=FALSE, message = FALSE}
@@ -317,21 +336,6 @@ confusionMatrix(prediksi.02, tertarik)
 
 # Praktikum 4
 
-## Library
-
-```{r message=FALSE, warning=FALSE}
-#install.packages("tensorflow")
-#install.packages("keras")
-
-#library("reticulate")
-#virtualenv_create("r-reticulate2", python = install_python())
-#tensorflow::install_tensorflow()
-#keras::install_keras()
-
-# Delete Installation
-#wunlink("~/.virtualenvs/r-tensorflow", recursive = TRUE)
-```
-
 ### Preparation
 
 #### Data
@@ -358,7 +362,6 @@ colSums(is.na(dt4))
 #### Encoding Peubah Kategorik
 
 ```{r message=FALSE, warning=FALSE}
-library(tensorflow); library(keras); library(caret)
 # One-Hot Encoder
 for(i in 1:(dim(dt4)[2] - 1)){
   if(is.factor(dt4[,i]) == TRUE){
@@ -963,6 +966,69 @@ print(mse)
 ```
 
 # Praktikum 5
+
+## Maximal Margin Classifier
+
+```{r}
+set.seed(10)
+# Construct sample data set - completely separated
+x <- matrix(rnorm(20*2), ncol = 2)
+y <- c(rep(-1,10), rep(1,10))
+x[y==1,] <- x[y==1,] + 3/2
+dat <- data.frame(x=x, y=as.factor(y))
+
+# Plot data
+ggplot(data = dat, aes(x = x.2, y = x.1, color = y, shape = y)) + 
+  geom_point(size = 2) +
+  scale_color_manual(values=c("#000000", "#FF0000")) +
+  theme(legend.position = "none")
+```
+
+Tujuan dari maximal margin classifier adalah untuk mengidentifikasi batas linier yang memaksimalkan total jarak antara garis dan titik terdekat di setiap kelas. Kita dapat menggunakan fungsi `svm()` dalam paket `e1071` untuk menemukan batasan ini.
+
+Pada plot di atas, titik-titik yang diwakili oleh “X” adalah vektor pendukung, atau titik-titik yang secara langsung mempengaruhi garis klasifikasi. Titik yang ditandai dengan “o” adalah titik lainnya, yang tidak mempengaruhi perhitungan garis.
+
+```{r}
+# Fit Support Vector Machine model to data set
+svmfit <- svm(y~., data = dat, kernel = "linear", scale = FALSE)
+# Plot Results
+plot(svmfit, dat)
+```
+
+## **Support Vector Classifier (SVC)**
+
+```{r}
+# Construct sample data set - not completely separated
+x <- matrix(rnorm(20*2), ncol = 2)
+y <- c(rep(-1,10), rep(1,10))
+x[y==1,] <- x[y==1,] + 1
+dat <- data.frame(x=x, y=as.factor(y))
+
+# Plot data set
+ggplot(data = dat, aes(x = x.2, y = x.1, color = y, shape = y)) + 
+  geom_point(size = 2) +
+  scale_color_manual(values=c("#000000", "#FF0000")) +
+  theme(legend.position = "none")
+```
+
+Dalam kasus data yang tidak dapat dipisahkan secara sempurna, argumen `cost =` menjadi sangat penting. Ini menghitung penalti yang terkait dengan pengamatan di sisi yang salah dari batas klasifikasi.
+
+### Kernel Linier
+
+```{r}
+# Fit Support Vector Machine model to data set
+svmfit <- svm(y~., data = dat, kernel = "linear", cost = 10)
+# Plot Results
+plot(svmfit, dat)
+```
+
+### Kernel Polynomial
+
+```{r}
+svmfit2 <- svm(y~., data = dat, kernel = "polynomial", gamma = 2, cost = 10)
+# Plot Results
+plot(svmfit2, dat)
+```
 
 # Referensi 
 
