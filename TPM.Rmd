@@ -386,7 +386,7 @@ train_y <- to_categorical(as.integer(train[, 17])-1)
 test_y <- to_categorical(as.integer(test[, 17])-1)
 ```
 
-## Model 1 Layer
+## Model 1 Hiden Layer
 
 ```{r message=FALSE, warning=FALSE}
 # Arsitektur Model
@@ -415,7 +415,7 @@ history <- model %>% fit(
 )
 ```
 
-```{r dpi=300, fig.height = 15, fig.width = 10, fig.align = "center", message = FALSE, warning=FALSE}
+```{r dpi=300, fig.height = 7, fig.width = 10, fig.align = "center", message = FALSE, warning=FALSE}
 plot(history)
 ```
 
@@ -449,6 +449,84 @@ label_true
 
 ```{r}
 confusionMatrix(as.factor(label_true), as.factor(label_pred))
+```
+
+## Model 2 Hidden layer
+
+```{r}
+# Membuat model neural network dengan 2 hidden layer
+model <- keras_model_sequential() %>%
+  layer_dense(units = 128, activation = "relu", input_shape = ncol(train_X)) %>%
+  layer_dropout(0.2) %>%
+  layer_dense(units = 64, activation = "relu") %>%
+  layer_dropout(0.2) %>%
+  layer_dense(units = ncol(train_y), activation = "softmax")
+
+# Mengkompilasi model
+model %>% compile(
+  loss = "categorical_crossentropy",
+  optimizer = "adam",
+  metrics = c("accuracy")
+)
+
+# Melakukan tahapan pelatihan model
+history <- model %>% fit(
+  train_X, train_y,
+  shuffle = T,
+  epochs = 100,
+  batch_size = 32,
+  validation_split = 0.2, 
+  verbose = F       # tidak menampilkan teks ouput pada setiap epoch
+)
+
+print(model)
+```
+
+```{r dpi=300, fig.height = 7, fig.width = 10, fig.align = "center", message = FALSE, warning=FALSE}
+plot(history)
+```
+
+```{r}
+# Mengevaluasi model menggunakan data uji
+scores <- model %>% evaluate(test_X, test_y)
+print(scores)
+```
+
+### Prediksi Model
+
+```{r}
+prediksi <- predict(model, test_X)
+head(prediksi)
+```
+
+Untuk menentukan kategori dengan peluang terbesar kita dapat menggunakan fungsi `which.max` yang dikombinasikan dengan fungsi `apply`.
+
+```{r}
+label_pred <- apply(prediksi, 1, which.max)
+label_pred
+```
+
+```{r}
+label_true <- as.integer(test$NObeyesdad)
+label_true
+```
+
+### Evaluasi Model
+
+```{r}
+confusionMatrix(as.factor(label_true), as.factor(label_pred))
+```
+
+## Save Model
+
+```{r message=FALSE, warning=FALSE}
+# Menyimpan model dalam format HDF5
+model %>% save_model_hdf5("model_nn.h5")
+
+# Memuat model dari file HDF5
+model <- load_model_hdf5("model_nn.h5")
+
+print(model)
 ```
 
 ## Model Regresi 
