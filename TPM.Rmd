@@ -386,7 +386,7 @@ train_y <- to_categorical(as.integer(train[, 17])-1)
 test_y <- to_categorical(as.integer(test[, 17])-1)
 ```
 
-## Model 1 Hiden Layer
+## Model 1 **(1 hidden layer)**
 
 ```{r message=FALSE, warning=FALSE}
 # Arsitektur Model
@@ -451,7 +451,7 @@ label_true
 confusionMatrix(as.factor(label_true), as.factor(label_pred))
 ```
 
-## Model 2 Hidden layer
+## Model 2 **(2 Hidden layers + dropout)**
 
 ```{r}
 # Membuat model neural network dengan 2 hidden layer
@@ -527,6 +527,72 @@ model %>% save_model_hdf5("model_nn.h5")
 model <- load_model_hdf5("model_nn.h5")
 
 print(model)
+```
+
+## Model 3 (**2 hidden layer + dropout + callback)**
+
+```{r}
+# Multiclass Model dengan 2 hidden layers + dropout + checkpoint + earlyStopping
+
+model.3 <- keras_model_sequential() %>%
+           layer_dense(units = 120, activation = "relu", input_shape = ncol(train_X)) %>%
+           layer_dropout(0.2) %>%
+           layer_dense(units = 100, activation = "relu") %>%
+           layer_dropout(0.1) %>%
+           layer_dense(units = ncol(train_y), activation = "softmax")
+
+
+# menentukan nama dan path file untuk penyimpanan model
+filepath <- "model_check_x.keras"
+
+# mengatur kriteria checkpoint
+# simpan model jika memperoleh skor terbaik
+checkpoint <- callback_model_checkpoint(
+    filepath=filepath,
+    monitor="val_accuracy",
+    save_best_only=TRUE,
+    mode="max",
+    verbose=1,
+)
+
+# mengatur kondisi untuk early stopping
+early_stopping <- callback_early_stopping(
+    monitor="val_accuracy",
+    patience=30,
+    verbose=1,
+)
+
+# kompilasi model
+model.3 %>% compile(
+  loss = "categorical_crossentropy",
+  optimizer = "adam",
+  metrics = c("accuracy")
+)
+
+# melatih model
+history <- model.3 %>% fit(
+  train_X, train_y,
+  shuffle = T,
+  epochs = 200,
+  batch_size = 64,
+  # validation_split = 0.2, # atau
+  validation_data = list(test_X, test_y),
+  callbacks=list(checkpoint, early_stopping),
+)
+```
+
+```{r}
+summary(model.3)
+```
+
+```{r dpi=300, fig.height = 7, fig.width = 10, fig.align = "center", message = FALSE, warning=FALSE}
+plot(history)
+```
+
+```{r}
+# evaluasi model
+scores <- model.3 %>% evaluate(test_X, test_y)
+print(scores)
 ```
 
 ## Model Regresi 
