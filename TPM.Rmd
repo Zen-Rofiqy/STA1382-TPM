@@ -763,6 +763,10 @@ str(data.ab)
 ```
 
 ```{r}
+skim(data.ab)
+```
+
+```{r}
 # Cek Missing Value
 colSums(is.na(data.ab))
 ```
@@ -802,57 +806,93 @@ test_y <- test[, 9]
 
 ```{r message=FALSE, warning=FALSE}
 # Membuat model neural network dengan 2 hidden layer
-model <- keras_model_sequential() %>%
-  layer_dense(units = 64, activation = "relu", input_shape = ncol(train_X)) %>%
-  layer_dropout(0.3) %>%
-  layer_dense(units = 64, activation = "relu") %>%
-  layer_dropout(0.3) %>%
-  layer_dense(units = 1, activation = "linear")
+model.reg <- keras_model_sequential() %>%
+   layer_dense(units = 64, activation = "relu", input_shape = ncol(train_X)) %>%
+   layer_dropout(0.2) %>%
+   layer_dense(units = 64, activation = "relu") %>%
+   layer_dropout(0.2) %>%
+   layer_dense(units = 1, activation = "linear")      # units = 1 dan activation = "linear"
 
-# Mengkompilasi model
-model %>% compile(
+# menentukan nama dan path file untuk penyimpanan model
+filepath <- "model_reg_check.keras"
+
+# mengatur kriteria checkpoint
+# simpan model jika memperoleh skor terbaik
+checkpoint <- callback_model_checkpoint(
+    filepath=filepath,
+    monitor="val_loss",
+    save_best_only=TRUE,
+    mode="min",           # minimum loss
+    verbose=1,
+)
+
+# mengatur kondisi untuk early stopping
+early_stopping <- callback_early_stopping(
+    monitor="val_loss",
+    patience=15,
+    verbose=1,
+)
+
+
+# Kompilasi model
+model.reg %>% compile(
   loss = "mean_squared_error",
   optimizer = "adam",
   metrics = list("mean_squared_error", "mean_absolute_error")
 )
-
 # Melakukan tahapan pelatihan model
-history <- model %>% fit(
+history <- model.reg %>% fit(
   train_X, train_y,
   shuffle = T,
-  epochs = 50,
+  epochs = 100,
   batch_size = 32,
-  validation_split = 0.2
+  validation_split = 0.2,
+  callbacks=list(checkpoint, early_stopping),
+  verbose = F
 )
-print(model)
 ```
 
-```{r dpi=300, fig.height = 15, fig.width = 10, fig.align = "center", message = FALSE, warning=FALSE}
+```{r}
+summary(model.reg)
+```
+
+```{r dpi=300, fig.height = 7, fig.width = 10, fig.align = "center", message = FALSE, warning=FALSE}
 plot(history)
 ```
 
 ```{r}
-print(model)
+# Mengevaluasi model menggunakan data uji
+scores <- model.reg %>% evaluate(test_X, test_y)
+print(scores)
+```
+
+```{r}
+cat("RMSE:", scores[2]^0.5, "\n")
+cat("MAE:", scores[3], "\n")
 ```
 
 ### Prediksi
 
 ```{r}
-prediksi <- predict(model, test_X)
-head(prediksi)
+# Melakukan prediksi
+prediksi <- predict(model.reg, test_X)
+
+# menampilkan 10 hasil prediksi pertama
+# disandingkan dengan nilai aslinya
+head(cbind("True" = test_y, "Pred"= prediksi), 20)
 ```
 
 ### Evaluasi Model
 
 ```{r}
 # Mengevaluasi model menggunakan data uji
-scores <- model %>% evaluate(test_X, test_y)
+scores <- model.reg %>% evaluate(test_X, test_y)
 print(scores)
 ```
 
 ```{r}
-keras_train <- model %>% predict(train_X)
-keras_test <- model %>% predict(test_X)
+keras_train <- model.reg %>% predict(train_X)
+keras_test <- model.reg %>% predict(test_X)
 # Training Evaluation
 postResample(keras_train[,1], train$Age)
 # Testing Evaluation
