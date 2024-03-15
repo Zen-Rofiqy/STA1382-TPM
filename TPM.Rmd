@@ -901,8 +901,6 @@ postResample(keras_test[,1], test$Age)
 
 # Kuliah 5
 
-## Sy ntax Kuliah {.tabset}
-
 ### **Binary classification**
 
 ```{r}
@@ -933,7 +931,7 @@ print(nn3)
 plot(nn3)
 ```
 
-## Tugas
+## Kuis
 
 ```{r}
 f.act <- function(x) log(1 + exp(x))
@@ -963,6 +961,8 @@ n <- 3
 mse <- 1/n * sum((y - y_)^2)
 print(mse)
 ```
+
+# Praktikum 5
 
 # Referensi 
 
