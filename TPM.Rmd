@@ -602,6 +602,7 @@ history <- model %>% fit(
   batch_size = 32,
   validation_split = 0.2
 )
+print(model)
 ```
 
 ```{r dpi=300, fig.height = 15, fig.width = 10, fig.align = "center", message = FALSE, warning=FALSE}
