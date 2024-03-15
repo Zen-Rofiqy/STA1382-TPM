@@ -42,7 +42,7 @@ install_load <- function (package1, ...)  {
    } 
 }
 
-install_load("DT","dplyr","ggplot2","gridExtra","MASS","tree","rio")
+install_load("DT","dplyr","ggplot2","gridExtra","MASS","tree","rio","skimr")
 
 theme1.1 <- list(
   geom_hline(yintercept = 0, size = 1, colour="#333333"),
@@ -345,6 +345,10 @@ datatable(dt4)
 str(dt4)
 ```
 
+```{r}
+skim(dt4)
+```
+
 #### Cek Missing Value
 
 ```{r}
@@ -367,7 +371,7 @@ head(dt4$MTRANS)
 ```
 
 ```{r}
-unique(dt4$NObeyesdad)
+table(dt4$NObeyesdad)
 ```
 
 #### Splitting Data & Scaling
@@ -632,14 +636,18 @@ str(data.biner)
 
 ```{r}
 to.binary <- function(level){
-    is.overweight <- (level %in% c("Overweight", "Obesity"))
-    as.integer(is.overweight)
+  is.overweight <- grepl("Overweight|Obesity", level)
+  as.integer(is.overweight)
 }
 
 # Mengubah 4 kelas menjadi 2 kelas (0: Tidak Overweight, 1: Overweight)
 data.biner$NObeyesdad <- sapply(data.biner$NObeyesdad, to.binary)
 
 str(data.biner)
+```
+
+```{r}
+table(data.biner$NObeyesdad)
 ```
 
 ```{r}
@@ -660,6 +668,87 @@ train_y = train[, 17]
 test_y = test[, 17]
 
 head(train_y)
+```
+
+### Model 1 **(2 hidden layer + dropout + callback)**
+
+```{r}
+# Binary Model dengan 2 hidden layers + dropout + checkpoint + earlyStopping
+
+model.bin <- keras_model_sequential() %>%
+           layer_dense(units = 120, activation = "relu", input_shape = ncol(train_X)) %>%
+           layer_dropout(0.2) %>%
+           layer_dense(units = 120, activation = "relu") %>%
+           layer_dropout(0.1) %>%
+           layer_dense(units = 1, activation = "sigmoid")   # units = 1 dan fungsi aktivasi = sigmoid
+
+
+# menentukan nama dan path file untuk penyimpanan model
+filepath <- "model_bin_check.keras"
+
+# mengatur kriteria checkpoint
+# simpan model jika memperoleh skor terbaik
+checkpoint <- callback_model_checkpoint(
+    filepath=filepath,
+    monitor="val_accuracy",
+    save_best_only=TRUE,
+    mode="max",
+    verbose=1,
+)
+
+# mengatur kondisi untuk early stopping
+early_stopping <- callback_early_stopping(
+    monitor="val_accuracy",
+    patience=30,
+    verbose=1,
+)
+
+# kompilasi model
+model.bin %>% compile(
+  loss = "binary_crossentropy",    # loss : binary_cross_entropy
+  optimizer = "adam",
+  metrics = c("accuracy")
+)
+
+# melatih model
+history <- model.bin %>% fit(
+  train_X, train_y,
+  shuffle = T,
+  epochs = 200,
+  batch_size = 64,
+  # validation_split = 0.2, # atau
+  validation_data = list(test_X, test_y),
+  callbacks=list(checkpoint, early_stopping),
+)
+```
+
+```{r}
+summary(model.bin)
+```
+
+```{r dpi=300, fig.height = 7, fig.width = 10, fig.align = "center", message = FALSE, warning=FALSE}
+plot(history)
+```
+
+```{r}
+# evaluasi model
+scores <- model.bin %>% evaluate(test_X, test_y)
+print(scores)
+```
+
+#### **Prediksi Data Uji**
+
+```{r}
+# memuat model yang disimpan hasil checkpoint
+model.bin.check <- load_model_tf("model_bin_check.keras")
+
+# prediksi
+pred.bin <- predict(model.bin.check, test_X)
+
+# karena hasilnya berupa nilai 0-1, dengan cut-off 0.5 kita bisa menggunakan fungsi round saja
+label_pred <- round(pred.bin)     
+
+confusionMatrix(as.factor(test_y), as.factor(label_pred))
 ```
 
 ## Model Regresi 
@@ -837,12 +926,14 @@ print(mse)
 
 # Referensi 
 
-Alkahfi, C. (Feb 19, 2023). Model Neural Network pada R Menggunakan Library Keras. Retrieved from: <https://sainsdata.id/uncategorized/2630/model-neural-network-pada-r-menggunakan-library-keras/>
+-   Alkahfi, C. (Feb 19, 2023). Model Neural Network pada R Menggunakan Library Keras. Retrieved from: <https://sainsdata.id/uncategorized/2630/model-neural-network-pada-r-menggunakan-library-keras/>
 
-Keras R Documentation : <https://www.rdocumentation.org/packages/keras/versions/2.11.0>
+-   Keras R Documentation : <https://www.rdocumentation.org/packages/keras/versions/2.11.0>
 
-Pichler, M. (June 6, 2018). An Introduction to machine learning with Keras in R. Retrieved from: <https://www.r-bloggers.com/2018/06/an-introduction-to-machine-learning-with-keras-in-r/>
+-   Pichler, M. (June 6, 2018). An Introduction to machine learning with Keras in R. Retrieved from: <https://www.r-bloggers.com/2018/06/an-introduction-to-machine-learning-with-keras-in-r/>
 
-Sadik, K. (2022). Artificial Neural Network [Slide Kuliah STA1582 Pembelajaran Mesin Statistika IPB University]
+-   Sadik, K. (2022). Artificial Neural Network [Slide Kuliah STA1582 Pembelajaran Mesin Statistika IPB University]
 
-Sallan, J. M. (May 17, 2020). Neural networks. Retrieved from: <https://rpubs.com/jmsallan/nn_intro>
+-   Sallan, J. M. (May 17, 2020). Neural networks. Retrieved from: <https://rpubs.com/jmsallan/nn_intro>
+
+-   <https://sainsdata.id/machine-learning/2630/model-neural-network-pada-r-menggunakan-library-keras/#model-klasifikasi-dengan-neural-network>
