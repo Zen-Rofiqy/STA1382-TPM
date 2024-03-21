@@ -754,7 +754,7 @@ label_pred <- round(pred.bin)
 confusionMatrix(as.factor(test_y), as.factor(label_pred))
 ```
 
-## Model Regresi 
+## Model Regresi
 
 ```{r}
 data.ab <-  read.csv("https://raw.githubusercontent.com/Zen-Rofiqy/STA1382-TPM/main/Materi/Prak%2004/abalone.csv", stringsAsFactors = TRUE)
@@ -774,7 +774,7 @@ skim(data.ab)
 colSums(is.na(data.ab))
 ```
 
-### Feature Engineering 
+### Feature Engineering
 
 ```{r}
 # Menambahkan Kolom 'Age'
@@ -1030,7 +1030,9 @@ svmfit2 <- svm(y~., data = dat, kernel = "polynomial", gamma = 2, cost = 10)
 plot(svmfit2, dat)
 ```
 
-# Referensi 
+# Praktikum 6
+
+# Referensi
 
 -   Alkahfi, C. (Feb 19, 2023). Model Neural Network pada R Menggunakan Library Keras. Retrieved from: <https://sainsdata.id/uncategorized/2630/model-neural-network-pada-r-menggunakan-library-keras/>
 
