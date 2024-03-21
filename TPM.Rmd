@@ -1272,11 +1272,128 @@ yhat <- predict(svm.radial, test)
 confusionMatrix(yhat, test$y)
 ```
 
+## SVM (dari Kaggle)
+
+### **Penyiapan Data**
+
+> **Import data**
+
+```{r}
+data <- read.csv("https://raw.githubusercontent.com/sainsdataid/dataset/main/wine-quality-binary.csv")
+
+str(data)
+
+head(data)
+
+# membuang kolom id
+data$id <- NULL
+
+# merubah kolom quality menjadi `factor`
+data$quality <- as.factor(data$quality)
+
+# melihat proporsi masing-masing kategori
+quality <- data.frame(table(data$quality))
+
+quality$prop <- round(quality$Freq/sum(quality$Freq), 3)
+
+quality
+```
+
+> **Pembagian Data Latih dan Data Uji**
+
+```{r}
+# Membagi data Latih dan Data Uji
+
+set.seed(123)  # Untuk menghasilkan nilai acak yang dapat direproduksi
+
+# membagi data secara acak
+# dengan menghasilkan indeks data latih dan data uji
+# data latih = 75%, data uji = 25%
+trainIndex <- createDataPartition(data$quality, p = 0.75, list = FALSE, times = 1)
+
+# Buat data latih dan data uji berdasarkan indeks yang dihasilkan
+data.train <- data[trainIndex, ]
+data.test <- data[-trainIndex, ]
+
+# melihat komposisi setiap kelas pada data train dan test
+cbind("train" = table(data.train$quality), "test" = table(data.test$quality))
+```
+
+### Membuat Model SVM
+
+```{r}
+# Training SVM mod
+svm.model <- svm(quality ~ ., data = data.train, kernel = "radial")
+```
+
+```{r}
+# Prediksi menggunakan data uji
+predictions <- predict(svm.model , newdata = data.test)
+
+# Hitung akurasi
+accuracy <- mean(predictions == data.test$quality)
+print(paste("Akurasi:", accuracy))
+```
+
+```{r}
+# untuk membuat confusion Matrix
+confusionMatrix(data = predictions,
+                reference = data.test$quality)
+```
+
+### Tuning Hiperparameter
+
+```{r}
+svm.tuned <- tune(svm, quality ~ ., 
+                  data = data.train, 
+                  kernel = "radial",  
+                  ranges = list(cost = c( 0.1, 0.2, 0.5, 0.9, 1, 2, 10),
+                                gamma=c(0.01,0.02, 0.05, 0.1)))
+
+svm.tuned
+
+(svm.best <- svm.tuned$best.model)
+
+# Evaluasi model terbaik
+best_predictions <- predict(svm.best, newdata = data.test)
+
+# untuk membuat confusion Matrix
+confusionMatrix(data = best_predictions,
+                reference = data.test$quality)
+```
+
+```{r}
+# Tuning hyperparameter (misalnya, mencari nilai C terbaik)
+svm.tuned <- tune(svm, quality ~ ., data = data.train, 
+                  kernel = "polynomial",  
+                  cross = 3,
+                  ranges = list(cost = c( 0.1, 0.2, 0.5, 0.9, 1, 2, 10),
+                                gamma=c(0.01,0.02, 0.05, 0.1),
+                                degree = c(1, 2, 3, 4))) # 1 sama dengan kernel linear
+
+svm.tuned
+
+(svm.best <- svm.tuned$best.model)
+
+# Evaluasi model terbaik
+best_predictions <- predict(svm.best, newdata = data.test)
+
+# untuk membuat confusion Matrix
+confusionMatrix(data = best_predictions,
+                reference = data.test$quality)
+```
+
+## SUPPORT VECTOR REGRESSION (SVR)
+
+### Penyiapan data
+
+> **Load Data**
+
 # Referensi
 
 ## Kuliah/Praktikum
 
--   Praktikum 5 : <https://rpubs.com/rizkia/sta1382-svm>
+-   Praktikum 5 (SVM) : <https://rpubs.com/rizkia/sta1382-svm>
 
 ## Luar
 
