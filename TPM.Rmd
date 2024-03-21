@@ -1274,6 +1274,12 @@ confusionMatrix(yhat, test$y)
 
 # Referensi
 
+## Kuliah/Praktikum
+
+-   Praktikum 5 : <https://rpubs.com/rizkia/sta1382-svm>
+
+## Luar
+
 -   Alkahfi, C. (Feb 19, 2023). Model Neural Network pada R Menggunakan Library Keras. Retrieved from: <https://sainsdata.id/uncategorized/2630/model-neural-network-pada-r-menggunakan-library-keras/>
 
 -   Keras R Documentation : <https://www.rdocumentation.org/packages/keras/versions/2.11.0>
