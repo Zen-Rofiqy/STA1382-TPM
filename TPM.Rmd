@@ -1210,6 +1210,38 @@ confusionMatrix(yhat, test$y)
 
 ### SVM dengan Kernel Polinomial
 
+```{r}
+set.seed(123)
+# Try a polynomial function
+svm.poly <- train(y ~., train,
+                 method='svmPoly',
+                 trControl=ctr,
+                 tuneLength=4)
+                 
+svm.poly
+```
+
+```{r}
+svm.poly$bestTune
+```
+
+```{r}
+plot(svm.poly)
+```
+
+```{r}
+# Training error rate
+confusionMatrix(predict(svm.poly, train), train$y)
+```
+
+```{r}
+# Testing error rate
+yhat <- predict(svm.poly, test)
+confusionMatrix(yhat, test$y)
+```
+
+### 
+
 # Referensi
 
 -   Alkahfi, C. (Feb 19, 2023). Model Neural Network pada R Menggunakan Library Keras. Retrieved from: <https://sainsdata.id/uncategorized/2630/model-neural-network-pada-r-menggunakan-library-keras/>
