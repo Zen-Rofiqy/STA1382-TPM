@@ -1462,6 +1462,14 @@ print(paste("Mean Squared Error (MSE) Model Terbaik:", best_rmse))
 
     -   <https://rpubs.com/rizkia/sta1382-pohon-klasifikasi>
 
+-   Praktikum 4 (ANN) :
+
+    -   <https://rpubs.com/rizkia/sta1382-neural-network>
+
+    -   ANN Regression with Keras : <https://www.kaggle.com/code/cahyaalkahfi/ann-untuk-regresi-dengan-keras-r>
+
+    -   ANN Model Klasifikasi dengan Keras : <https://www.kaggle.com/code/cahyaalkahfi/ann-model-klasifikasi-dengan-keras-r>
+
 ```{=html}
 <!-- -->
 ```
