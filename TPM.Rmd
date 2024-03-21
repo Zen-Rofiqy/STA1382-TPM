@@ -1240,7 +1240,37 @@ yhat <- predict(svm.poly, test)
 confusionMatrix(yhat, test$y)
 ```
 
-### 
+### SVM dengan Kernel Radial
+
+```{r}
+set.seed(123)
+
+# Try a radial function
+svm.radial <- train(y ~., train,
+                 method='svmRadial',
+                 trControl=ctr,
+                 tuneLength=10)
+svm.radial
+```
+
+```{r}
+svm.radial$bestTune
+```
+
+```{r}
+plot(svm.radial)
+```
+
+```{r}
+# Training error rate
+confusionMatrix(predict(svm.radial, train), train$y)
+```
+
+```{r}
+# Testing error rate
+yhat <- predict(svm.radial, test)
+confusionMatrix(yhat, test$y)
+```
 
 # Referensi
 
@@ -1255,3 +1285,9 @@ confusionMatrix(yhat, test$y)
 -   Sallan, J. M. (May 17, 2020). Neural networks. Retrieved from: <https://rpubs.com/jmsallan/nn_intro>
 
 -   <https://sainsdata.id/machine-learning/2630/model-neural-network-pada-r-menggunakan-library-keras/#model-klasifikasi-dengan-neural-network>
+
+-   Folley, M. (Dec 5, 2022). Support Vector Machines. Retrieved from: <https://bookdown.org/mpfoley1973/supervised-ml/support-vector-machines.html#support-vector-machines-1>
+
+-   Kelly, R. (July 14, 2012). Support Vector Machines. Retrieved from: <https://rpubs.com/ryankelly/svm>
+
+-   Support Vector Machines. Retrieved from: <http://uc-r.github.io/svm>
