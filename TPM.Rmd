@@ -1134,7 +1134,23 @@ rocplot <- function(pred, truth, ...){
 Berikutnya kita akan membangun kembali SVM, kita tetapkan `decision.values=TRUE` untuk mendapatkan nilai yang sesuai.
 
 ```{r}
+svm.opt <- svm(y ~., data=dat[train,], kernel='radial',
+               gamma=2, cost=1, decision.values=T)
 
+fitted <- attributes(predict(svm.opt, dat[train,], decision.values=T))$decision.values
+
+rocplot(fitted, dat[train,'y'], main='Training Data')
+```
+
+## SVM dengan Package `caret`
+
+```{r message=FALSE, warning=FALSE}
+attach(Auto); str(Auto)
+```
+
+```{r}
+datatable(Auto, filter = 'top', 
+          options = list(pageLength = 5))
 ```
 
 # Referensi
