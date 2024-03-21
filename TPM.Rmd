@@ -1450,6 +1450,21 @@ print(paste("Mean Squared Error (MSE) Model Terbaik:", best_rmse))
 
 ## Kuliah/Praktikum
 
+-   Praktikum 1 (Penyiapan Data) :
+
+    -   <https://www.kaggle.com/code/cahyaalkahfi/sta1382-penyiapan-data-r>
+
+-   Praktikum 2 (Model Regresi Linear & Logistik) :
+
+    -   <https://www.kaggle.com/code/cahyaalkahfi/sta1382-model-regresi-linear-logistik>
+
+-   Praktikum 3 (Pohon Klasifikasi [CART]) :
+
+    -   <https://rpubs.com/rizkia/sta1382-pohon-klasifikasi>
+
+```{=html}
+<!-- -->
+```
 -   Praktikum 5 (SVM) :
 
     -    <https://rpubs.com/rizkia/sta1382-svm>
