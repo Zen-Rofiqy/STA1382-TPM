@@ -1389,11 +1389,72 @@ confusionMatrix(data = best_predictions,
 
 > **Load Data**
 
+```{r}
+# Membaca data
+data <- read.csv("https://raw.githubusercontent.com/sainsdataid/dataset/main/data_ipm_jawa_2018.csv")
+
+# Kolom ID tidak diperlukan
+data$id = NULL
+
+# Melihat Struktur data
+str(data)
+```
+
+> **Pembagian Data Latih dan Data Uji**
+
+```{r}
+set.seed(123)
+
+index <- createDataPartition(data$ipm_2018, p =  0.7, list = FALSE)
+
+# Membagi dataset
+train_data <- data[index, ]
+test_data <- data[-index, ]
+```
+
+### Membuat Model SVR
+
+```{r}
+# Training SVM model untuk regresi
+svr.model <- svm(ipm_2018 ~ ., data = train_data, kernel = "radial", type = "eps-regression")
+
+# Prediksi menggunakan data uji
+predictions <- predict(svr.model, newdata = test_data)
+
+# Hitung Mean Squared Error (MSE)
+rmse <- mean((predictions - test_data$ipm_2018)^2)^0.5
+print(paste("Root Mean Squared Error (RMSE):", rmse))
+```
+
+### Tuning Hiperparameter
+
+```{r}
+# Tuning hyperparameter
+svr.tuned <- tune(svm, ipm_2018 ~ ., 
+                  data = train_data, 
+                  kernel = "radial", 
+                  type = "eps-regression",  
+                  ranges = list(cost = c( 0.1, 0.2, 0.5, 0.9, 1, 2, 10),
+                                gamma=c(0.01,0.02, 0.05, 0.1)))
+
+# Model terbaik dari tuning
+svr.best <- svr.tuned $best.model
+
+# Evaluasi model terbaik
+best_predictions <- predict(svr.best, newdata = test_data)
+best_rmse <- mean((best_predictions- test_data$ipm_2018)^2)^0.5
+print(paste("Mean Squared Error (MSE) Model Terbaik:", best_rmse))
+```
+
 # Referensi
 
 ## Kuliah/Praktikum
 
--   Praktikum 5 (SVM) : <https://rpubs.com/rizkia/sta1382-svm>
+-   Praktikum 5 (SVM) :
+
+    -    <https://rpubs.com/rizkia/sta1382-svm>
+
+    -   [https://www.kaggle.com/code/cahyaalkahfi/support-vector-machines-svm-dengan-r#B.-SUPPORT-VECTOR-REGRESSION-(SVR)](https://www.kaggle.com/code/cahyaalkahfi/support-vector-machines-svm-dengan-r#B.-SUPPORT-VECTOR-REGRESSION-(SVR)){.uri}
 
 ## Luar
 
