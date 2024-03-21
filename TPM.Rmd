@@ -1153,6 +1153,63 @@ datatable(Auto, filter = 'top',
           options = list(pageLength = 5))
 ```
 
+```{r}
+# Create a binary variable that takes on 1 for cars with gas mileage > median
+Auto$y <- NA
+Auto$y[Auto$mpg > median(Auto$mpg)] <- 1
+Auto$y[Auto$mpg <= median(Auto$mpg)] <- 0
+Auto$y <- as.factor(Auto$y)
+length(Auto[is.na(Auto$y)]) # make sure there are no NA's
+```
+
+### SVM dengan Kernel Linear
+
+```{r}
+set.seed(123)
+split <- createDataPartition(y=Auto$y, p=0.7, list=FALSE)
+train <- Auto[split,]
+test <- Auto[-split,]
+# Remove mpg / name features
+train <- train[-c(1,9)]
+test <- test[-c(1,9)]
+
+# 10 fold cross validation
+ctr <- trainControl(method='repeatedcv',
+                    number=10,
+                    repeats=3)
+
+# Recall as C increases, the margin tends to get wider
+grid <- data.frame(C=seq(0.01,10,0.5))
+
+svm.linear <- train(y ~., train,
+                 method='svmLinear',
+                 preProc=c('center','scale'),
+                 trControl=ctr,
+                 tuneGrid=grid)
+svm.linear
+```
+
+```{r}
+svm.linear$bestTune
+```
+
+```{r}
+ggplot(svm.linear)
+```
+
+```{r}
+# Training error rate
+confusionMatrix(predict(svm.linear, train), train$y)
+```
+
+```{r}
+# Testing error rate
+yhat <- predict(svm.linear, test)
+confusionMatrix(yhat, test$y)
+```
+
+### SVM dengan Kernel Polinomial
+
 # Referensi
 
 -   Alkahfi, C. (Feb 19, 2023). Model Neural Network pada R Menggunakan Library Keras. Retrieved from: <https://sainsdata.id/uncategorized/2630/model-neural-network-pada-r-menggunakan-library-keras/>
