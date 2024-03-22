@@ -1470,12 +1470,11 @@ print(paste("Mean Squared Error (MSE) Model Terbaik:", best_rmse))
 
     -   ANN Model Klasifikasi dengan Keras : <https://www.kaggle.com/code/cahyaalkahfi/ann-model-klasifikasi-dengan-keras-r>
 
-```{=html}
 <!-- -->
-```
+
 -   Praktikum 5 (SVM) :
 
-    -    <https://rpubs.com/rizkia/sta1382-svm>
+    -   <https://rpubs.com/rizkia/sta1382-svm>
 
     -   [https://www.kaggle.com/code/cahyaalkahfi/support-vector-machines-svm-dengan-r#B.-SUPPORT-VECTOR-REGRESSION-(SVR)](https://www.kaggle.com/code/cahyaalkahfi/support-vector-machines-svm-dengan-r#B.-SUPPORT-VECTOR-REGRESSION-(SVR)){.uri}
 
