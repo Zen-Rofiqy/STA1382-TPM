@@ -15,6 +15,7 @@ Teknik pembelajaran mesin merupakan teknik yang menggabungkan ilmu statistika, a
 * UAS                         : 20%
 * Praktikum                   : 10%
 
-#### BookDown Syntaxes
+#### BookDown Edit Syntaxes
 `bookdown::render_book("index.Rmd")`
 `browseURL("docs/index.html")`
+`usethis::browse_github()`
