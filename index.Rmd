@@ -1,0 +1,9 @@
+--- 
+title: "Teknik Pembelajaran Mesin [STA1382]"
+author: "Angga Fathan Rofiqy"
+date: "`r Sys.Date()`"
+site: bookdown::bookdown_site
+---
+
+# Down the rabbit-hole
+
