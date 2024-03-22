@@ -1,9 +1,100 @@
---- 
+---
 title: "Teknik Pembelajaran Mesin [STA1382]"
 author: "Angga Fathan Rofiqy"
 date: "`r Sys.Date()`"
 site: bookdown::bookdown_site
 ---
 
-# Header satu
+```{r message=FALSE, warning=FALSE, include=FALSE}
+#                      -=( Install & Load Package Function )=-
+install_load <- function (package1, ...)  {   
 
+   # convert arguments to vector
+   packages <- c(package1, ...)
+
+   # start loop to determine if each package is installed
+   for(package in packages){
+
+       # if package is installed locally, load
+       if(package %in% rownames(installed.packages()))
+          do.call('library', list(package))
+
+       # if package is not installed locally, download, then load
+       else {
+          install.packages(package)
+          do.call("library", list(package))
+       }
+   } 
+}
+
+install_load("DT","dplyr","ggplot2","gridExtra","MASS","tree","rio","skimr",
+             "tidyverse","kernlab","e1071","ISLR","RColorBrewer")
+
+theme1.1 <- list(
+  geom_hline(yintercept = 0, size = 1, colour="#333333"),
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, 
+                                   margin = margin(b = 10, t=-20)),
+        axis.text.y = element_text(vjust = 0.5, face = "bold", 
+                                   margin = margin(l = 20, r = 0)),
+        plot.title = element_text(hjust = 0.5, face = "bold"),
+        text = element_text(size = 30),
+        plot.subtitle = element_text(hjust = 0.5),
+        panel.background = element_rect(fill = 'transparent'),
+        plot.background = element_rect(fill='transparent', color=NA),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()
+        ) 
+)
+
+#install.packages("tensorflow")
+#install.packages("keras")
+
+#library("reticulate")
+#virtualenv_create("r-reticulate2", python = install_python())
+#tensorflow::install_tensorflow()
+#keras::install_keras()
+
+# Delete Installation
+#wunlink("~/.virtualenvs/r-tensorflow", recursive = TRUE)
+
+library(tensorflow); library(keras); library(caret)
+
+suppressMessages({
+    library(e1071)
+    library(caret)
+})
+```
+
+```{r setup, include=FALSE, echo=FALSE, warning=FALSE, message = FALSE}
+require("knitr")
+opts_knit$set(root.dir = "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 6/2. Teknik Pembelajaran Mesin/Project")
+
+#Export chart
+export.chart <- "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 6/2. Teknik Pembelajaran Mesin/Project/Chart"
+```
+
+# Kuliah 1
+
+> **Penyiapan Data (R)**
+
+## 1. **Statistik Deskriptif**
+
+**Daftar variabel :**
+
+-   `Pregnancies` : Number of times pregnant
+
+-   `Glucose` : Plasma glucose concentration a 2 hours in an oral glucose tolerance test
+
+-   `BloodPressure` : Diastolic blood pressure (mm Hg)
+
+-   `SkinThickness` : Triceps skin fold thickness (mm)
+
+-   `Insulin` : 2-Hour serum insulin (mu U/ml)
+
+-   `BMI` : Body mass index (weight in kg/(height in m)\^2)
+
+-   `DiabetesPedigreeFunction` : Diabetes pedigree function
+
+-   `Age` : Age (years)
+
+-   `Outcome` : Class variable (0 or 1) 268 of 768 are 1 (diabetes), the others are 0 (tidak diabetes)
