@@ -1,3 +1,175 @@
+# Kuliah 4
+
+Entropy
+
+```{r}
+p <- 0.6919
+E <- function(p) -p * log2(p) - (1-p) * log2(1-p)
+E(p)
+E(p)
+```
+
+Information Gain
+
+```{r}
+IG <- 
+```
+
+```{r}
+info_gain <- function(D, A) {
+  H_D <- H(D[[A]]) 
+  
+  values <- unique(D[[A]])
+  D_v <- split(D, D[[A]]) 
+  
+  H_D_A <- sum(sapply(D_v, function(x) length(x)/nrow(D) * H(x[[A]]))) 
+  
+  return(H_D - H_D_A)
+}
+
+H <- function(D) {
+  p <- table(D)/length(D) 
+  return(sum(-p*log2(p))) 
+}
+
+
+
+# Data 
+data <- data.frame(
+  outcome = c("Yes","Yes","No","Yes","No","Yes"),
+  attribute = c("Tall","Tall","Tall","Short","Short","Short")
+)
+
+# Hitung entropy sebelum split
+H_D <- H(data$outcome) 
+H_D
+
+# Split data berdasarkan attribute
+D_v <- split(data, data$attribute)
+
+# Hitung weighted entropy setelah split
+H_D_A <- sum(sapply(D_v, function(x) length(x)/nrow(data) * H(x$outcome)))
+H_D_A
+
+# Hitung information gain
+info_gain(data, "attribute")
+```
+
+```{r}
+# Tabel kontingensi  
+table <- matrix(c(6,3,2,1), nrow = 2, byrow = TRUE)
+table
+
+# Hitung total data 
+N <- sum(table)  
+
+# Hitung entropy sebelum split
+H_D <- sum(-table/N * log2(table/N))
+
+# Buat tabel kontingensi terpisah untuk setiap atribut
+table_A1 <- matrix(c(6,2), nrow = 1)
+table_A2 <- matrix(c(3,1), nrow = 1)
+
+# Hitung weighted entropy
+H_A <- sum(table[,1]/N * apply(cbind(table_A1, table_A2), 1, function(x) sum(-x/sum(x)*log2(x/sum(x))))) 
+
+# Hitung information gain
+IG <- H_D - H_A
+IG
+```
+
+```{r}
+# Tabel kontingensi  
+table <- matrix(c(561, 27,
+                  51.75, 2.49,
+                  95.41, 4.59,
+                  74.8, 8.08,
+                  189, 307), nrow = 2, byrow = TRUE)
+table
+
+# Hitung total data 
+N <- sum(table)  
+
+# Hitung entropy sebelum split
+H_D <- sum(-table/N * log2(table/N))
+
+# Buat tabel kontingensi terpisah untuk setiap atribut
+table_A1 <- matrix(c(6,2), nrow = 1)
+table_A2 <- matrix(c(3,1), nrow = 1)
+
+# Hitung weighted entropy
+H_A <- sum(table[,1]/N * apply(cbind(table_A1, table_A2), 1, function(x) sum(-x/sum(x)*log2(x/sum(x))))) 
+
+# Hitung information gain
+IG <- H_D - H_A
+IG
+```
+
+Ilustrasi
+
+```{r}
+##Classification Tree
+propensity <- read.csv("D:/datatree01.csv", sep=";", header=TRUE)
+tertarik <- factor(propensity$Tertarik.Beli., levels = 0:1, labels = c("Tidak", "Tertarik")) 
+jk <- factor(propensity$Jenis.Kelamin,   levels = 0:1, labels = c("Perempuan", "Laki-Laki")) 
+kota <- factor(propensity$Tinggal.di.Kota, levels = 0:1, labels = c("Tidak", "Ya"))
+single <- factor(propensity$Single, levels = 0:1, labels = c("Menikah", "Single")) 
+merokok <- factor(propensity$Perokok, levels = 0:1, labels = c("Tidak", "Ya")) 
+budget <- propensity$Budget
+usia <-propensity$usia
+```
+
+```{r}
+library(rpart)
+model.01 <- rpart(tertarik ~ jk + kota + single + usia + merokok + budget,
+method="class", control = rpart.control(minsplit = 100))
+model.01
+```
+
+```{r}
+library(rpart.plot)
+rpart.plot(model.01, extra=6)
+```
+
+```{r}
+rpart.plot(model.01, extra=1)
+```
+
+```{r}
+model.02 <- rpart(tertarik ~ jk + kota + single + usia + merokok + budget,
+method="class", control = rpart.control(minsplit = 50))
+rpart.plot(model.02, extra=6)
+```
+
+```{r}
+data.training <- data.frame(jk, kota, single, usia, merokok, budget, tertarik) 
+prob.prediksi.02 <- predict(model.02, newdata=data.training)
+head(prob.prediksi.02)
+```
+
+```{r}
+prediksi.02 <- factor(ifelse(prob.prediksi.02[,2] > 0.5, 1, 0),
+levels = 0:1, labels = c("Tidak", "Te r t a r i k "))
+
+
+library(caret)
+confusionMatrix(prediksi.02, tertarik)
+```
+
+```{r}
+prediksi.02 <- factor(ifelse(prob.prediksi.02[,2] > 0.6, 1, 0),
+levels = 0:1, labels = c("Tidak", "Te r t a r i k "))
+
+confusionMatrix(prediksi.02, tertarik)
+```
+
+```{r}
+prediksi.02 <- factor(ifelse(prob.prediksi.02[,2] > 0.3, 1, 0),
+levels = 0:1, labels = c("Tidak", "Te r t a r i k "))
+
+confusionMatrix(prediksi.02, tertarik)
+```
+
 # Praktikum 4
 
 ### Preparation
@@ -565,4 +737,3 @@ postResample(keras_train[,1], train$Age)
 # Testing Evaluation
 postResample(keras_test[,1], test$Age)
 ```
-

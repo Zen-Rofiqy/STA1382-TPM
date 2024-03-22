@@ -1,3 +1,66 @@
+# Kuliah 5
+
+### **Binary classification**
+
+```{r}
+library(neuralnet)
+nn <- neuralnet(Species=="setosa" ~Petal.Length  +Petal.Width, iris, 
+                linear.output = FALSE)
+print(nn) 
+plot(nn)
+```
+
+### **Multiclass classification**
+
+```{r}
+nn2 <- neuralnet(Species ~ Petal.Length + Petal.Width, iris, linear.output = FALSE) 
+names(nn2)
+nn2$act.fct 
+print(nn2)
+plot(nn2)
+```
+
+### **Custom activation function**
+
+```{r}
+softplus <- function(x) log(1 + exp(x))
+nn3  <-  neuralnet((Species  ==  "setosa")  ~  Petal.Length  +  Petal.Width,  iris, 
+linear.output = FALSE, hidden = c(3, 2), act.fct = softplus)
+print(nn3) 
+plot(nn3)
+```
+
+## Kuis
+
+```{r}
+f.act <- function(x) log(1 + exp(x))
+
+neuron <- function(x1, x2, x3){
+  h1 = .5*x1 - .2*x2 - .1*x3
+  h1 = f.act(h1)
+  
+  h2 = .3*x1 + .1*x2 + .6*x3
+  h2 = f.act(h2)
+  
+  out = .2*h1 - .1*h2 
+  out = f.act(out)
+  return(out)
+}
+
+r1 <- neuron(1, 1, 2)
+r2 <- neuron(2, 3, 1)
+r3 <- neuron(2, 1, 1) 
+
+y <- c(2, 3, 1)
+
+y_ <- data.frame(r1, r2, r3)
+print(y_)
+
+n <- 3
+mse <- 1/n * sum((y - y_)^2)
+print(mse)
+```
+
 # Praktikum 5
 
 ## Maximal Margin Classifier
