@@ -1,0 +1,480 @@
+# Praktikum 5
+
+## Maximal Margin Classifier
+
+```{r}
+set.seed(10)
+# Construct sample data set - completely separated
+x <- matrix(rnorm(20*2), ncol = 2)
+y <- c(rep(-1,10), rep(1,10))
+x[y==1,] <- x[y==1,] + 3/2
+dat <- data.frame(x=x, y=as.factor(y))
+
+# Plot data
+ggplot(data = dat, aes(x = x.2, y = x.1, color = y, shape = y)) + 
+  geom_point(size = 2) +
+  scale_color_manual(values=c("#000000", "#FF0000")) +
+  theme(legend.position = "none")
+```
+
+Tujuan dari maximal margin classifier adalah untuk mengidentifikasi batas linier yang memaksimalkan total jarak antara garis dan titik terdekat di setiap kelas. Kita dapat menggunakan fungsi `svm()` dalam paket `e1071` untuk menemukan batasan ini.
+
+Pada plot di atas, titik-titik yang diwakili oleh “X” adalah vektor pendukung, atau titik-titik yang secara langsung mempengaruhi garis klasifikasi. Titik yang ditandai dengan “o” adalah titik lainnya, yang tidak mempengaruhi perhitungan garis.
+
+```{r}
+# Fit Support Vector Machine model to data set
+svmfit <- svm(y~., data = dat, kernel = "linear", scale = FALSE)
+# Plot Results
+plot(svmfit, dat)
+```
+
+## **Support Vector Classifier (SVC)**
+
+```{r}
+# Construct sample data set - not completely separated
+x <- matrix(rnorm(20*2), ncol = 2)
+y <- c(rep(-1,10), rep(1,10))
+x[y==1,] <- x[y==1,] + 1
+dat <- data.frame(x=x, y=as.factor(y))
+
+# Plot data set
+ggplot(data = dat, aes(x = x.2, y = x.1, color = y, shape = y)) + 
+  geom_point(size = 2) +
+  scale_color_manual(values=c("#000000", "#FF0000")) +
+  theme(legend.position = "none")
+```
+
+Dalam kasus data yang tidak dapat dipisahkan secara sempurna, argumen `cost =` menjadi sangat penting. Ini menghitung penalti yang terkait dengan pengamatan di sisi yang salah dari batas klasifikasi.
+
+### Kernel Linier
+
+```{r}
+# Fit Support Vector Machine model to data set
+svmfit <- svm(y~., data = dat, kernel = "linear", cost = 10)
+# Plot Results
+plot(svmfit, dat)
+```
+
+### Kernel Polynomial
+
+```{r}
+svmfit2 <- svm(y~., data = dat, kernel = "polynomial", gamma = 2, cost = 10)
+# Plot Results
+plot(svmfit2, dat)
+```
+
+### Kernel Radial
+
+```{r}
+svmfit3 <- svm(y~., data = dat, kernel = "radial", gamma = 2)
+# Plot Results
+plot(svmfit3, dat)
+```
+
+### Kernel Sigmoid
+
+```{r}
+svmfit4 <- svm(y~., data = dat, kernel = "sigmoid", gamma = 2, cost = 10)
+# Plot Results
+plot(svmfit4, dat)
+```
+
+Dari keempat bentuk SVM di atas, terlihat SVM bisa membuat batas yang berbeda-beda, namun tidak semuanya baik dalam memisahkan data. Jadi jenis pemisah yang digunakan harus juga juga sesuai (Atau dicek kesesuainya dengan data yang ada).
+
+## **Support Vector Machines (SVM)**
+
+```{r}
+# Generate some test data
+set.seed (100)
+x <- matrix(rnorm(200*2), ncol=2)
+x[1:100,]=x[1:100,]+2
+x[101:150,]=x[101:150,]-2
+
+y <- c(rep(1,150),rep(2,50))
+dat <- data.frame(x=x,y=as.factor(y))
+
+plot(x, col=y)
+```
+
+```{r}
+set.seed(100)
+train <- sample(200, 100)
+
+svm.fit <- svm(y ~., data=dat[train,], kernel='radial', gamma=1, cost=1)
+
+plot(svm.fit, dat[train,])
+```
+
+```{r}
+summary(svm.fit)
+```
+
+```{r}
+yhat <- predict(svm.fit, dat[-train,])
+confusionMatrix(yhat, dat[-train,'y'])
+```
+
+Jika kita menaikkan nilai cost, maka kita akan menghasilkan kesalahan yang lebih kecil, namun hal tersebut juga berisiko overfitting.
+
+```{r}
+svm.fit <- svm(y ~., dat[train,], kernel='radial', gamma=1, cost=1e5)
+
+plot(svm.fit, dat[train,])
+```
+
+```{r}
+summary(svm.fit)
+```
+
+Kita juga dapat melakukan validasi silang. Kita dapat menggunakan perintah `tune()` untuk mencoba beberapa nilai cost yang berbeda serta beberapa nilai gamma yang berbeda agar sesuai dengan batas nonlinear.
+
+```{r}
+set.seed(100)
+tune.out <- tune(svm, y ~., data=dat[train,], 
+                 kernel='radial', 
+                 ranges = list(cost=c(0.1,1,10,100,1000),
+                 gamma=c(0.5, 1,2,3,4)))
+
+summary(tune.out)
+```
+
+```{r}
+# show best model
+tune.out$best.model
+```
+
+Model yang paling banyak mengurangi kesalahan pada data pelatihan adalah yang menggunakan cost = 10 dan gamma= 0.5. Kemudian kita akan lihat bagaimana performa dari model dalam memprediksi kelas dari 100 data uji.
+
+```{r}
+yhat <- predict(tune.out$best.model, dat[-train,])
+confusionMatrix(yhat, dat[-train, 'y'])
+```
+
+### ROC CURVES
+
+```{r message=FALSE, warning=FALSE}
+install_load("ROCR")
+
+# function to handle the different models
+rocplot <- function(pred, truth, ...){
+  predob =  prediction(pred, truth)
+  perf = performance(predob, 'tpr', 'fpr')
+  plot(perf, ...)
+
+}
+```
+
+Berikutnya kita akan membangun kembali SVM, kita tetapkan `decision.values=TRUE` untuk mendapatkan nilai yang sesuai.
+
+```{r}
+svm.opt <- svm(y ~., data=dat[train,], kernel='radial',
+               gamma=2, cost=1, decision.values=T)
+
+fitted <- attributes(predict(svm.opt, dat[train,], decision.values=T))$decision.values
+
+rocplot(fitted, dat[train,'y'], main='Training Data')
+```
+
+## SVM dengan Package `caret`
+
+```{r message=FALSE, warning=FALSE}
+attach(Auto); str(Auto)
+```
+
+```{r}
+datatable(Auto, filter = 'top', 
+          options = list(pageLength = 5))
+```
+
+```{r}
+# Create a binary variable that takes on 1 for cars with gas mileage > median
+Auto$y <- NA
+Auto$y[Auto$mpg > median(Auto$mpg)] <- 1
+Auto$y[Auto$mpg <= median(Auto$mpg)] <- 0
+Auto$y <- as.factor(Auto$y)
+length(Auto[is.na(Auto$y)]) # make sure there are no NA's
+```
+
+### SVM dengan Kernel Linear
+
+```{r}
+set.seed(123)
+split <- createDataPartition(y=Auto$y, p=0.7, list=FALSE)
+train <- Auto[split,]
+test <- Auto[-split,]
+# Remove mpg / name features
+train <- train[-c(1,9)]
+test <- test[-c(1,9)]
+
+# 10 fold cross validation
+ctr <- trainControl(method='repeatedcv',
+                    number=10,
+                    repeats=3)
+
+# Recall as C increases, the margin tends to get wider
+grid <- data.frame(C=seq(0.01,10,0.5))
+
+svm.linear <- train(y ~., train,
+                 method='svmLinear',
+                 preProc=c('center','scale'),
+                 trControl=ctr,
+                 tuneGrid=grid)
+svm.linear
+```
+
+```{r}
+svm.linear$bestTune
+```
+
+```{r}
+ggplot(svm.linear)
+```
+
+```{r}
+# Training error rate
+confusionMatrix(predict(svm.linear, train), train$y)
+```
+
+```{r}
+# Testing error rate
+yhat <- predict(svm.linear, test)
+confusionMatrix(yhat, test$y)
+```
+
+### SVM dengan Kernel Polinomial
+
+```{r}
+set.seed(123)
+# Try a polynomial function
+svm.poly <- train(y ~., train,
+                 method='svmPoly',
+                 trControl=ctr,
+                 tuneLength=4)
+                 
+svm.poly
+```
+
+```{r}
+svm.poly$bestTune
+```
+
+```{r}
+plot(svm.poly)
+```
+
+```{r}
+# Training error rate
+confusionMatrix(predict(svm.poly, train), train$y)
+```
+
+```{r}
+# Testing error rate
+yhat <- predict(svm.poly, test)
+confusionMatrix(yhat, test$y)
+```
+
+### SVM dengan Kernel Radial
+
+```{r}
+set.seed(123)
+
+# Try a radial function
+svm.radial <- train(y ~., train,
+                 method='svmRadial',
+                 trControl=ctr,
+                 tuneLength=10)
+svm.radial
+```
+
+```{r}
+svm.radial$bestTune
+```
+
+```{r}
+plot(svm.radial)
+```
+
+```{r}
+# Training error rate
+confusionMatrix(predict(svm.radial, train), train$y)
+```
+
+```{r}
+# Testing error rate
+yhat <- predict(svm.radial, test)
+confusionMatrix(yhat, test$y)
+```
+
+## SVM (dari Kaggle)
+
+### **Penyiapan Data**
+
+> **Import data**
+
+```{r}
+data <- read.csv("https://raw.githubusercontent.com/sainsdataid/dataset/main/wine-quality-binary.csv")
+
+str(data)
+
+head(data)
+
+# membuang kolom id
+data$id <- NULL
+
+# merubah kolom quality menjadi `factor`
+data$quality <- as.factor(data$quality)
+
+# melihat proporsi masing-masing kategori
+quality <- data.frame(table(data$quality))
+
+quality$prop <- round(quality$Freq/sum(quality$Freq), 3)
+
+quality
+```
+
+> **Pembagian Data Latih dan Data Uji**
+
+```{r}
+# Membagi data Latih dan Data Uji
+
+set.seed(123)  # Untuk menghasilkan nilai acak yang dapat direproduksi
+
+# membagi data secara acak
+# dengan menghasilkan indeks data latih dan data uji
+# data latih = 75%, data uji = 25%
+trainIndex <- createDataPartition(data$quality, p = 0.75, list = FALSE, times = 1)
+
+# Buat data latih dan data uji berdasarkan indeks yang dihasilkan
+data.train <- data[trainIndex, ]
+data.test <- data[-trainIndex, ]
+
+# melihat komposisi setiap kelas pada data train dan test
+cbind("train" = table(data.train$quality), "test" = table(data.test$quality))
+```
+
+### Membuat Model SVM
+
+```{r}
+# Training SVM mod
+svm.model <- svm(quality ~ ., data = data.train, kernel = "radial")
+```
+
+```{r}
+# Prediksi menggunakan data uji
+predictions <- predict(svm.model , newdata = data.test)
+
+# Hitung akurasi
+accuracy <- mean(predictions == data.test$quality)
+print(paste("Akurasi:", accuracy))
+```
+
+```{r}
+# untuk membuat confusion Matrix
+confusionMatrix(data = predictions,
+                reference = data.test$quality)
+```
+
+### Tuning Hiperparameter
+
+```{r}
+svm.tuned <- tune(svm, quality ~ ., 
+                  data = data.train, 
+                  kernel = "radial",  
+                  ranges = list(cost = c( 0.1, 0.2, 0.5, 0.9, 1, 2, 10),
+                                gamma=c(0.01,0.02, 0.05, 0.1)))
+
+svm.tuned
+
+(svm.best <- svm.tuned$best.model)
+
+# Evaluasi model terbaik
+best_predictions <- predict(svm.best, newdata = data.test)
+
+# untuk membuat confusion Matrix
+confusionMatrix(data = best_predictions,
+                reference = data.test$quality)
+```
+
+```{r}
+# Tuning hyperparameter (misalnya, mencari nilai C terbaik)
+svm.tuned <- tune(svm, quality ~ ., data = data.train, 
+                  kernel = "polynomial",  
+                  cross = 3,
+                  ranges = list(cost = c( 0.1, 0.2, 0.5, 0.9, 1, 2, 10),
+                                gamma=c(0.01,0.02, 0.05, 0.1),
+                                degree = c(1, 2, 3, 4))) # 1 sama dengan kernel linear
+
+svm.tuned
+
+(svm.best <- svm.tuned$best.model)
+
+# Evaluasi model terbaik
+best_predictions <- predict(svm.best, newdata = data.test)
+
+# untuk membuat confusion Matrix
+confusionMatrix(data = best_predictions,
+                reference = data.test$quality)
+```
+
+## SUPPORT VECTOR REGRESSION (SVR)
+
+### Penyiapan data
+
+> **Load Data**
+
+```{r}
+# Membaca data
+data <- read.csv("https://raw.githubusercontent.com/sainsdataid/dataset/main/data_ipm_jawa_2018.csv")
+
+# Kolom ID tidak diperlukan
+data$id = NULL
+
+# Melihat Struktur data
+str(data)
+```
+
+> **Pembagian Data Latih dan Data Uji**
+
+```{r}
+set.seed(123)
+
+index <- createDataPartition(data$ipm_2018, p =  0.7, list = FALSE)
+
+# Membagi dataset
+train_data <- data[index, ]
+test_data <- data[-index, ]
+```
+
+### Membuat Model SVR
+
+```{r}
+# Training SVM model untuk regresi
+svr.model <- svm(ipm_2018 ~ ., data = train_data, kernel = "radial", type = "eps-regression")
+
+# Prediksi menggunakan data uji
+predictions <- predict(svr.model, newdata = test_data)
+
+# Hitung Mean Squared Error (MSE)
+rmse <- mean((predictions - test_data$ipm_2018)^2)^0.5
+print(paste("Root Mean Squared Error (RMSE):", rmse))
+```
+
+### Tuning Hiperparameter
+
+```{r}
+# Tuning hyperparameter
+svr.tuned <- tune(svm, ipm_2018 ~ ., 
+                  data = train_data, 
+                  kernel = "radial", 
+                  type = "eps-regression",  
+                  ranges = list(cost = c( 0.1, 0.2, 0.5, 0.9, 1, 2, 10),
+                                gamma=c(0.01,0.02, 0.05, 0.1)))
+
+# Model terbaik dari tuning
+svr.best <- svr.tuned $best.model
+
+# Evaluasi model terbaik
+best_predictions <- predict(svr.best, newdata = test_data)
+best_rmse <- mean((best_predictions- test_data$ipm_2018)^2)^0.5
+print(paste("Mean Squared Error (MSE) Model Terbaik:", best_rmse))
+```
