@@ -5,8 +5,12 @@ date: "2024-04-04"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r , include=FALSE, echo=FALSE, warning=FALSE, message = FALSE}
+
+path <- function() gsub  ( "\\\\",  "/",  readClipboard ()  )
+#Set Working Directory
+require("knitr")
+opts_knit$set(root.dir = "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 6/2. Teknik Pembelajaran Mesin/Materi/Prak 10")
 ```
 
 # Pendahuluan
@@ -222,8 +226,7 @@ $$
 h(B_r,B_s)=d(\overline{X_r},\overline{X_s})
 $$
 
-Centroid cluster baru ditentukan sebagai :
-$$
+Centroid cluster baru ditentukan sebagai : $$
 \frac{n_r\overline{X_r}+n_s\overline{X_s}}{n_r+n_s}
 $$
 
@@ -246,10 +249,6 @@ Complete, average, dan centroid adalah jenis yang paling populer dalam hierarki 
 
 ## Ilustrasi
 
-```{r, include=FALSE}
-setwd("C:/R")
-```
-
 Contoh aplikasi pada Dataset Credit Card:
 
 Dataset ini menyediakan informasi mengenai perilaku dari 9000 pengguna aktif kartu kredit dalam waktu 6 bulan terakhir
@@ -258,7 +257,7 @@ Dataset ini menyediakan informasi mengenai perilaku dari 9000 pengguna aktif kar
 
 ```{r}
 # Visualisasi DotPlot
-data <- read.csv("C:/R/Credit Card.csv")
+data <- read.csv("Credit Card.csv")
 data20 <- data[1:20,]
 stripchart(data20$BALANCE, "stack", pch = 19, cex = 1)
 ```
@@ -375,7 +374,7 @@ Tentukanlah gerombol customer tersebut dengan menggunakan metode K-Means.
 
 ```{r}
 # Persiapan data
-data.mall <- read.csv("C:/Users/Irsyadobby/Downloads/Mall_Customers.csv", sep = ",")
+data.mall <- read.csv("Mall_Customers.csv", sep = ",")
 str(data.mall)
 
 head(data.mall)
@@ -515,8 +514,7 @@ res_kmeans <- cluster_analysis(Eurojobs,
 )
 
 predict(res_kmeans)
-
-plot(summary(res_kmeans))
+plot(res_kmeans)
 ```
 
 Keuntungan dari fungsi ini adalah dapat memvisualisasikan titik tengah atau rata-rata dari masing-masing variabel pada masing-masing klaster.
@@ -715,8 +713,7 @@ $$
 
 Kriteria ini berdasarkan kompromi antara homogenitas di dalam klaster dengan pemisahan antarklaster, yang mengukur bagaimana kemungkinan suatu titik ditempatkan pada klaster lain.
 
-Koefisien Silhouette dapat dihitung dengan formula berikut: 
-$$
+Koefisien Silhouette dapat dihitung dengan formula berikut: $$
 s_i=\frac{b_i-a_i}{max(a_i,b_i)}
 $$
 
@@ -724,11 +721,9 @@ di mana 𝑎𝑖=1𝑛𝑘−1∑𝑐(𝑗)=𝑘𝑑(𝑥𝑖,𝑥𝑖) adalah k
 
 Sehingga ASW dapat dihitung sebagai rataan dari koefisien Silhouette dari setiap klaster ke-i.
 
-
 $$
 ASW(C_K) = \frac{1}{n}\sum_{i=1}^nS_i
-$$
-Jika 𝑏𝑖>>𝑎𝑖, artinya 𝑥𝑖 sudah sangat tepat berada di klasternya.
+$$ Jika 𝑏𝑖\>\>𝑎𝑖, artinya 𝑥𝑖 sudah sangat tepat berada di klasternya.
 
 Koefisien Silhouette berkisar antara -1 dan 1, di mana pengklasteran dianggap baik jika **nilainya semakin besar.**
 
@@ -756,13 +751,15 @@ pam$medoids
 #pam.res$clustering
 pam$clustering
 ```
+
 **K-Means Clustering**
+
 ```{r}
 km<-eclust(Eurojobs, "kmeans", hc_metric="euclidean",k=4)
 ```
 
-
 **CH Index**
+
 ```{r}
 library(clusterSim)
 (ch.km<-index.G1(Eurojobs, cl=km$cluster))
@@ -770,12 +767,14 @@ library(clusterSim)
 ```
 
 **DB Index**
+
 ```{r}
 (db.km<-index.DB(Eurojobs, cl=km$cluster)$DB)
 (db.pam<-index.DB(Eurojobs, cl=pam$cluster)$DB)
 ```
 
 **ASW**
+
 ```{r}
 library(fpc)
 (sil.km<-fviz_silhouette(km)) 
