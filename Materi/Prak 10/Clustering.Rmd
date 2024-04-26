@@ -1,0 +1,793 @@
+---
+title: "Cluster Analysis"
+author: "Muhammad Irsyad Robbani"
+date: "2024-04-04"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Pendahuluan
+
+Tujuan analisis klasifikasi adalah untuk menentukan keanggotaan grup/kelompok dari suatu individu. Dalam analisis klasifikasi terdapat dua metode yaitu:
+
+-   ***Unsupervised***, tidak terdapat informasi mengenai kelompok/grup dari amatan pada data yang digunakan. Analisis dilakukan untuk menentukan keanggotaan grup dati amatan tersebut. Sering juga dikenal sebagai analisis gerombol (clustering, cluster analysis).
+
+-   ***Supervised***, data memiliki informasi mengenai kelompok/grup sesungguhnya dari amatan. Analisis dilakukan untuk menentukan pembeda antargrup, dan aturan pembeda tersebut dapat dimanfaatkan untuk menentukan keanggotaan dari amatan lain yang tidak ada dalam data.
+
+Dalam beberapa hal, tujuan suatu penelitian adalah untuk mengelompokkan individu-individu berdasarkan banyak peubah penciri. Individu-individu dalam satu kelompok memiliki kemiripan atau keragaman yang kecil dibandingkan individu-individu di kelompok yang berbeda.
+
+Analisis gerombol merupakan metode yang dapat menggabungkan beberapa individu ke dalam kelompok-kelompok berdasarkan sifat kemiripan atau sifat ketidakmiripan antar objek, sehingga objek dalam kelompok lebih mirip dibandingkan dengan objek antar kelompok.
+
+Hasil dari analisis gerombol adalah sejumlah kelompok, di mana setiap kelompok berbeda satu sama lain, dan objek atau titik data dalam setiap kelompok cenderung mirip satu sama lain.
+
+Tujuan dari analisis gerombol adalah untuk membantu mengungkap pola dan struktur dalam dataset yang mungkin memberikan wawasan tentang hubungan dan asosiasi yang mendasarinya.
+
+## 
+
+Penerapan
+
+Analisis klaster/gerombol dapat diterapkan dalam:
+
+-   Segmentasi, contohnya segmentasi pelanggan menjadi beberapa kelompok dengan pola demografis atau perilaku pembelian yang mirip. Hal ini dapat dimanfaatkan untuk marketing campaign atau analisis yang lebih detail pada subgroup tertentu.
+
+-   Deteksi suatu anomali pada data, misalnya pencilan, atau pengamatan dengan perilaku yang tidak biasa, seperti transaksi keuangan yang curang, pola tidak biasa dalam lalu lintas jaringan, atau data medis yang berbeda dari yang lainnya.
+
+-   Penyederhanaan gugus data yang amat sangat besar sekali, dengan mengelompokkan sejumlah besar fitur yang mirip menjadi beberapa kategori yang homogen dan ukurannya jauh lebih sedikit.
+
+-   Image Processing, digunakan untuk mengelompokkan piksel dengan properti serupa, sehingga memungkinkan identifikasi objek dan pola dalam gambar.
+
+-   Biology and Medicine, digunakan untuk mengidentifikasi gen yang terkait dengan penyakit tertentu atau mengelompokkan pasien dengan karakterisik klinis serupa. Ini dapat membantu dalam diagnosis dan pengobatan penyakit.
+
+-   Social Network Analysis, digunakan untuk mengelompokkan individu dengan koneksi sosial dan karakteristik serupa, sehingga memungkinkan identifikasi subkelompok dalam jaringan yang lebih besar.
+
+## Jenis Clustering
+
+Terdapat beberapa jenis clustering yang umum digunakan dalam analisis data, termasuk:
+
+1.  **Hierarchical Clustering (Clustering Hirarki)**:
+
+    -   Metode ini mengelompokkan data ke dalam struktur hirarki berupa pohon atau dendrogram.
+
+    -   Terdapat dua jenis utama dari hierarchical clustering: agglomerative (pemusatan) dan divisive (pemisahan).
+
+    -   Agglomerative clustering dimulai dengan setiap data sebagai cluster tunggal, kemudian menggabungkan cluster secara berurutan hingga satu kelompok besar terbentuk.
+
+    -   Divisive clustering dimulai dengan satu kelompok besar, lalu memisahkan kelompok tersebut menjadi kelompok-kelompok yang lebih kecil.
+
+2.  **Partitional Clustering (Clustering Partisi)**:
+
+    -   Metode ini membagi data ke dalam sejumlah kelompok tanpa struktur hirarki.
+
+    -   Salah satu algoritma partitional clustering yang terkenal adalah K-Means, yang membagi data menjadi K kelompok yang disebut cluster.
+
+    -   Algoritma K-Means mencoba untuk meminimalkan jarak antara titik data dengan pusat kelompok (centroid) yang sesuai.
+
+3.  **Density-Based Clustering (Clustering Berbasis Kepadatan)**:
+
+    -   Jenis clustering ini mengidentifikasi kelompok berdasarkan kerapatan data dalam ruang atribut.
+
+    -   DBSCAN (Density-Based Spatial Clustering of Applications with Noise) adalah salah satu algoritma density-based yang populer. Algoritma ini mengelompokkan data berdasarkan kerapatan titik data dan mampu menangani noise (data yang tidak masuk ke dalam kelompok tertentu).
+
+4.  **Model-Based Clustering (Clustering Berbasis Model)**:
+
+    -   Metode ini memodelkan data dalam setiap kelompok dengan distribusi statistik tertentu.
+
+    -   GMM (Gaussian Mixture Model) adalah salah satu contoh model-based clustering yang menganggap data di setiap kelompok sebagai distribusi Gaussian.
+
+    -   Algoritma EM (Expectation-Maximization) sering digunakan untuk mengestimasi parameter distribusi dalam GMM.
+
+5.  **Centroid-Based Clustering (Clustering Berbasis Pusat)**:
+
+    -   Algoritma dalam kategori ini mengelompokkan data berdasarkan pusat-pusat kelompok (centroid) yang mewakili kelompok tersebut.
+
+    -   Selain K-Means, algoritma Fuzzy C-Means (FCM) juga termasuk dalam jenis ini, yang memungkinkan titik data untuk memiliki tingkat keanggotaan yang berbeda pada setiap kelompok.
+
+6.  **Graph-Based Clustering (Clustering Berbasis Grafik)**:
+
+    -   Jenis clustering ini memodelkan data sebagai grafik dan mengidentifikasi kelompok berdasarkan struktur grafik tersebut.
+
+    -   Contohnya adalah Spectral Clustering yang menggunakan matriks laplacian dari grafik data untuk mengelompokkan data.
+
+7.  **Birch Clustering (Clustering Birch)**:
+
+    -   Algoritma ini cocok untuk data berdimensi tinggi dan dapat menghasilkan pohon BIRCH (Balanced Iterative Reducing and Clustering using Hierarchies) yang kompak untuk merepresentasikan data.
+
+Pilihan jenis clustering yang tepat tergantung pada sifat data dan tujuan analisis. Setiap jenis clustering memiliki kelebihan dan kelemahan sendiri, sehingga pemilihan algoritma yang sesuai sangat penting untuk memenuhi kebutuhan analisis data.
+
+## Kelebihan dan Kekurangan
+
+Cluster analysis memiliki kelebihan dan kekurangan:
+
+**Kelebihan Cluster Analysis:**
+
+1.  **Penemuan Pola Tersembunyi**: Cluster analysis dapat membantu dalam menemukan pola tersembunyi dalam data yang mungkin sulit dilihat dengan mata telanjang. Ini dapat membantu dalam pengambilan keputusan yang lebih baik.
+
+2.  **Segmentasi Pelanggan**: Dalam konteks bisnis, cluster analysis sering digunakan untuk memahami pelanggan dengan lebih baik. Ini memungkinkan perusahaan untuk mengidentifikasi segmen pelanggan yang berbeda dan menyusun strategi pemasaran yang lebih efektif.
+
+3.  **Simplifikasi Data**: Dengan mengelompokkan data menjadi kelompok-kelompok, cluster analysis dapat mengurangi kompleksitas data, sehingga memudahkan pemahaman dan analisis.
+
+4.  **Validasi Hipotesis**: Cluster analysis dapat digunakan untuk menguji hipotesis tertentu atau mengonfirmasi asumsi-asumsi yang dibuat tentang data.
+
+5.  **Mengidentifikasi Anomali**: Cluster analysis dapat membantu mengidentifikasi data yang tidak biasa atau anomali yang mungkin perlu perhatian khusus.
+
+**Kekurangan Cluster Analysis:**
+
+1.  **Sensitif Terhadap Inisialisasi**: Beberapa algoritma clustering seperti K-Means sangat sensitif terhadap inisialisasi awal centroid, yang dapat menghasilkan hasil yang berbeda jika inisialisasi berbeda.
+
+2.  **Tidak Ada Jawaban yang Benar**: Cluster analysis adalah proses berbasis pemodelan dan interpretasi, dan tidak ada jawaban yang benar atau salah. Hasil cluster analysis dapat bervariasi tergantung pada pemilihan metode, parameter, atau inisialisasi yang digunakan.
+
+3.  **Data Multidimensi**: Cluster analysis dapat menjadi lebih sulit untuk data dengan dimensi yang tinggi karena konsep jarak atau kesamaan menjadi lebih abstrak dalam ruang berdimensi tinggi.
+
+4.  **Outlier Sensitif**: Beberapa algoritma clustering dapat sangat sensitif terhadap outlier, yang dapat mengganggu pembentukan kelompok yang sebenarnya.
+
+5.  **Dapat Overfitting**: Dalam analisis klaster, overfitting merujuk pada fenomena di mana algoritma klaster menciptakan klaster yang terlalu kompleks atau rumit, menyesuaikan kebisingan atau karakteristik khas data daripada menangkap pola atau struktur yang mendasarinya. Overfitting dapat terjadi ketika algoritma memiliki terlalu banyak fleksibilitas atau ketika jumlah klaster terlalu besar dibandingkan dengan struktur intrinsik data.
+
+6.  **Dapat Underfitting**: Dalam analisis klaster underfitting terjadi ketika algoritma atau pengaturan yang dipilih terlalu kaku atau sederhana untuk menangkap kompleksitas data.
+
+7.  **Pilihan Metode yang Sulit**: Memilih metode clustering yang tepat dan menentukan jumlah cluster yang sesuai dapat menjadi tantangan yang sulit. Kesalahan dalam pemilihan metode atau jumlah cluster dapat menghasilkan hasil yang tidak relevan.
+
+8.  **Interpretasi Subjektif**: Interpretasi hasil cluster analysis sering kali subjektif, dan hasil yang ditemukan tergantung pada pemahaman dan penafsiran analis.
+
+9.  **Ketergantungan Terhadap Data Awal**: Cluster analysis sangat tergantung pada kualitas data yang digunakan. Data yang buruk atau tidak sesuai dapat menghasilkan hasil clustering yang tidak akurat.
+
+Sementara cluster analysis dapat memberikan wawasan berharga dalam pemahaman data, penting untuk mempertimbangkan kelebihan dan kekurangannya serta menjalankan analisis dengan hati-hati, termasuk validasi hasil dan pemilihan metode yang sesuai untuk tujuan analisis tertentu.
+
+## Teknik Penggerombolan
+
+![](images/image-2047920676.png)
+
+## Konsep Jarak
+
+Objek yang berada pada gerombol yang sama memiliki kemiripan yang lebih besar dibandingkan objek yang ada dalam gerombol lainnya. Kemiripan/ketakmiripan antar objek dalam analisis gerombol menggunakan konsep jarak.
+
+Jarak merupakan konsep inti dari proses cluster analysis. Jarak sering juga disejajarkan dengan istilah dissimilarity.
+
+Jarak antar 2 objek a dan b dinotasikan dengan d(a,b), di mana:
+
+-   d(a,b) \>= 0
+
+-   d(a,a) = 0
+
+-   d(a,b) = d(b,a)
+
+-   d(a,b) meningkat seiring semakin tidak mirip kedua objek a dan b
+
+-   d(a,c) \<= d(a,b) + d(b,c)
+
+Asumsi: semua pengukuran bersifat numerik.
+
+Terdapat bermacam-macam formula/defisini penghitungan jarak, yaitu: Euclidean, Weighted Euclidean, Mahalanobis, City block, Jaccard, Hamming, dll.
+
+![](images/image-717244714.png){width="500"}
+
+Memilih metrik jarak yang sesuai adalah langkah penting dalam analisis klaster karena menentukan bagaimana kemiripan atau ketidakmiripan dihitung antara titik data. Pemilihan metrik jarak harus sesuai dengan karakteristik data dan tujuan analisis klaster. Berikut beberapa panduan yang perlu dipertimbangkan saat memilih metrik jarak untuk analisis klaster:
+
+Pahami sifat data: Pertimbangkan jenis data yang akan digunakan. Apakah itu data numerik, kategorikal, biner, atau campuran dari berbagai jenis? Metrik jarak yang berbeda cocok untuk berbagai jenis data.
+
+**Jarak Euclidean**: sering digunakan untuk data yang bersifat kontinu atau numerik. Ini mengukur jarak lurus antara dua titik dalam ruang Euclidean. Ini mengasumsikan bahwa semua variabel memiliki bobot yang sama dan berada pada skala yang sama. Jarak Euclidean banyak digunakan dalam algoritma seperti k-means dan klaster hierarki.
+
+**Jarak Manhattan**: juga dikenal sebagai jarak block kota atau jarak L1, menghitung jumlah perbedaan absolut antara koordinat dua titik. Ini cocok untuk data numerik ketika variabel memiliki skala yang berbeda atau mewakili unit yang berbeda. Jarak Manhattan tahan terhadap pencilan dan digunakan dalam algoritma klaster seperti k-medians.
+
+**Jarak Minkowski**: metrik jarak yang umum yang mencakup kedua jarak Euclidean dan Manhattan sebagai kasus khusus. Ini didefinisikan sebagai akar pangkat n dari jumlah nilai absolut yang dinaikkan ke pangkat n. Dengan mengubah nilai parameter "n," berbagai metrik jarak dapat diperoleh. Ketika n=1, ini setara dengan jarak Manhattan, dan ketika n=2, ini setara dengan jarak Euclidean.
+
+**Jarak Hamming**: cocok untuk data kategorikal atau biner. Ini mengukur jumlah posisi di mana dua string dengan panjang yang sama berbeda. Ini sering digunakan untuk tugas pengelompokan yang melibatkan data teks, urutan DNA, atau vektor fitur biner.
+
+**Jarak Jaccard**: digunakan untuk mengukur ketidakmiripan antara himpunan. Ini sering digunakan untuk data biner atau kategorikal di mana kehadiran atau ketiadaan item menjadi perhatian. Jarak Jaccard didefinisikan sebagai rasio perbedaan ukuran dari irisan dan gabungan dua himpunan. Ini sering digunakan dalam tugas pengelompokan seperti pengelompokan dokumen teks atau sistem rekomendasi berbasis item.
+
+## Prosedur Clustering
+
+Dalam clustering (penggerombolan) terdapat dua prosedur yaitu:
+
+-   Hierarchical Clustering
+
+    -   Aglomeratif (dimulai dari n gerombol menjadi 1 gerombol)
+
+    -   Divisif (dimulai dari 1 gerombol menjadi n gerombol)
+
+    -   Banyaknya gerombol yang akan dihasilkan belum diketahui.
+
+    -   Banyaknya gerombol ditentukan berdasarkan dendogram.
+
+-   Non-hierarchical Clustering
+
+    -   Banyaknya gerombol yang ingin dibentuk sudah diketahui sejak awal.
+
+# Hierarchical Clustering
+
+Ada beberapa metode yang dapat digunakan untuk menggabungkan cluster berhierarki, yaitu:
+
+-   Pautan Tunggal (Single Linkage, Nearest Neighbor)\
+    Jarak antar dua gerombol diukur dengan jarak terdekat antara sebuah objek dalam gerombol yang satu dengan sebuah objek dalam gerombol yang lain.
+
+    $$
+    h(Br, Bs) = min { d(xi, xj); xi anggota Br, dan xj anggota Bs }
+    $$
+
+-   Pautan Lengkap (Complete Linkage, Farthest Neighbor)\
+    Jarak antar dua gerombol diukur dengan jarak terjauh antara sebuah objek dalam gerombol yang satu dengan sebuah objek dalam gerombol yang lain.
+
+    $$
+    h(Br, Bs) = max { d(xi, xj); xi anggota Br, dan xj anggota Bs }
+    $$
+
+-   Pautan Centroid (Centroid Linkage)\
+    Jarak antara dua buah gerombol diukur sebagai jarak Euclidean antara kedua rataan (centroid) gerombol.
+
+Jika $\overline{X_r}$ dan $\overline{X_s}$ adalah vektor rataan (centroid) dari gerombol Br dan Bs, maka jarak kedua gerombol tersebut didefinisikan sebagai :
+
+$$
+h(B_r,B_s)=d(\overline{X_r},\overline{X_s})
+$$
+
+Centroid cluster baru ditentukan sebagai :
+$$
+\frac{n_r\overline{X_r}+n_s\overline{X_s}}{n_r+n_s}
+$$
+
+-   Pautan Median (Median Linkage)\
+    Jarak antar gerombol didefinisikan sebagai jarak antar median, dan gerombol-gerombol dengan jarak terkecil akan digabungkan.
+
+    Median untuk gerombol yang baru adalah:
+
+    $$
+    $M_{baru}=\frac{m_r+m_s}{2}$
+    $$
+
+Pautan Rataan (Average Linkage) Jarak antara dua buah gerombol, Br dan Bs didefinisikan sebagai rataan dari nr ns jarak yang dihitung antara xi anggota Br dan xj anggota Bs.
+
+$$
+h(B_r,B_s)=\frac{1}{n_sn_r}\sum_{x_ieB_r}\sum_{x_jeB_r}d(x_i,x_j)
+$$
+
+Complete, average, dan centroid adalah jenis yang paling populer dalam hierarki klaster, karena single linkage cenderung menghasilkan dendrogram yang tidak seimbang. Perlu dicatat bahwa dendrogram yang dihasilkan sangat tergantung pada jenis linkage yang digunakan.
+
+## Ilustrasi
+
+```{r, include=FALSE}
+setwd("C:/R")
+```
+
+Contoh aplikasi pada Dataset Credit Card:
+
+Dataset ini menyediakan informasi mengenai perilaku dari 9000 pengguna aktif kartu kredit dalam waktu 6 bulan terakhir
+
+### Teknik Clustering 1 Variabel
+
+```{r}
+# Visualisasi DotPlot
+data <- read.csv("C:/R/Credit Card.csv")
+data20 <- data[1:20,]
+stripchart(data20$BALANCE, "stack", pch = 19, cex = 1)
+```
+
+### Teknik Clustering 2 Variabel
+
+```{r}
+library(classInt)
+View(data20)
+partisi1 <- classIntervals(data20$BALANCE)
+partisi2 <- classIntervals(data20$BALANCE, n = 4, style = "jenks")
+data20$cl1<-findCols(partisi1)
+data20$cl2<-findCols(partisi2)
+
+plot(data20$BALANCE, data20$CREDIT_LIMIT, pch = 19, cex = 1, ylab = "Purchase", xlab = "Balance", col = 2)
+```
+
+```{r}
+plot(data20$BALANCE, data20$CREDIT_LIMIT, type = "n", ylab = "Purchase", xlab = "Balance")
+text(data20$BALANCE, data20$CREDIT_LIMIT, data20$CUST_ID, cex = 0.7)
+
+head(data20)
+
+# Euclidean Distance
+jarak1 <- dist(data20[,-1])
+as.matrix(jarak1)
+
+# Manhattan Distance
+# Method : "euclidean", "maximum", "manhattan", "canberra", "binary“, "minkowski"
+jarak2 <- dist(data20[,-1], method = "manhattan")
+as.matrix(jarak2)
+
+# Scaling 
+jarak1sc <- dist(scale(data20[,-1]))
+as.matrix(jarak1sc)
+
+jarak2sc <- dist(scale(data20[,-1]), method = "manhattan")
+as.matrix(jarak2sc)
+
+clustsingle1 <- hclust(jarak1, method="single")
+clustcomp1 <- hclust(jarak1, method="complete")
+clustsingle1sc <- hclust(jarak1sc, method="single")
+clustcomp1sc <- hclust(jarak1sc, method="complete")
+
+par(mfrow = c(1, 2))
+plot(clustsingle1)
+plot(clustsingle1sc)
+
+plot(clustcomp1)
+plot(clustcomp1sc)
+```
+
+# Non-Hierarchical Clustering
+
+Non-hierarchical clustering, juga dikenal sebagai partitional clustering, adalah salah satu pendekatan dalam analisis klaster yang digunakan untuk mengelompokkan data menjadi beberapa kelompok yang tidak saling terkait. Ini berbeda dengan hierarchical clustering, di mana klaster dibentuk dalam hierarki berdasarkan kesamaan antara data.
+
+Tujuan dari non-hierarchical clustering adalah untuk mempartisi himpunan data menjadi kelompok-kelompok yang homogen sedemikian rupa sehingga data dalam satu kelompok memiliki kesamaan yang tinggi dan data antar kelompok memiliki kesamaan yang rendah.
+
+Salah satu algoritma non-hierarchical clustering yang paling populer adalah algoritma K-Means. Dalam algoritma ini, kita harus menentukan jumlah kelompok/klaster (K) sebelumnya. Algoritma akan mencoba membagi data menjadi K kelompok sedemikian rupa sehingga setiap titik data termasuk dalam satu kelompok yang paling dekat dengan pusat kelompoknya. Proses ini berulang hingga konvergensi, dan hasilnya adalah sejumlah K kelompok.
+
+Selain K-Means, ada berbagai algoritma non-hierarchical clustering lainnya seperti DBSCAN (Density-Based Spatial Clustering of Applications with Noise), Gaussian Mixture Models (GMM), dan Hierarchical Density-Based Spatial Clustering (HDBSCAN), yang masing-masing memiliki pendekatan dan kekuatan yang berbeda.
+
+Salah satu tantangan dalam non-hierarchical clustering adalah menentukan jumlah kelompok yang tepat (K) sebelum menjalankan algoritma. Pemilihan K yang tidak sesuai dapat menghasilkan hasil yang tidak memadai. Beberapa metode, seperti metode elbow atau silhouette score, digunakan untuk membantu dalam pemilihan K yang optimal.
+
+## K-Means
+
+K-Means adalah salah satu algoritma non-hierarchical clustering yang paling populer dalam analisis data dan pembelajaran mesin. K-means merupakan algoritma pengelompokan berbasis centroid, di mana kita menghitung jarak antara setiap titik data dan sebuah centroid untuk menetapkannya ke dalam sebuah kelompok. Tujuannya adalah untuk mengidentifikasi jumlah K kelompok dalam dataset.
+
+Ini adalah proses iteratif yang menetapkan setiap titik data ke dalam kelompok-kelompok dan secara perlahan titik-titik data tersebut dikelompokkan berdasarkan fitur-fitur yang mirip. Tujuannya adalah untuk meminimalkan jumlah jarak antara titik-titik data dan centroid kelompok, untuk mengidentifikasi kelompok yang benar-benar seharusnya dimiliki oleh setiap titik data.
+
+Di sini, kita membagi ruang data menjadi K kelompok dan menetapkan nilai rata-rata untuk masing-masingnya. Titik-titik data ditempatkan dalam kelompok-kelompok yang paling mendekati nilai rata-rata dari kelompok tersebut.
+
+### Algoritma K-Means
+
+Algoritma ini bekerja dengan cara berulang hingga konvergensi, dan berikut adalah langkah-langkahnya:
+
+1.  Inisialisasi: Langkah pertama dalam algoritma K-Means adalah menginisialisasi pusat-pusat klaster awal. Jumlah pusat klaster ini ditentukan sebelumnya oleh pengguna dan disebut sebagai K. Pusat-pusat klaster dapat diinisialisasi secara acak atau dengan metode khusus seperti k-means++.
+
+2.  Pengelompokkan (Assignment): Dalam langkah ini, setiap titik data ditempatkan dalam kelompok yang pusat klusternya paling dekat. Jarak antara titik data dan pusat cluster biasanya diukur dengan jarak euclidean
+
+### Kelebihan dan Kekurangan
+
+Berikut adalah beberapa kelebihan dan kekurangan utama dari K-Means:
+
+Kelebihan K-Means:
+
+-   Sederhana dan Cepat: K-Means adalah algoritma yang relatif sederhana dan cepat dalam mempartisi data menjadi kelompok-kelompok. Ini membuatnya efisien untuk data berukuran besar.
+
+-   Skalabilitas: Algoritma ini dapat digunakan pada dataset dengan jumlah fitur yang tinggi dan memiliki skalabilitas yang baik.
+
+-   Interpretasi yang Mudah: Hasil K-Means relatif mudah diinterpretasikan. Setiap kelompok memiliki pusat klasternya sendiri, dan kita dapat mengidentifikasi titik-titik data yang termasuk dalam setiap kelompok.
+
+-   Hasil Stabil: Jika inisialisasi awal yang baik digunakan dan algoritma dijalankan beberapa kali, hasil clustering K-Means dapat menjadi relatif stabil.
+
+Kekurangan K-Means:
+
+-   Hanya dapat digunakan pada data numerik/kontinu. Data kategorik menggunakan metode K-Modes. Data campuran numerik dan kategorik dapat menggunakan metode K-Prototype.
+
+-   Sensitif terhadap Inisialisasi Awal: Hasil clustering K-Means dapat sangat dipengaruhi oleh inisialisasi awal pusat klaster. Inisialisasi yang buruk dapat menghasilkan solusi yang suboptimal.
+
+-   Harus Menentukan Jumlah Kelompok (K): Kita harus menentukan jumlah kelompok (K) sebelum menjalankan algoritma. Pemilihan K yang tidak tepat dapat menghasilkan hasil clustering yang tidak sesuai.
+
+-   Klaster dengan Bentuk Berbentuk Convex: K-Means bekerja baik ketika kelompok memiliki bentuk convex dan ukuran yang seragam. Ini dapat menghasilkan hasil yang buruk untuk kelompok dengan bentuk yang tidak teratur atau ukuran yang tidak seragam.
+
+-   Sensitif terhadap Outlier: Titik data yang ekstrem (outlier) dapat memengaruhi pusat klaster dan menghasilkan clustering yang tidak baik.
+
+-   Algoritma ini kurang efisien dalam menangani kelompok dengan ukuran yang tidak sama.
+
+### Ilustrasi 1
+
+Diketahui data Mall Customers yang ingin dikelompokkan berdasarkan peubah Age, Annual.Income, dan Spending.Score, untuk dapat memberikan gambaran strategi marketing yang baik untuk dilakukan.
+
+Tentukanlah gerombol customer tersebut dengan menggunakan metode K-Means.
+
+```{r}
+# Persiapan data
+data.mall <- read.csv("C:/Users/Irsyadobby/Downloads/Mall_Customers.csv", sep = ",")
+str(data.mall)
+
+head(data.mall)
+
+# Data yang digunakan hanya kolom 3 sampai 5
+data.mall.OK <- data.mall[,3:5]
+str(data.mall.OK)
+
+head(data.mall.OK)
+
+boxplot(data.mall.OK)
+
+# Standarisasi peubah
+data.mall.stdz <- scale(data.mall.OK)
+apply(data.mall.stdz, 2, mean)
+apply(data.mall.stdz,2,sd)
+```
+
+```{r}
+library(factoextra)
+
+kmeans.mall <- eclust(data.mall.OK,stand = TRUE,FUNcluster = "kmeans",k=4,graph = T)
+table(kmeans.mall$cluster)
+
+# Interpretasi
+kmeans.mall$centers
+
+aggregate(data.mall.OK,by=list(cluster=kmeans.mall$cluster),FUN = mean)
+
+# Scatterplot
+fviz_cluster(kmeans.mall)
+```
+
+### Ilustrasi 2
+
+Dataset ini terdiri dari persentase populasi pekerja pada lapangan usaha (industri) yang berbeda di 26 negera di Eropa pada tahun 1979. Dataset ini memiliki 10 variabel.
+
+-   `Country` : nama negara
+
+-   `Agr` : % dari pekerja di Agriculture
+
+-   `Min` : % dari pekerja di Mining
+
+-   `Man` : % dari pekerja di Manufacturing
+
+-   `PS` : % dari pekerja di Power Supplies Industries
+
+-   `Con` : % dari pekerja di Construction
+
+-   `SI` : % dari pekerja di Service Industries
+
+-   `Fin` : % dari pekerja di Finance
+
+-   `SPS` : % dari pekerja di Social and Personal Services
+
+-   `TC` : % dari pekerja di Transportation and Communications
+
+```{r}
+# Import data
+Eurojobs <- read.csv(
+  file = "https://statsandr.com/blog/data/Eurojobs.csv",
+  sep = ",",
+  dec = ".",
+  header = TRUE,
+  row.names = 1
+)
+
+head(Eurojobs)
+```
+
+Pada dataset ini tidak perlu melakukan standardisasi data karena semua variabel memiliki satuan yang sama yaitu persen (%). Berikutnya kita akan melakukan k-means clustering dengan 2 klaster.
+
+```{r}
+set.seed(123)
+model <- kmeans(Eurojobs, centers = 2)
+model
+
+model$cluster
+
+table(model$cluster)
+```
+
+Klaster pada masing-masing amatan dapat disimpan langsung ke dalam dataset menjadi sebuah kolom.
+
+```{r}
+Eurojobs_cluster <- data.frame(Eurojobs,
+  cluster = as.factor(model$cluster)
+)
+
+head(Eurojobs_cluster)
+```
+
+*Kualitas dari K-Means Partition*
+
+Kualitas dari K-Means Partition dapat dilihat dengan menghitung persentase dari Total Sum of Squares (TSS) "explained" dengan formula: (BSS/TSS) x 100% di mana BSS merupakan Between Sum of Squares. Semakin tinggi persentase maka semakin baik kualitas dari K-Means Partition karena BSS yang besar atau WSS (Within Sum of Squares) yang kecil.
+
+```{r}
+# BSS and TSS are extracted from the model and stored
+(BSS <- model$betweenss)
+
+(TSS <- model$totss)
+
+# We calculate the quality of the partition
+BSS / TSS * 100
+```
+
+Selanjutkan kita akan melihat bagaimana K-Means Clustering dengan 3 klaster.
+
+```{r}
+set.seed(123)
+model2 <- kmeans(Eurojobs, centers = 3)
+model2
+
+model2$cluster
+
+table(model2$cluster)
+
+BSS2 <- model2$betweenss
+TSS2 <- model2$totss
+BSS2 / TSS2 * 100
+```
+
+Dapat dilihat bahwa pengklasteran dengan 3 klaster memiliki nilai kualitas partition yang lebih tinggi.
+
+Hal yang akan selalu terjadi: dengan lebih banyak kelas, partisi akan menjadi lebih halus, dan kontribusi BSS akan lebih tinggi. Di sisi lain, "model" akan menjadi lebih kompleks, memerlukan lebih banyak kelas. Dalam kasus ekstrem di mana k = n (setiap observasi adalah kelas singleton), kita memiliki BSS = TSS, tetapi partisi tersebut kehilangan semua kepentingannya.
+
+Metode alternatif lainnya untuk melihat performa K-Means adalah dengan menggunakan fungsi cluster_analysis() dari package parameters.
+
+```{r}
+library(parameters)
+
+set.seed(123)
+
+res_kmeans <- cluster_analysis(Eurojobs,
+  n = 3,
+  method = "kmeans"
+)
+
+predict(res_kmeans)
+
+plot(summary(res_kmeans))
+```
+
+Keuntungan dari fungsi ini adalah dapat memvisualisasikan titik tengah atau rata-rata dari masing-masing variabel pada masing-masing klaster.
+
+## Jumlah Klaster Optimal
+
+Untuk menentukan jumlah klaster optimal untuk k-means, disarankan untuk memilihnya berdasarkan:
+
+1.  Konteks masalah yang ada, misalnya jika diketahui bahwa ada jumlah kelompok tertentu dalam data (kita memiliki harapan atau hipotesis yang kuat, pilihan ini bersifat subjektif), atau
+
+2.  Empat pendekatan berikut:
+
+-   Elbow Method (menggunakan WSS)
+
+-   Silhouette Method
+
+-   Gap Statistic Method
+
+-   Consensus-based algorithm
+
+### Elbow Method
+
+```{r}
+# load required packages
+library(factoextra)
+library(NbClust)
+
+# Elbow method
+fviz_nbclust(Eurojobs, kmeans, method = "wss") +
+  geom_vline(xintercept = 4, linetype = 2) + # add line for better visualisation
+  labs(subtitle = "Elbow method")
+```
+
+Lokasi lengkungan/siku dalam plot biasanya dianggap sebagai indikator jumlah klaster yang sesuai karena ini berarti penambahan klaster lainnya tidak banyak meningkatkan partisi. Metode ini menyarankan 4 klaster.
+
+Namun Elbow Method ini kadang-kadang juga ambigu.
+
+### Silhouette Method
+
+Silhouette Methode mengukur kualitas pengklasteran dan menentukan seberapa baik setiap titik terletak dalam kelompoknya.
+
+```{r}
+# Silhouette method
+fviz_nbclust(Eurojobs, kmeans, method = "silhouette") +
+  labs(subtitle = "Silhouette method")
+```
+
+### Gap Statistic Method
+
+```{r}
+# Gap statistic
+set.seed(123)
+fviz_nbclust(Eurojobs, kmeans,
+  nstart = 25,
+  method = "gap_stat",
+  nboot = 500 # reduce it for lower computation time (but less precise results)
+) +
+  labs(subtitle = "Gap statistic method")
+```
+
+### Consesus-based Algorithm
+
+Karena tidak ada metode yang secara jelas lebih baik, maka alternatif keempat ini akan menjalankan banyak metode dan mengambil jumlah klaster yang paling disepakati (misalnya menemukan consensus).
+
+```{r}
+library(parameters)
+
+n_clust <- n_clusters(Eurojobs,
+  package = c("easystats", "NbClust", "mclust"),
+  standardize = FALSE
+)
+n_clust
+
+plot(n_clust)
+```
+
+## Visualisasi
+
+Untuk memastikan bahwa jumlah klaster memang benar-benar optimal, ada cara untuk mengevaluasi kualitas pengklasteran melalui plot silhouette.
+
+Kita akan buat plot silhouette untuk 2 klaster sebagaimana yang disarankan oleh metode silhouette.
+
+```{r}
+library(cluster)
+
+set.seed(123)
+km_res <- kmeans(Eurojobs, centers = 2, nstart = 20)
+
+sil <- silhouette(km_res$cluster, dist(Eurojobs))
+fviz_silhouette(sil)
+```
+
+Interpretasi dari koefisien silhouette:
+
+-   Koefisien \> 0 artinya amatan diklasterkan dengan baik. Semakin mendekati nilai 1 maka semakin baik pengklasteran.
+
+-   Koefisien \< 0 artinya amatan ditempatkan pada klaster yang salah.
+
+-   Koefisien = 0 artinya amatan berada di antara dua klaster.
+
+Dilihat pada plot, jika sebagian besar koefisien silhouette positif maka ini menunjukkan bahwa amatan ditempatkan dalam klaster yang benar.
+
+```{r}
+library(factoextra)
+
+fviz_cluster(km_res, Eurojobs, ellipse.type = "norm")
+```
+
+# Evaluasi Cluster
+
+Dalam memvalidasi pengklasteran yang telah dibentuk, terdapat beberapa hal yang biasanya dievaluasi:
+
+-   Clustering tendency
+
+    -   Visualisasi, uji hopitesis, misalnya uji Hopkins, SigClust
+
+-   Banyaknya klaster
+
+    -   Berdasrkan pengetahuan domain, metode elbow, gap statistics
+
+-   Kualitas penggerombolan
+
+    -   Ekstrinsik: memerlukan label "groundh truth"
+
+    -   Instrinsik: tidak perlu label
+
+        -   Indeks Calinski-Harabasz, Davies-Boulding, Koefisien Silohouette
+
+## **Indeks Calinski-Harabasz (CH)**
+
+Indeks CH mengukur keragaman antarklaster terhadap keragaman di dalam klaster. Semakin tinggi nilai indeks CH maka menunjukkan semakin baik pengklasteran. Rentang nilai indeks CH \> 0, di mana jika CH lebih besar, artinya perbedaan antarklaster lebih besar dibandingkan dengan di dalam klaster.
+
+Beberapa catatan tentang kriteria indeks CH, yaitu:
+
+-   Relatif dapat dihitung dengan cepat dan mudah.
+
+-   Mengasumsikan klaster berbentuk bulat di sekitar pusat gerombol, dan tidak memperhitungkan pemisahan antarklaster yang cenderung bernilai ekstrem.
+
+-   Menganggap gerombol sebagai terpisah jika rataannya jauh berbeda satu sama lain.
+
+-   Tidak memperhitungkan ukuran dimensi peubah (p) dalam perhitungannya.
+
+-   Pada kasus data berdimensi besar, mungkin kinerjanya tidak sebaik jika dimensinya kecil (p\<=10)
+
+-   Sebaiknya tidak digunakan untuk membandingkan pengklasteran dengan algoritma berbeda.
+
+The criterion is based on balancing the within-cluster variation:
+
+$$
+W_{ck} =\sum_{j=1}^K\sum_{c(i)=j}(x_i-\bar{x_j})(x_i-\bar{x_j})^t
+$$ Against the between-cluster variation: $$
+B_{CK}=\sum_{j=1}^Kn_j(x_j-\bar{x})(x_j-\bar{x})^t
+$$ CH's variance ration criterion:
+
+$$
+CH(C_K)=\frac{trace(B_{ck})}{trace(W_{Ck})} \times \frac{n-K}{K-1}
+$$
+
+Beberapa pengembangan dari kriteria indeks Calinski-Harabasz:
+
+-   Krzanowski dan Lai (1988) -\> indeks KL
+
+    -   Memperhitungkan ukuran dimensi peubah (p)
+
+-   Sugar dan James (2003) -\> indeks SJ
+
+    -   Memperhitungkan teori distorsi asimptotik pada sebaran campuran Gaussian
+
+-   Halkidi et al. (2000) -\> indeks validitas SD
+
+    -   Memperhitungkan penalti untuk ukuran klaster (K) yang terlalu besar jika jarak antar rataan klaster terlalu kecil.
+
+## Indeks Davies-Bouldin (DB)
+
+-   Biasanya digunakan 𝑝=𝑞=2, sehingga indeks Davies-Boulding (DB) dapat dianggap sebagai kriteria berbasis keragaman.
+
+-   Setiap klaster diberikan bobot yang sama pada perhitungan DB, terlepas dari seberapa besar ukurannya.
+
+-   Pengklasteran yang baik akan menghasilkan **nilai indeks DB yang kecil**, karena 𝑆𝑖 (dispesi intra-klaster) akan bernilai kecil sedangkan 𝑀𝑖𝑗 (jarak antarklaster) akan bernilai besar.
+
+-   Nilai indeks DB berkisar antara 0 hingga 1, sehingga lebih mudah diinterpretasikan.
+
+Kriteria indeks Davies-Bouldin (DB) diperoleh melalui perhitungan berikut.
+
+$$
+\begin{aligned}
+S_k =(\frac{1}{n_k} \sum_{c(i)=k}||x_i-\bar{x_k}||^q_2)^{\frac{1}{q}} \\
+M_ij=||\bar{x_i}-\bar{x_j}||_p \\
+R_{ij} = \frac{S_i+S_j}{M_ij} \\
+D_i=max_{j\neq i}R_{ij} \\
+DB(C_k)=\frac{1}{K}\sum_{i=1}^KD_i
+\end{aligned}
+$$
+
+## Average Silhouette Width (ASW)
+
+Kriteria ini berdasarkan kompromi antara homogenitas di dalam klaster dengan pemisahan antarklaster, yang mengukur bagaimana kemungkinan suatu titik ditempatkan pada klaster lain.
+
+Koefisien Silhouette dapat dihitung dengan formula berikut: 
+$$
+s_i=\frac{b_i-a_i}{max(a_i,b_i)}
+$$
+
+di mana 𝑎𝑖=1𝑛𝑘−1∑𝑐(𝑗)=𝑘𝑑(𝑥𝑖,𝑥𝑖) adalah ketidaksamaan rata-rata klaster dari 𝑥𝑖 (jika 𝑛𝑘=1 maka 𝑠𝑖=0) dan 𝑏𝑖=𝑚𝑖𝑛𝑙≠𝑘1𝑛𝑙∑𝑐(𝑗)=𝑙𝑑(𝑥𝑖,𝑥𝑖) adalah ketidaksamaan rata-rata ke klaster terdekat.
+
+Sehingga ASW dapat dihitung sebagai rataan dari koefisien Silhouette dari setiap klaster ke-i.
+
+
+$$
+ASW(C_K) = \frac{1}{n}\sum_{i=1}^nS_i
+$$
+Jika 𝑏𝑖>>𝑎𝑖, artinya 𝑥𝑖 sudah sangat tepat berada di klasternya.
+
+Koefisien Silhouette berkisar antara -1 dan 1, di mana pengklasteran dianggap baik jika **nilainya semakin besar.**
+
+Serupa dengan banyak kriteria lain, hasil dari kriteria ini mungkin akan bermasalah pada data dengan amatan pencilan.
+
+Kriteria evaluasi lainnya dapat dipelajari pada Hennig et al. (2016) pada bagian subbab 2.6 lainnya.
+
+**K-Medoids Clustering**
+
+```{r}
+library(cluster)
+fviz_nbclust(Eurojobs, FUNcluster=cluster::pam, method = "wss")+
+theme_classic()
+```
+
+```{r}
+pam.res <- pam(Eurojobs, 4)
+print(pam.res)
+
+pam<-eclust(Eurojobs, "pam", hc_metric="euclidean",k=4)
+
+#pam.res$medoids
+pam$medoids
+
+#pam.res$clustering
+pam$clustering
+```
+**K-Means Clustering**
+```{r}
+km<-eclust(Eurojobs, "kmeans", hc_metric="euclidean",k=4)
+```
+
+
+**CH Index**
+```{r}
+library(clusterSim)
+(ch.km<-index.G1(Eurojobs, cl=km$cluster))
+(ch.pam<-index.G1(Eurojobs, cl=pam$cluster))
+```
+
+**DB Index**
+```{r}
+(db.km<-index.DB(Eurojobs, cl=km$cluster)$DB)
+(db.pam<-index.DB(Eurojobs, cl=pam$cluster)$DB)
+```
+
+**ASW**
+```{r}
+library(fpc)
+(sil.km<-fviz_silhouette(km)) 
+(sil.pam<-fviz_silhouette(pam)
+```
+
+```{r}
+clust.eval<-data.frame(
+  Method=c("K-Means", "K-Medoids"),
+  CH=c(ch.km, ch.pam),
+  DB=c(db.km, db.pam),
+  ASW=c(colMeans(sil.km$data[3]), colMeans(sil.pam$data[3]))
+)
+clust.eval
+```
