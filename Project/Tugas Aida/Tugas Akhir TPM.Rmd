@@ -104,7 +104,11 @@ cat(  "Jumlah baris       =", nrow(data),
     )
 ```
 
-Terlihat bahwa walaupun bar chart X6 terlihat sangat chaos, namun banyaknya kategori hanya 2000 saja., tidak sama dengan jumlah baris. Ini artinya X6 tidak semuanya unik. Ya sebenarnya bisa langsung dilihat dari tinggi rendahnya bar chart sih. Ini mah biar bisa liat begitu banyaknya kategori model pada X6 saja. Sehingga X6 akan tetap dimasukkan kedalam analisis.
+Terlihat bahwa walaupun bar chart X6 terlihat sangat chaos, namun banyaknya kategori hanya 2000 saja., tidak sama dengan jumlah baris. Ini artinya X6 tidak semuanya unik. Ya sebenarnya bisa langsung dilihat dari tinggi rendahnya bar chart sih. Ini mah biar bisa liat begitu banyaknya kategori model pada X6 saja.
+
+![](images/clipboard-158643586.png)
+
+Akan tetapi, random forrest tidak mampu memodelkan lebih dari 53 kategori, sehingga alangkah baiknya jika X6 dikeluarkan dari analisis.
 
 ### Y (Respon)
 
@@ -143,7 +147,7 @@ Terlihat bahwa data menjulur ke kanan dan nampak memiliki banyak sekali outlier 
 > **Ubah tipe data**
 
 ```{r}
-data <- data %>%
+data <- data[,-7] %>% # Mengeluarkan X6
   mutate_at(vars(2, 9), as.character) # Mengubah menjadi character 
 
 data <- data %>%
@@ -161,8 +165,8 @@ set.seed(1401211016)
 
 # Membuat index partisi data
 data.a <- data
-colnames(data.a) <- c("Y","X1","X2","X3","X4","X5","X6","X7","X8","X9","X10")
-trainIndex <- createDataPartition(data.a$X1, # Salah satu peubah X
+colnames(data.a) <- c("Y","X1","X2","X3","X4","X5","X7","X8","X9","X10")
+trainIndex <- createDataPartition(data.a$Y, # Salah satu peubah X
                                   p = .8, # 80% data Train, 20% data Test
                                   list = FALSE, 
                                   times = 1)
@@ -178,11 +182,11 @@ TEST <- data.a[-trainIndex, ]
 ```{r message=FALSE, warning=FALSE}
 library('randomForest')
 
-rf_model <- randomForest(SexNumPartnLife ~ . ,
+rf_model <- randomForest(Y ~ . ,
                          data = TRAIN,
-                         ntree= 550,
-                         mtry=3,
-                         keep.forest=TRUE,
+                         ntree= 550, # Banyaknya pohon
+                         mtry=3, # Jumlah variable yang dipertimbangkan perpohon
+                         keep.forest=TRUE, # simpan pohon dlm hutan
                          importance=TRUE)
 
 rf_model
