@@ -1,8 +1,23 @@
 ---
 title: "Tugas Akhir TPM"
 author: "Aida Darajati"
-date: "2024-05-14"
-output: html_document
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  rmdformats::downcute:
+    self_contained: true
+    thumbnails: false
+    lightbox: true
+    gallery: true
+    highlight: tango
+    code_folding: hide
+    toc_depth: 3
+    number_sections: true
+    toc_float:
+      collapsed: true
+      smooth_scroll: true
+    fig_caption: true
+pkgdown:
+  as_is: true
 ---
 
 # Data
@@ -91,6 +106,40 @@ cat(  "Jumlah baris       =", nrow(data),
 
 Terlihat bahwa walaupun bar chart X6 terlihat sangat chaos, namun banyaknya kategori hanya 2000 saja., tidak sama dengan jumlah baris. Ini artinya X6 tidak semuanya unik. Ya sebenarnya bisa langsung dilihat dari tinggi rendahnya bar chart sih. Ini mah biar bisa liat begitu banyaknya kategori model pada X6 saja. Sehingga X6 akan tetap dimasukkan kedalam analisis.
 
+### Y (Respon)
+
+Mari kita lihat lebih dalam untuk sebaran data
+
+```{r fig.height=4.5, fig.width=10, dpi=300}
+library(ggplot2)
+library(cowplot)
+
+# Histogram
+p1 <- ggplot(data, aes(x = `CO2.Emissions.g.km.`)) +
+  geom_histogram(binwidth = 20, fill = "cyan4", color = "black") +
+  ylab("Frekuensi") + theme_void()
+
+# Boxplot
+p2 <- ggplot(data, aes(y = `CO2.Emissions.g.km.`)) +
+  geom_boxplot(fill = "cyan4", color = "black", outlier.size = 3) +
+  xlab("Nilai") + theme_void() + coord_flip()
+
+# Gabung plot
+combined_plot <- plot_grid(p1, p2, ncol = 1, align = 'v',
+                           rel_heights = c(1, 0.25))
+
+# Menambahkan judul utama
+title <- ggdraw() + 
+  draw_label("Y - Emisi CO2", fontface = 'bold', x = 0.5, hjust = 0.5, size = 20)
+
+# Menampilkan plot dengan judul utama
+plot_grid(title, combined_plot, ncol = 1, rel_heights = c(0.1, 1))
+```
+
+Terlihat bahwa data menjulur ke kanan dan nampak memiliki banyak sekali outlier di sisi kanan.
+
+## Cleaning Data
+
 > **Ubah tipe data**
 
 ```{r}
@@ -102,4 +151,4 @@ data <- data %>%
 str(data)
 ```
 
-Dengan ini data sudah benar dan
+Dengan ini data sudah benar dan siap untuk dianalisis.
