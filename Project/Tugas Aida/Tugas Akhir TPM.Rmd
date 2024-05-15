@@ -31,8 +31,9 @@ setwd("C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 6/2. Teknik Pembel
 
 # Baca Data
 library(dplyr)
-data <- read.csv("Data.csv", sep=";") %>% #Baca csv
+raw.data <- read.csv("Data.csv", sep=";") %>% #Baca csv
   as.data.frame() # Ubah sebagai dataframe
+data <- raw.data
 
 # Tampilkan data
 View(data)
@@ -187,7 +188,88 @@ rf_model <- randomForest(Y ~ . ,
                          ntree= 550, # Banyaknya pohon
                          mtry=3, # Jumlah variable yang dipertimbangkan perpohon
                          keep.forest=TRUE, # simpan pohon dlm hutan
-                         importance=TRUE)
+                         importance=TRUE) # hitung & simpan rank importance
 
 rf_model
+```
+
+## Info Model
+
+```{r}
+options(max.print = 50)
+getTree(rf_model, 1)
+```
+
+> **Decision Tree**
+
+```{r fig.height=15, fig.width=40, message=FALSE, warning=FALSE, dpi=300}
+# devtools::install_github('araastat/reprtree') # Buat install
+reprtree:::plot.getTree(rf_model,k=1)
+```
+
+```{r fig.height=15, fig.width=40, message=FALSE, warning=FALSE, dpi=300}
+reprtree:::plot.getTree(rf_model,k=4)
+```
+
+```{r fig.height=15, fig.width=40, message=FALSE, warning=FALSE, dpi=300}
+reprtree:::plot.getTree(rf_model,k=500)
+```
+
+## **Feature Importances**
+
+```{r}
+varImp(rf_model)
+```
+
+```{r}
+importance(rf_model)
+```
+
+```{r}
+varImpPlot(rf_model)
+```
+
+```{r}
+varImpPlot(rf_model, type=1)
+```
+
+```{r}
+varImpPlot(rf_model, type=2)
+```
+
+## **Score Training Set**
+
+```{r}
+y_hat <- predict(rf_model, TRAIN)
+
+TRAIN.rf_scored <- as_tibble(cbind(TRAIN, y_hat))
+glimpse(TRAIN.rf_scored)
+```
+
+> **Confusion Matrix on Training Set**
+
+```{r}
+RMSE_rf_Train <- yardstick::rmse(TRAIN.rf_scored, 
+                                 truth=Y, estimate=y_hat)
+
+RMSE_rf_Train
+```
+
+# **Score Test Set**
+
+```{r}
+y_hat <- predict(rf_model, TEST)
+
+test.rf_scored <- as_tibble(cbind(TEST, y_hat))
+
+glimpse(test.rf_scored)
+```
+
+## **Testing Set Confusion Matrix**
+
+```{r}
+RMSE_rf_TEST <- yardstick::rmse(test.rf_scored, 
+                                truth=Y, estimate=y_hat)
+
+RMSE_rf_TEST
 ```
