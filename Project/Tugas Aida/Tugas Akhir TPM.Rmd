@@ -1,0 +1,72 @@
+---
+title: "Tugas Akhir TPM"
+author: "Aida Darajati"
+date: "2024-05-14"
+output: html_document
+---
+
+# Data
+
+## Input Data
+
+```{r message=FALSE, warning=FALSE}
+# Ganti folder
+path <- function() gsub ("\\\\", "/", readClipboard() )
+setwd("C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 6/2. Teknik Pembelajaran Mesin/Project/Tugas Aida")
+
+# Baca Data
+library(dplyr)
+data <- read.csv("Data.csv", sep=";") %>% #Baca csv
+  as.data.frame() # Ubah sebagai dataframe
+
+# Tampilkan data
+View(data)
+```
+
+## Check Data
+
+> **Cek tipe data**
+
+```{r}
+str(data)
+```
+
+> **Cek data hilang**
+
+```{r}
+colSums(is.na(data))
+```
+
+Tidak ada data hilang pada setiap kolom.
+
+> **Esplorasi data**
+
+```{r fig.height=15, fig.width=35, dpi=300}
+par(mfrow = c(2,6))
+hist(data[,1], main="Y - Emisi CO2", cex.main=6)
+barplot(table(data[,2]), main="X1 - Engine Size.L", cex.main=6)
+hist(data[,3], main="X2 - Fuel Consum", cex.main=6)
+hist(data[,4], main="X3 - Histogram", cex.main=6)
+hist(data[,5], main="X4 - Histogram", cex.main=6)
+barplot(table(data[,6]), main="X5 - Bar Chart", cex.main=6)
+barplot(table(data[,7]), main="X6 - Bar Chart", cex.main=6)
+barplot(table(data[,8]), main="X7 - Bar Chart", cex.main=6)
+barplot(table(data[,9]), main="X8 - Bar Chart", cex.main=6)
+barplot(table(data[,10]), main="X9 - Bar Chart", cex.main=6)
+barplot(table(data[,11]), main="X10 - Bar Chart", cex.main=6)
+```
+
+Dari sini kita bisa lihat bahwa X1 dan X8 merupakan bukan data kontinu, karena terdapat celah pada histogramnya, sehingga harus menggunakan barplot. Jadi X1 dan X8 merupakan data kategorik.
+
+> **Ubah tipe data**
+
+```{r}
+data <- data %>%
+  mutate_at(vars(2, 9), as.character) # Mengubah menjadi character 
+
+data <- data %>%
+  mutate_if(is.character, as.factor) # Mengubah char menjadi faktor
+str(data)
+```
+
+Dengan ini data sudah benar dan
