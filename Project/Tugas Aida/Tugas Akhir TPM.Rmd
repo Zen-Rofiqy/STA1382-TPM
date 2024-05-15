@@ -39,24 +39,57 @@ colSums(is.na(data))
 
 Tidak ada data hilang pada setiap kolom.
 
-> **Esplorasi data**
+## Eksplorasi data {.tabset}
 
 ```{r fig.height=15, fig.width=35, dpi=300}
 par(mfrow = c(2,6))
-hist(data[,1], main="Y - Emisi CO2", cex.main=6)
-barplot(table(data[,2]), main="X1 - Engine Size.L", cex.main=6)
-hist(data[,3], main="X2 - Fuel Consum", cex.main=6)
-hist(data[,4], main="X3 - Histogram", cex.main=6)
-hist(data[,5], main="X4 - Histogram", cex.main=6)
-barplot(table(data[,6]), main="X5 - Bar Chart", cex.main=6)
-barplot(table(data[,7]), main="X6 - Bar Chart", cex.main=6)
-barplot(table(data[,8]), main="X7 - Bar Chart", cex.main=6)
-barplot(table(data[,9]), main="X8 - Bar Chart", cex.main=6)
-barplot(table(data[,10]), main="X9 - Bar Chart", cex.main=6)
-barplot(table(data[,11]), main="X10 - Bar Chart", cex.main=6)
+hist(data[,1], main="Y - Emisi CO2", cex.main=4)
+hist(data[,2], main="X1 - Engine Size.L", cex.main=4)
+barplot(table(data[,2]), main="X1 - Engine Size.L", cex.main=4)
+hist(data[,3], main="X2 - Fuel Consum.L/km", cex.main=4)
+hist(data[,4], main="X3 - Fuel Consum.L/km", cex.main=4)
+hist(data[,5], main="X4 - Fuel Consum.L/km", cex.main=4)
+barplot(table(data[,6]), main="X5 - Make", cex.main=4)
+barplot(table(data[,7]), main="X6 - Model", cex.main=4)
+barplot(table(data[,8]), main="X7 - Vehicle.Class", cex.main=4)
+barplot(table(data[,9]), main="X8 - Cylinders", cex.main=4)
+barplot(table(data[,10]), main="X9 - Transmission", cex.main=4)
+barplot(table(data[,11]), main="X10 - Fuel.Type", cex.main=4)
 ```
 
-Dari sini kita bisa lihat bahwa X1 dan X8 merupakan bukan data kontinu, karena terdapat celah pada histogramnya, sehingga harus menggunakan barplot. Jadi X1 dan X8 merupakan data kategorik.
+### X1 & X8
+
+Dari sini kita bisa melihat bahwa X1 walaupun satuannya liter, namun bukan peubah kontinu. Ini bisa dilihat dari histogramnya yang penuh dnegan celah, mari kita lihat lebih dalam:
+
+```{r}
+unique(data[,2])
+```
+
+Terlihat bahwa jumlah nilai diskritnya terbatas dan sering mewakili kategori yang dibulatkan. Misalnya, mesin dengan ukuran sebenarnya 4.8 liter mungkin dikategorikan sebagai 5 liter.
+
+Selain itu, nilai-nilai ini sering digunakan untuk mengklasifikasikan kendaraan ke dalam kelompok ukuran mesin tertentu, seperti mesin kecil, sedang, dan besar. Oleh karena itu, perlakuan data ini sebagai **kategorik lebih tepat** dalam beberapa analisis dan visualisasi, mencerminkan penggunaan praktis dalam klasifikasi ukuran mesin.
+
+```{r}
+unique(data[,9])
+```
+
+Begitu pula dengan X8 yakni banyaknya silinder, sehingga kedua peubah ini akan dijadikan sebagai peubah kategorik.
+
+### X5 - X9
+
+Saking banyaknya kategori yang ada, bar chart yang dihasilkan nyaris nampak seperti histogram. Mari kita liat:
+
+```{r}
+cat(  "Jumlah baris       =", nrow(data),
+    "\nBanyaknya kategori:",
+    "\nX5 (Make)          =", length(unique(data[,6])),
+    "\nX6 (Model)         =", length(unique(data[,7])),
+    "\nX7 (Vehicle.Class) =", length(unique(data[,8])),
+    "\nX9 (Transmission)  =", length(unique(data[,10]))
+    )
+```
+
+Terlihat bahwa walaupun bar chart X6 terlihat sangat chaos, namun banyaknya kategori hanya 2000 saja., tidak sama dengan jumlah baris. Ini artinya X6 tidak semuanya unik. Ya sebenarnya bisa langsung dilihat dari tinggi rendahnya bar chart sih. Ini mah biar bisa liat begitu banyaknya kategori model pada X6 saja. Sehingga X6 akan tetap dimasukkan kedalam analisis.
 
 > **Ubah tipe data**
 
