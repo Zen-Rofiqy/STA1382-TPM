@@ -110,18 +110,18 @@ Terlihat bahwa walaupun bar chart X6 terlihat sangat chaos, namun banyaknya kate
 
 Mari kita lihat lebih dalam untuk sebaran data
 
-```{r fig.height=4.5, fig.width=10, dpi=300}
+```{r fig.height=4.5, fig.width=10, message=FALSE, warning=FALSE, dpi=300}
 library(ggplot2)
 library(cowplot)
 
 # Histogram
 p1 <- ggplot(data, aes(x = `CO2.Emissions.g.km.`)) +
-  geom_histogram(binwidth = 20, fill = "cyan4", color = "black") +
+  geom_histogram(binwidth = 20, fill = "#89b49e", color = "black") +
   ylab("Frekuensi") + theme_void()
 
 # Boxplot
 p2 <- ggplot(data, aes(y = `CO2.Emissions.g.km.`)) +
-  geom_boxplot(fill = "cyan4", color = "black", outlier.size = 3) +
+  geom_boxplot(fill = "#89b49e", color = "black", outlier.size = 3) +
   xlab("Nilai") + theme_void() + coord_flip()
 
 # Gabung plot
@@ -152,3 +152,38 @@ str(data)
 ```
 
 Dengan ini data sudah benar dan siap untuk dianalisis.
+
+## Split Data
+
+```{r message=FALSE, warning=FALSE}
+library('caret')
+set.seed(1401211016)
+
+# Membuat index partisi data
+data.a <- data
+colnames(data.a) <- c("Y","X1","X2","X3","X4","X5","X6","X7","X8","X9","X10")
+trainIndex <- createDataPartition(data.a$X1, # Salah satu peubah X
+                                  p = .8, # 80% data Train, 20% data Test
+                                  list = FALSE, 
+                                  times = 1)
+# Membagi data train dan test
+TRAIN <- data.a[trainIndex, ]
+TEST <- data.a[-trainIndex, ]
+```
+
+# Modeling
+
+## Train model
+
+```{r message=FALSE, warning=FALSE}
+library('randomForest')
+
+rf_model <- randomForest(SexNumPartnLife ~ . ,
+                         data = TRAIN,
+                         ntree= 550,
+                         mtry=3,
+                         keep.forest=TRUE,
+                         importance=TRUE)
+
+rf_model
+```
