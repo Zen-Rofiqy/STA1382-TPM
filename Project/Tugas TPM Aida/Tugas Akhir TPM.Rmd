@@ -1,0 +1,364 @@
+---
+title: "Tugas Akhir TPM"
+author: "Aida Darajati"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  rmdformats::downcute:
+    self_contained: true
+    thumbnails: false
+    lightbox: true
+    gallery: true
+    highlight: tango
+    code_folding: hide
+    toc_depth: 3
+    number_sections: true
+    toc_float:
+      collapsed: true
+      smooth_scroll: true
+    fig_caption: true
+pkgdown:
+  as_is: true
+---
+
+# Data
+
+## Input Data
+
+```{r message=FALSE, warning=FALSE}
+# Ganti folder
+path <- function() gsub ("\\\\", "/", readClipboard() )
+setwd("C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 6/2. Teknik Pembelajaran Mesin/Project/Tugas Aida")
+
+# Baca Data
+library(dplyr)
+raw.data <- read.csv("Data.csv", sep=";") %>% #Baca csv
+  as.data.frame() # Ubah sebagai dataframe
+data <- raw.data
+
+# Tampilkan data
+View(data)
+```
+
+## Check Data
+
+> **Cek tipe data**
+
+```{r}
+str(data)
+```
+
+> **Cek data hilang**
+
+```{r}
+colSums(is.na(data))
+```
+
+Tidak ada data hilang pada setiap kolom.
+
+## Eksplorasi data {.tabset}
+
+```{r fig.height=15, fig.width=35, dpi=300}
+par(mfrow = c(2,6))
+hist(data[,1], main="Y - Emisi CO2", cex.main=4)
+hist(data[,2], main="X1 - Engine Size.L", cex.main=4)
+barplot(table(data[,2]), main="X1 - Engine Size.L", cex.main=4)
+hist(data[,3], main="X2 - Fuel Consum.L/km", cex.main=4)
+hist(data[,4], main="X3 - Fuel Consum.L/km", cex.main=4)
+hist(data[,5], main="X4 - Fuel Consum.L/km", cex.main=4)
+barplot(table(data[,6]), main="X5 - Make", cex.main=4)
+barplot(table(data[,7]), main="X6 - Model", cex.main=4)
+barplot(table(data[,8]), main="X7 - Vehicle.Class", cex.main=4)
+barplot(table(data[,9]), main="X8 - Cylinders", cex.main=4)
+barplot(table(data[,10]), main="X9 - Transmission", cex.main=4)
+barplot(table(data[,11]), main="X10 - Fuel.Type", cex.main=4)
+```
+
+### X1 & X8
+
+Dari sini kita bisa melihat bahwa X1 walaupun satuannya liter, namun bukan peubah kontinu. Ini bisa dilihat dari histogramnya yang penuh dnegan celah, mari kita lihat lebih dalam:
+
+```{r}
+unique(data[,2])
+```
+
+Terlihat bahwa jumlah nilai diskritnya terbatas dan sering mewakili kategori yang dibulatkan. Misalnya, mesin dengan ukuran sebenarnya 4.8 liter mungkin dikategorikan sebagai 5 liter.
+
+Selain itu, nilai-nilai ini sering digunakan untuk mengklasifikasikan kendaraan ke dalam kelompok ukuran mesin tertentu, seperti mesin kecil, sedang, dan besar. Oleh karena itu, perlakuan data ini sebagai **kategorik lebih tepat** dalam beberapa analisis dan visualisasi, mencerminkan penggunaan praktis dalam klasifikasi ukuran mesin.
+
+```{r}
+unique(data[,9])
+```
+
+Begitu pula dengan X8 yakni banyaknya silinder, sehingga kedua peubah ini akan dijadikan sebagai peubah kategorik.
+
+### X5 - X9
+
+Saking banyaknya kategori yang ada, bar chart yang dihasilkan nyaris nampak seperti histogram. Mari kita liat:
+
+```{r}
+cat(  "Jumlah baris       =", nrow(data),
+    "\nBanyaknya kategori:",
+    "\nX5 (Make)          =", length(unique(data[,6])),
+    "\nX6 (Model)         =", length(unique(data[,7])),
+    "\nX7 (Vehicle.Class) =", length(unique(data[,8])),
+    "\nX9 (Transmission)  =", length(unique(data[,10]))
+    )
+```
+
+Terlihat bahwa walaupun bar chart X6 terlihat sangat chaos, namun banyaknya kategori hanya 2000 saja., tidak sama dengan jumlah baris. Ini artinya X6 tidak semuanya unik. Ya sebenarnya bisa langsung dilihat dari tinggi rendahnya bar chart sih. Ini mah biar bisa liat begitu banyaknya kategori model pada X6 saja.
+
+![](images/clipboard-158643586.png)
+
+Akan tetapi, random forrest tidak mampu memodelkan lebih dari 53 kategori, sehingga alangkah baiknya jika X6 dikeluarkan dari analisis.
+
+### Y (Respon)
+
+Mari kita lihat lebih dalam untuk sebaran data
+
+```{r fig.height=4.5, fig.width=10, message=FALSE, warning=FALSE, dpi=300}
+library(ggplot2)
+library(cowplot)
+
+# Histogram
+p1 <- ggplot(data, aes(x = `CO2.Emissions.g.km.`)) +
+  geom_histogram(binwidth = 20, fill = "#89b49e", color = "black") +
+  ylab("Frekuensi") + theme_void()
+
+# Boxplot
+p2 <- ggplot(data, aes(y = `CO2.Emissions.g.km.`)) +
+  geom_boxplot(fill = "#89b49e", color = "black", outlier.size = 3) +
+  xlab("Nilai") + theme_void() + coord_flip()
+
+# Gabung plot
+combined_plot <- plot_grid(p1, p2, ncol = 1, align = 'v',
+                           rel_heights = c(1, 0.25))
+
+# Menambahkan judul utama
+title <- ggdraw() + 
+  draw_label("Y - Emisi CO2", fontface = 'bold', x = 0.5, hjust = 0.5, size = 20)
+
+# Menampilkan plot dengan judul utama
+plot_grid(title, combined_plot, ncol = 1, rel_heights = c(0.1, 1))
+```
+
+Terlihat bahwa data menjulur ke kanan dan nampak memiliki banyak sekali outlier di sisi kanan.
+
+## Cleaning Data
+
+> **Ubah tipe data**
+
+```{r}
+data <- data[,-7] %>% # Mengeluarkan X6
+  mutate_at(vars(2, 9), as.character) # Mengubah menjadi character 
+
+data <- data %>%
+  mutate_if(is.character, as.factor) # Mengubah char menjadi faktor
+str(data)
+```
+
+Dengan ini data sudah benar dan siap untuk dianalisis.
+
+## Split Data
+
+```{r message=FALSE, warning=FALSE}
+library('caret')
+set.seed(1401211016) # karena partisi data itu random, seperti sampling, maka perlu set.seed agar tidak berubah
+
+# Membuat index partisi data
+data.a <- data
+colnames(data.a) <- c("Y","X1","X2","X3","X4","X5","X7","X8","X9","X10")
+trainIndex <- createDataPartition(data.a$Y, # data Y
+                                  p = .8, # 80% data Train, 20% data Test
+                                  list = FALSE)
+# Membagi data train dan test
+TRAIN <- data.a[trainIndex, ] # ambil data train aja
+TEST <- data.a[-trainIndex, ] # ambil bukan data train
+```
+
+# Modeling
+
+*K-fold cross validation* adalah salah satu teknik validasi untuk mencari *tuning parameter* terbaik sekaligus mengevaluasi kinerja model. Pada studi kasus ini digunakan *5-fold cross validation*. Data dipartisi secara acak ke dalam lima subset data. Secara bergantian masing-masing subset akan dijadikan sebagai data testing, sementara empat subset data lainnya sebagai data training.
+
+```{r}
+fitControl <- trainControl(
+  method = "cv", # metode K-fold cross validation
+  number = 5, # menggunakan 5-fold
+  returnResamp = "all")
+```
+
+## Train model
+
+### **Tuning Parameter dengan `tuneLength`**
+
+Opsi `tuneLength` pada fungsi `caret::train` akan memilih sejumlah *tuning parameter* atau kombinasi *tuning parameter* yang dianggap paling tepat sesuai dengan metode yang dipilih dan data training yang diberikan.
+
+#### **Cross Validation**
+
+```{r message=FALSE, warning=FALSE}
+library('randomForest')
+rf <- train(Y ~ ., 
+            data = TRAIN,
+            method = 'ranger',
+            tuneLength = 10, # mencoba 10 kombinasi tuning parameter
+            importance = "impurity",
+            trControl = fitControl, # K-fold cross validation
+            verbose = FALSE)
+saveRDS(rf, file = "rf1.rds") # Save model di PC
+rf
+```
+
+Hasil validasi silang ditampilkan pada plot berikut:
+
+```{r}
+plot(rf, main = "5-Fold Cross Validation Random Forest: tuneLength")
+```
+
+```{r}
+# Selain plot, bisa menggunakan bestTune
+rf_best <- rf$bestTune
+rf_best
+```
+
+Berdasarkan output di atas, *tuning parameter* terbaik adalah `mtry = 13`, `splitrule = variance` dan `min.node.size = 5`, yang memberikan RMSE = 155365.6, R-squared = 0.9609113 dan MAE = 71949.26.
+
+#### **Re-Fit Model Menggunakan Tuning Parameter Terbaik**
+
+Jadi setelah mencobakan kombinasi tuning parameter dan di dapatkan tuning, terbaik. Maka selanjutnya kita kan modeling dengan tuning parameter tersebut.
+
+Re-fit model terhadap seluruh data testing dengan menggunakan *tuning parameter* terbaik yang diperoleh pada tahap sebelumnya:
+
+```{r}
+rf <- train(Y ~ ., 
+            data = TRAIN,
+            method = 'ranger',
+            tuneGrid  = rf_best, 
+            importance = "impurity",
+            verbose = FALSE)
+saveRDS(rf, file = "rf2.rds")
+rf
+```
+
+```{r}
+rf_result <- rf$results
+rf_result
+```
+
+Diperoleh model dengan RMSE = 170626.1, R-Squared = 0.9546539, MAE = 76479.84.
+
+#### **Evaluasi Terhadap Data Test**
+
+Untuk menguji kinerja model dalam memprediksi data baru, dilakukan evaluasi terhadap data testing:
+
+```{r message=FALSE, warning=FALSE}
+library(MLmetrics)
+eval_test_data <- function(model){
+  pred <- predict(model, newdata = TEST)
+  mae <- MAE(TEST$Y, pred)
+  rmse <- RMSE(TEST$Y, pred)
+  R2 <- R2_Score(TEST$Y, pred)
+  return(c(RMSE = rmse, R_Squared = R2, MAE = mae))
+}
+```
+
+```{r}
+rf_eval <- eval_test_data(rf)
+rf_eval
+```
+
+Diperoleh model RMSE = 133429.7287178, R-Squared = 0.9744161, MAE = 68359.0643768.
+
+#### **Variable Importance**
+
+```{r}
+plot(varImp(rf), 
+     main = "Random Forest Variable Importance" )
+```
+
+Berdasarkan output di atas, tiga peubah terpenting adalah `max_power`, `year`, dan `torque`.
+
+### **Tuning Parameter dengan `tuneGrid`**
+
+Opsi `tuneGrid` pada fungsi `caret::train` memberikan keleluasaan kepada analis untuk menentukan kandidat *tuning parameter* atau kombinasi *tuning parameter* yang akan diuji.
+
+#### **Cross Validation**
+
+```{r}
+# untuk tuneGrid. Jadi kalo tuneLenght itu sangat random, hanya memasukkan angka saja. Sedangkan untuk tuneGrid itu bisa diatur untuk mtru, splitrule dan min.node.size nya
+tg <- expand.grid(
+  mtry = seq(2, 14, 2), # mencoba kombinasi mtry
+  splitrule = c("variance","extratrees"),
+  min.node.size = c(5, 10, 20, 30))
+
+rf_tg <- train(Y ~ ., 
+            data = TRAIN,
+            method = 'ranger',
+            tuneGrid = tg,
+            ntree = 500, # banyaknya pohon
+            max_deep = 100, # maksimal kedalaman
+            importance = "impurity",
+            trControl = fitControl,
+            verbose = FALSE)
+saveRDS(rf_tg, file = "rf_tg1.rds")
+rf_tg
+```
+
+```{r}
+plot(rf_tg, main = "5-Fold Cross Validation Random Forest: tuneGrid")
+```
+
+Lihat mana yang RMSE nya paling rendah, itu yang paling baik. Dari sini terlihat bahwa yang terbaik itu adalah variance.
+
+```{r}
+rf_tg_best <- rf_tg$bestTune
+rf_tg_best
+```
+
+Berdasarkan output di atas, *tuning parameter* terbaik adalah `mtry = 14`, `splitrule = variance` dan `min.node.size = 5`, yang memberikan CV RMSE = 155720.8, R-squared = 0.9608428, dan MAE = 72146.51.
+
+#### **Re-Fit Model Menggunakan Tuning Parameter Terbaik**
+
+Re-fit model terhadap seluruh data testing dengan menggunakan *tuning parameter* terbaik yang diperoleh pada tahap sebelumnya:
+
+```{r}
+rf_tg <- train(Y ~ ., 
+            data = TRAIN,
+            method = 'ranger',
+            tuneGrid  = rf_tg_best, 
+            ntree = 500,
+            max_deep = 100,
+            importance = "impurity",
+            verbose = FALSE)
+saveRDS(rf_tg, file = "rf_tg2.rds")
+rf_tg
+```
+
+```{r}
+rf_tg_result <- rf_tg$results
+rf_tg_result
+```
+
+Diperoleh model dengan RMSE = 170450.7, R-Squared = 0.9553525 , MAE= 76110.
+
+#### **Evaluasi Terhadap Data Test**
+
+Untuk menguji kinerja model dalam memprediksi data baru, dilakukan evaluasi terhadap data testing:
+
+```{r}
+rf_tg_eval <- eval_test_data(rf_tg)
+rf_tg_eval
+```
+
+Diperoleh model RMSE = 133429.7287178, R-Squared = 0.9744161, MAE = 68359.0643768.
+
+#### **Variable Importance**
+
+```{r}
+plot(varImp(rf_tg), 
+     main = "Random Forest Variable Importance")
+```
+
+Berdasarkan output di atas, tiga peubah terpenting adalah `max_power`, `year`, dan `torque`.
+
+# Model terbaik
+
+Sehingga model terbaiknya adalah model terakhir yakni `rf_tg_eval`.
