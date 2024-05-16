@@ -180,6 +180,7 @@ TEST <- data.a[-trainIndex, ]
 *K-fold cross validation* adalah salah satu teknik validasi untuk mencari *tuning parameter* terbaik sekaligus mengevaluasi kinerja model. Pada studi kasus ini digunakan *5-fold cross validation*. Data dipartisi secara acak ke dalam lima subset data. Secara bergantian masing-masing subset akan dijadikan sebagai data testing, sementara empat subset data lainnya sebagai data training.
 
 ```{r}
+library('randomForest')
 fitControl <- trainControl(
   method = "cv",
   number = 5,
@@ -194,8 +195,7 @@ Opsi `tuneLength` pada fungsi `caret::train` akan memilih sejumlah *tuning param
 
 #### **Cross Validation**
 
-```{r message=FALSE, warning=FALSE}
-library('randomForest')
+```{r, eval=FALSE, echo=T}
 rf <- train(Y ~ ., 
             data = TRAIN,
             method = 'ranger',
@@ -205,6 +205,10 @@ rf <- train(Y ~ .,
             verbose = FALSE)
 saveRDS(rf, file = "rf1.rds")
 rf
+```
+
+```{r, echo=FALSE}
+rf <- readRDS("rf1.rds"); rf
 ```
 
 Hasil validasi silang ditampilkan pada plot berikut:
@@ -224,7 +228,7 @@ Berdasarkan output di atas, *tuning parameter* terbaik adalah `mtry = 13`, `spli
 
 Re-fit model terhadap seluruh data testing dengan menggunakan *tuning parameter* terbaik yang diperoleh pada tahap sebelumnya:
 
-```{r}
+```{r, eval=FALSE, echo=T}
 rf <- train(Y ~ ., 
             data = TRAIN,
             method = 'ranger',
@@ -233,6 +237,10 @@ rf <- train(Y ~ .,
             verbose = FALSE)
 saveRDS(rf, file = "rf2.rds")
 rf
+```
+
+```{r, echo=FALSE}
+rf <- readRDS("rf2.rds"); rf
 ```
 
 ```{r}
@@ -279,7 +287,7 @@ Opsi `tuneGrid` pada fungsi `caret::train` memberikan keleluasaan kepada analis 
 
 #### **Cross Validation**
 
-```{r}
+```{r, eval=FALSE, echo=T}
 tg <- expand.grid(
   mtry = seq(2, 14, 2),
   splitrule = c("variance","extratrees"),
@@ -298,6 +306,15 @@ saveRDS(rf_tg, file = "rf_tg1.rds")
 rf_tg
 ```
 
+```{r, echo=FALSE}
+tg <- expand.grid(
+  mtry = seq(2, 14, 2),
+  splitrule = c("variance","extratrees"),
+  min.node.size = c(5, 10, 20, 30))
+
+rf_tg <- readRDS("rf_tg1.rds"); rf_tg
+```
+
 ```{r}
 plot(rf_tg, main = "5-Fold Cross Validation Random Forest: tuneGrid")
 ```
@@ -313,7 +330,7 @@ Berdasarkan output di atas, *tuning parameter* terbaik adalah `mtry = 14`, `spli
 
 Re-fit model terhadap seluruh data testing dengan menggunakan *tuning parameter* terbaik yang diperoleh pada tahap sebelumnya:
 
-```{r}
+```{r, eval=FALSE, echo=T}
 rf_tg <- train(Y ~ ., 
             data = TRAIN,
             method = 'ranger',
@@ -324,6 +341,10 @@ rf_tg <- train(Y ~ .,
             verbose = FALSE)
 saveRDS(rf_tg, file = "rf_tg2.rds")
 rf_tg
+```
+
+```{r, echo=FALSE}
+rf_tg <- readRDS("rf_tg2.rds"); rf_tg
 ```
 
 ```{r}
