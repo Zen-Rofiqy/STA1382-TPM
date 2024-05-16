@@ -20,35 +20,6 @@ pkgdown:
   as_is: true
 ---
 
-```{r}
-#COLORS
-library(ggthemes)
-library(paletti)
-# WARNA
-mycolorfill = c(
-  
-  light_blue="#2f4b7c", 
-  smooth_blue ="#4B87CB",
-  light_purple ="#665191",
-  dark_pink="#a05195", 
-  light_pink="#d45087", 
-  light_red="#f95d6a", 
-  dark_orange="#ff6347",
-  semi_orange="#e79658",
-  orange="#dda15a",
-  cream="#b59378",
-  dark_cream="#A57F5F",
-  choc="#85664B",
-  dark_choc="#6b5340",
-  light_orange="#ff7c43"
-)
-
-#viz_palette(mycolorfill)
-mycolor_fill  <- get_scale_fill(get_pal(mycolorfill))
-mycolor_color <- get_scale_color(get_pal(mycolorfill))
-mycolor_hex <- get_hex(mycolorfill)
-```
-
 # Data
 
 ## Input Data
@@ -190,38 +161,6 @@ Dengan ini data sudah benar dan siap untuk dianalisis.
 ## Split Data
 
 ```{r message=FALSE, warning=FALSE}
-set.seed(1401211016)
-library(rsample) 
-split <- initial_split(data.a, prop = 0.8)
-data_train <- training(split)
-data_test <- testing(split)
-
-df_split <- rbind(
-data.frame(table(data_train$Y),"type"="train"),
-data.frame(table(data_test$Y),"type"="test")) %>% 
-  mutate(
-    Var1 = as.factor(Var1),
-    type = as.factor(type)
-  ) 
-
-ggplot(df_split, aes(x=Var1,y=Freq, fill=type))+
-  geom_col(position = "dodge")+
-  geom_text(aes(label=Freq, y=Freq+20), size=3, position = position_dodge(width = 1))+
-  labs(x = "CO2 Emissions", 
-       y = "Frequency", 
-       fill = "Data", 
-       title = "CO2 Emissions: Proportion Train vs Test")+
-  theme_minimal()+
-  theme(
-      axis.title=element_text(size=9,face="bold"),
-      axis.text.x=element_text(size=10),
-      axis.text.y=element_text(size=10)
-      )+
-   scale_fill_manual(values=c(mycolor_hex("light_red"),
-                             mycolor_hex("light_blue"))) 
-```
-
-```{r message=FALSE, warning=FALSE}
 library('caret')
 set.seed(1401211016)
 
@@ -230,8 +169,7 @@ data.a <- data
 colnames(data.a) <- c("Y","X1","X2","X3","X4","X5","X7","X8","X9","X10")
 trainIndex <- createDataPartition(data.a$Y, # Salah satu peubah X
                                   p = .8, # 80% data Train, 20% data Test
-                                  list = FALSE, 
-                                  times = 1)
+                                  list = FALSE)
 # Membagi data train dan test
 TRAIN <- data.a[trainIndex, ]
 TEST <- data.a[-trainIndex, ]
@@ -239,19 +177,39 @@ TEST <- data.a[-trainIndex, ]
 
 # Modeling
 
+*K-fold cross validation* adalah salah satu teknik validasi untuk mencari *tuning parameter* terbaik sekaligus mengevaluasi kinerja model. Pada studi kasus ini digunakan *5-fold cross validation*. Data dipartisi secara acak ke dalam lima subset data. Secara bergantian masing-masing subset akan dijadikan sebagai data testing, sementara empat subset data lainnya sebagai data training.
+
+```{r}
+fitControl <- trainControl(
+  method = "cv",
+  number = 5,
+  returnResamp = "all")
+```
+
 ## Train model
+
+### **Tuning Parameter dengan `tuneLength`**
+
+Opsi `tuneLength` pada fungsi `caret::train` akan memilih sejumlah *tuning parameter* atau kombinasi *tuning parameter* yang dianggap paling tepat sesuai dengan metode yang dipilih dan data training yang diberikan.
+
+#### **Cross Validation**
 
 ```{r message=FALSE, warning=FALSE}
 library('randomForest')
+rf <- train(Y ~ ., 
+            data = TRAIN,
+            method = 'ranger',
+            tuneLength = 10, 
+            importance = "impurity",
+            trControl = fitControl,
+            verbose = FALSE)
+rf
+```
 
-rf_model <- randomForest(Y ~ . ,
-                         data = TRAIN,
-                         ntree= 550, # Banyaknya pohon
-                         mtry=3, # Jumlah variable yang dipertimbangkan perpohon
-                         keep.forest=TRUE, # simpan pohon dlm hutan
-                         importance=TRUE) # hitung & simpan rank importance
+Hasil validasi silang ditampilkan pada plot berikut:
 
-rf_model
+```{r}
+plot(rf, main = "5-Fold Cross Validation Random Forest: tuneLength")
 ```
 
 ## Info Model
