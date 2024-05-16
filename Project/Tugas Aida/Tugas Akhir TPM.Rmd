@@ -246,7 +246,8 @@ Diperoleh model dengan RMSE = 170626.1, R-Squared = 0.9546539, MAE = 76479.84.
 
 Untuk menguji kinerja model dalam memprediksi data baru, dilakukan evaluasi terhadap data testing:
 
-```{r}
+```{r message=FALSE, warning=FALSE}
+library(MLmetrics)
 eval_test_data <- function(model){
   pred <- predict(model, newdata = TEST)
   mae <- MAE(TEST$Y, pred)
@@ -284,8 +285,8 @@ tg <- expand.grid(
   splitrule = c("variance","extratrees"),
   min.node.size = c(5, 10, 20, 30))
 
-rf_tg <- train(selling_price ~ ., 
-            data = trainData,
+rf_tg <- train(Y ~ ., 
+            data = TRAIN,
             method = 'ranger',
             tuneGrid = tg,
             ntree = 500,
@@ -313,8 +314,8 @@ Berdasarkan output di atas, *tuning parameter* terbaik adalah `mtry = 14`, `spli
 Re-fit model terhadap seluruh data testing dengan menggunakan *tuning parameter* terbaik yang diperoleh pada tahap sebelumnya:
 
 ```{r}
-rf_tg <- train(selling_price ~ ., 
-            data = trainData,
+rf_tg <- train(Y ~ ., 
+            data = TRAIN,
             method = 'ranger',
             tuneGrid  = rf_tg_best, 
             ntree = 500,
