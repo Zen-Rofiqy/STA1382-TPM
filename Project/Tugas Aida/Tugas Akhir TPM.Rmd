@@ -212,83 +212,49 @@ Hasil validasi silang ditampilkan pada plot berikut:
 plot(rf, main = "5-Fold Cross Validation Random Forest: tuneLength")
 ```
 
-## Info Model
+```{r}
+rf_best <- rf$bestTune
+rf_best
+```
+
+Berdasarkan output di atas, *tuning parameter* terbaik adalah `mtry = 13`, `splitrule = variance` dan `min.node.size = 5`, yang memberikan RMSE = 155365.6, R-squared = 0.9609113 dan MAE = 71949.26.
+
+#### **Re-Fit Model Menggunakan Tuning Parameter Terbaik**
+
+Re-fit model terhadap seluruh data testing dengan menggunakan *tuning parameter* terbaik yang diperoleh pada tahap sebelumnya:
 
 ```{r}
-options(max.print = 50)
-getTree(rf_model, 1)
-```
-
-> **Decision Tree**
-
-```{r fig.height=15, fig.width=40, message=FALSE, warning=FALSE, dpi=300}
-# devtools::install_github('araastat/reprtree') # Buat install
-reprtree:::plot.getTree(rf_model,k=1)
-```
-
-```{r fig.height=15, fig.width=40, message=FALSE, warning=FALSE, dpi=300}
-reprtree:::plot.getTree(rf_model,k=4)
-```
-
-```{r fig.height=15, fig.width=40, message=FALSE, warning=FALSE, dpi=300}
-reprtree:::plot.getTree(rf_model,k=500)
-```
-
-## **Feature Importances**
-
-```{r}
-varImp(rf_model)
+rf <- train(Y ~ ., 
+            data = TRAIN,
+            method = 'ranger',
+            tuneGrid  = rf_best, 
+            importance = "impurity",
+            verbose = FALSE)
+rf
 ```
 
 ```{r}
-importance(rf_model)
+rf_result <- rf$results
+rf_result
+```
+
+Diperoleh model dengan RMSE = 170626.1, R-Squared = 0.9546539, MAE = 76479.84.
+
+#### **Evaluasi Terhadap Data Test**
+
+Untuk menguji kinerja model dalam memprediksi data baru, dilakukan evaluasi terhadap data testing:
+
+```{r}
+eval_test_data <- function(model){
+  pred <- predict(model, newdata = TEST)
+  mae <- MAE(TEST$Y, pred)
+  rmse <- RMSE(TEST$Y, pred)
+  R2 <- R2_Score(TEST$Y, pred)
+  return(c(RMSE = rmse, R_Squared = R2, MAE = mae))
+}
 ```
 
 ```{r}
-varImpPlot(rf_model)
-```
-
-```{r}
-varImpPlot(rf_model, type=1)
-```
-
-```{r}
-varImpPlot(rf_model, type=2)
-```
-
-## **Score Training Set**
-
-```{r}
-y_hat <- predict(rf_model, TRAIN)
-
-TRAIN.rf_scored <- as_tibble(cbind(TRAIN, y_hat))
-glimpse(TRAIN.rf_scored)
-```
-
-> **Confusion Matrix on Training Set**
-
-```{r}
-RMSE_rf_Train <- yardstick::rmse(TRAIN.rf_scored, 
-                                 truth=Y, estimate=y_hat)
-
-RMSE_rf_Train
-```
-
-# **Score Test Set**
-
-```{r}
-y_hat <- predict(rf_model, TEST)
-
-test.rf_scored <- as_tibble(cbind(TEST, y_hat))
-
-glimpse(test.rf_scored)
-```
-
-## **Testing Set Confusion Matrix**
-
-```{r}
-RMSE_rf_TEST <- yardstick::rmse(test.rf_scored, 
-                                truth=Y, estimate=y_hat)
-
-RMSE_rf_TEST
+rf_eval <- eval_test_data(rf)
+rf_eval
 ```
