@@ -203,6 +203,7 @@ rf <- train(Y ~ .,
             importance = "impurity",
             trControl = fitControl,
             verbose = FALSE)
+saveRDS(rf, file = "rf1.rds")
 rf
 ```
 
@@ -230,6 +231,7 @@ rf <- train(Y ~ .,
             tuneGrid  = rf_best, 
             importance = "impurity",
             verbose = FALSE)
+saveRDS(rf, file = "rf2.rds")
 rf
 ```
 
@@ -291,6 +293,7 @@ rf_tg <- train(selling_price ~ .,
             importance = "impurity",
             trControl = fitControl,
             verbose = FALSE)
+saveRDS(rf_tg, file = "rf_tg1.rds")
 rf_tg
 ```
 
@@ -318,6 +321,7 @@ rf_tg <- train(selling_price ~ .,
             max_deep = 100,
             importance = "impurity",
             verbose = FALSE)
+saveRDS(rf_tg, file = "rf_tg2.rds")
 rf_tg
 ```
 
