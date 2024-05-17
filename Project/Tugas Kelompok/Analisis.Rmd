@@ -21,6 +21,7 @@ pkgdown:
 ---
 
 ```{r setup, include=FALSE, echo=FALSE, warning=FALSE, message = FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 #                      -=( Install & Load Package Function )=-
 install_load <- function (package1, ...)  {   
 
@@ -44,14 +45,25 @@ install_load <- function (package1, ...)  {
 
 path <- function() gsub  ( "\\\\",  "/",  readClipboard ()  )
 
-install_load("readxl","ggplot2","dplyr")
+install_load("readxl","ggplot2","dplyr","DT")
 
-export.chart <- "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 6/TPM knit/Tugas Akhir/Chart"
+export.chart <- "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 6/2. Teknik Pembelajaran Mesin/Project/Chart"
+```
+
+```{r , include=FALSE, echo=FALSE, warning=FALSE, message = FALSE}
+#Set Working Directory
+require("knitr")
+opts_knit$set(root.dir = "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 6/2. Teknik Pembelajaran Mesin/Project/Tugas Kelompok")
 ```
 
 # Data
 
 ## Input Data
+
+```{r}
+raw.data <- read.csv("Data.csv"); data <- raw.data
+datatable(data,  options = list(pageLength = 5))
+```
 
 ## Check Data
 
@@ -70,3 +82,16 @@ colSums(is.na(data))
 Tidak ada data hilang pada setiap kolom.
 
 ## Eksplorasi data {.tabset}
+
+> **Sebaran data**
+
+```{r fig.height=15, fig.width=35, dpi=300}
+par(mfrow = c(3,3))
+hist(data[,2], main="X1 - UHH", cex.main=4)
+hist(data[,3], main="X2 - Puskesmas", cex.main=4)
+hist(data[,4], main="X3 - Imun", cex.main=4)
+hist(data[,5], main="X4 - Tenaga Medis", cex.main=4)
+hist(data[,6], main="X5 - BPJS", cex.main=4)
+hist(data[,7], main="X6 - Sanitasi", cex.main=4)
+hist(data[,8], main="X7 - Sumber Air", cex.main=4)
+```
