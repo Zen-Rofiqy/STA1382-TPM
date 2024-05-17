@@ -215,7 +215,7 @@ rf <- readRDS("rf1.rds"); rf
 
 Hasil validasi silang ditampilkan pada plot berikut:
 
-```{r}
+```{r fig.height=15, fig.width=20, message=FALSE, warning=FALSE, dpi=300}
 plot(rf, main = "5-Fold Cross Validation Random Forest: tuneLength")
 ```
 
@@ -279,7 +279,7 @@ Diperoleh model RMSE = 4.508533, R-Squared = 0.994106, MAE = 3.154478.
 
 #### **Variable Importance**
 
-```{r}
+```{r fig.height=15, fig.width=20, message=FALSE, warning=FALSE, dpi=300}
 plot(varImp(rf), 
      main = "Random Forest Variable Importance" )
 ```
@@ -321,7 +321,7 @@ tg <- expand.grid(
 rf_tg <- readRDS("rf_tg1.rds"); rf_tg
 ```
 
-```{r}
+```{r fig.height=15, fig.width=20, message=FALSE, warning=FALSE, dpi=300}
 plot(rf_tg, main = "5-Fold Cross Validation Random Forest: tuneGrid")
 ```
 
@@ -375,7 +375,7 @@ Diperoleh model RMSE = 5.1912665, R-Squared = 0.9919747, MAE = 3.6345495.
 
 #### **Variable Importance**
 
-```{r}
+```{r fig.height=15, fig.width=20, message=FALSE, warning=FALSE, dpi=300}
 plot(varImp(rf_tg), 
      main = "Random Forest Variable Importance")
 ```
