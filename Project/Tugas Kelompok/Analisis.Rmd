@@ -45,7 +45,7 @@ install_load <- function (package1, ...)  {
 
 path <- function() gsub  ( "\\\\",  "/",  readClipboard ()  )
 
-install_load("readxl","ggplot2","dplyr","DT")
+install_load("readxl","ggplot2","dplyr","DT","cowplot")
 
 export.chart <- "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 6/2. Teknik Pembelajaran Mesin/Project/Chart"
 ```
@@ -62,7 +62,8 @@ opts_knit$set(root.dir = "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt
 
 ```{r}
 raw.data <- read.csv("Data.csv"); data <- raw.data
-datatable(data,  options = list(pageLength = 5))
+colnames(data) <- c("Prov","X1","X2",'X3','X4','X5','X6','X7')
+datatable(raw.data,  options = list(pageLength = 5))
 ```
 
 ## Check Data
@@ -70,13 +71,19 @@ datatable(data,  options = list(pageLength = 5))
 > **Cek tipe data**
 
 ```{r}
+str(raw.data)
+```
+
+```{r}
+data <- data %>%
+  mutate(across(-1, as.numeric))
 str(data)
 ```
 
 > **Cek data hilang**
 
 ```{r}
-colSums(is.na(data))
+colSums(is.na(raw.data))
 ```
 
 Tidak ada data hilang pada setiap kolom.
@@ -94,4 +101,69 @@ hist(data[,5], main="X4 - Tenaga Medis", cex.main=4)
 hist(data[,6], main="X5 - BPJS", cex.main=4)
 hist(data[,7], main="X6 - Sanitasi", cex.main=4)
 hist(data[,8], main="X7 - Sumber Air", cex.main=4)
+```
+
+```{r}
+i=2
+  p1 <- ggplot(data, aes(x = data[,1+i] )) +
+    geom_density(color = colors[2,i], fill="blue", lwd=4) +
+    ylab("Density") + theme_void()
+p1
+p2
+plots
+plot_grid(plotlist = all_plots, ncol=2)
+```
+
+```{r fig.height=18, fig.width=30, dpi=300}
+colors <- data.frame(c("#d83a00", "#ff5d2d", "#feb9a5"),
+                     c("#a86403", "#ca8501", "#f9e3b6"),
+                     c("#fe4e4e", "#fe5f5f", "#fe9494"),
+                     c("#ee5397", "#f064a1", "#f8bad5"),
+                     c("#634490", "#734ea6", "#c0afd9"),
+                     c("#3466a5", "#3c74bd", "#a7c1e3"),
+                     c("#00c4d4", "#00dff4", "#89f5ff"))
+titles <- c("\nX1 - UHH","\nX2 - Puskesmas","\nX3 - Imun","\nX4 - Tenaga Medis",
+            "\nX5 - BPJS", "\nX6 - Sanitasi","\nX7 - Sumber Air")
+bin <- c(.8, 85, 10, 700, 7, 5, 6)
+all_plots <- list()
+
+for (i in 1:(ncol(data)-1) ) {
+  plots <- list()
+  
+  # Histogram with density plot
+  p1 <- ggplot(data, aes(x = data[,1+i] )) +
+    geom_histogram(aes(y = ..density.., weight=data[,1+i] ), 
+                   binwidth = bin[i], 
+                   fill = colors[2,i], color = "black", alpha = 0.75, lwd=1) +
+    geom_density(color = colors[1,i], lwd=4) +
+    ylab("Density") + theme_void()
+  
+  # Boxplot
+  p2 <- ggplot(data, aes(y = data[,1+i] )) +
+    geom_boxplot(fill = colors[3,i], color = "black", 
+                 outlier.size = 3, lwd=1) +
+    xlab("Nilai") + theme_void() + coord_flip()
+  
+  # Gabung plot
+  combined_plot <- plot_grid(p1, p2, ncol = 1, align = 'v', 
+                             rel_heights = c(1, 0.15))
+  
+  # Menambahkan judul utama
+  title <- ggdraw() + 
+    draw_label(titles[i], fontface = 'bold', x = 0.5, 
+               hjust = 0.5, size = 20)
+  
+  # Menampilkan plot dengan judul utama
+  plots <- 
+  plot_grid(title, combined_plot, ncol = 1, rel_heights = c(0.1, 1))
+  
+  all_plots[[i]] <- plots
+}
+plot_grid(plotlist = all_plots, ncol=3)
+```
+
+```{r}
+d <- density(data$X1)
+plot(d, main="Kernel Density of Miles Per Gallon")
+polygon(d, col="red", border="blue")
 ```
