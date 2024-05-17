@@ -92,36 +92,8 @@ Tidak ada data hilang pada setiap kolom.
 
 > **Sebaran data**
 
-```{r fig.height=15, fig.width=35, dpi=300}
-par(mfrow = c(3,3))
-hist(data[,2], main="X1 - UHH", cex.main=4)
-hist(data[,3], main="X2 - Puskesmas", cex.main=4)
-hist(data[,4], main="X3 - Imun", cex.main=4)
-hist(data[,5], main="X4 - Tenaga Medis", cex.main=4)
-hist(data[,6], main="X5 - BPJS", cex.main=4)
-hist(data[,7], main="X6 - Sanitasi", cex.main=4)
-hist(data[,8], main="X7 - Sumber Air", cex.main=4)
-```
-
-```{r}
-i=2
-  p1 <- ggplot(data, aes(x = data[,1+i] )) +
-    geom_density(color = colors[2,i], fill="blue", lwd=4) +
-    ylab("Density") + theme_void()
-p1
-p2
-plots
-plot_grid(plotlist = all_plots, ncol=2)
-```
-
-```{r fig.height=18, fig.width=30, dpi=300}
-colors <- data.frame(c("#d83a00", "#ff5d2d", "#feb9a5"),
-                     c("#a86403", "#ca8501", "#f9e3b6"),
-                     c("#0b827c", "#06a59a", "#acf3e4"),
-                     c("#3a49da", "#5867e8", "#bec7f6"),
-                     c("#7526e3", "#9050e9", "#d7bff2"),
-                     c("#9602c7", "#cb65ff", "#e5b9fe"),
-                     c("#b60554", "#ff538a", "#fdb6c5"))
+```{r fig.height=15, fig.width=30, dpi=300}
+colors <- c("#0f2c3a","#357a87","#6ec1c1","#a9ded7","#9a3b1a","#ce572b","#e9865b")
 titles <- c("\nX1 - UHH","\nX2 - Puskesmas","\nX3 - Imun","\nX4 - Tenaga Medis",
             "\nX5 - BPJS", "\nX6 - Sanitasi","\nX7 - Sumber Air")
 bin <- c(.8, 85, 10, 700, 7, 5, 6)
@@ -134,14 +106,14 @@ for (i in 1:(ncol(data)-1) ) {
   p1 <- ggplot(data, aes(x = data[,1+i] )) +
     geom_histogram(aes(y = ..density.., weight=data[,1+i] ), 
                    binwidth = bin[i], 
-                   fill = colors[2,i], color = "black", alpha = 0.75, lwd=1) +
-    geom_density(color = colors[1,i], lwd=4) +
+                   fill = colors[i], color = "black", lwd=1) +
+    geom_density(color = "black", lwd=2, fill = colors[i], alpha = .5) +
     ylab("Density") + theme_void()
   
   # Boxplot
   p2 <- ggplot(data, aes(y = data[,1+i] )) +
-    geom_boxplot(fill = colors[3,i], color = "black", 
-                 outlier.size = 3, lwd=1) +
+    geom_boxplot(fill = colors[i], color = "black", 
+                 outlier.size = 3, lwd=2, alpha=.2) +
     xlab("Nilai") + theme_void() + coord_flip()
   
   # Gabung plot
@@ -151,7 +123,7 @@ for (i in 1:(ncol(data)-1) ) {
   # Menambahkan judul utama
   title <- ggdraw() + 
     draw_label(titles[i], fontface = 'bold', x = 0.5, 
-               hjust = 0.5, size = 20)
+               hjust = 0.5, size = 30)
   
   # Menampilkan plot dengan judul utama
   plots <- 
@@ -159,11 +131,5 @@ for (i in 1:(ncol(data)-1) ) {
   
   all_plots[[i]] <- plots
 }
-plot_grid(plotlist = all_plots, ncol=3)
-```
-
-```{r}
-d <- density(data$X1)
-plot(d, main="Kernel Density of Miles Per Gallon")
-polygon(d, col="red", border="blue")
+plot_grid(plotlist = all_plots, ncol=4)
 ```
