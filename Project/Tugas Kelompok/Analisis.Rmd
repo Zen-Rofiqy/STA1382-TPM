@@ -47,7 +47,7 @@ path <- function() gsub  ( "\\\\",  "/",  readClipboard ()  )
 
 install_load("readxl","ggplot2","dplyr","DT","cowplot")
 
-export.chart <- "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 6/2. Teknik Pembelajaran Mesin/Project/Chart"
+export.chart <- "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 6/2. Teknik Pembelajaran Mesin/Project/Tugas Kelompok/Chart"
 ```
 
 ```{r , include=FALSE, echo=FALSE, warning=FALSE, message = FALSE}
@@ -113,7 +113,7 @@ for (i in 1:(ncol(data)-1) ) {
   # Boxplot
   p2 <- ggplot(data, aes(y = data[,1+i] )) +
     geom_boxplot(fill = colors[i], color = "black", 
-                 outlier.size = 3, lwd=2, alpha=.2) +
+                 outlier.size = 3, lwd=2, alpha=.5) +
     xlab("Nilai") + theme_void() + coord_flip()
   
   # Gabung plot
@@ -131,5 +131,11 @@ for (i in 1:(ncol(data)-1) ) {
   
   all_plots[[i]] <- plots
 }
+chart <-
 plot_grid(plotlist = all_plots, ncol=4)
+chart
+
+#Export Chart
+ggsave("Sebaran Data.png", chart, path = export.chart,
+        dpi = 300, height = 15, width = 30)
 ```
