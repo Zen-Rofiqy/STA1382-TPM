@@ -117,11 +117,11 @@ plot_grid(plotlist = all_plots, ncol=2)
 ```{r fig.height=18, fig.width=30, dpi=300}
 colors <- data.frame(c("#d83a00", "#ff5d2d", "#feb9a5"),
                      c("#a86403", "#ca8501", "#f9e3b6"),
-                     c("#fe4e4e", "#fe5f5f", "#fe9494"),
-                     c("#ee5397", "#f064a1", "#f8bad5"),
-                     c("#634490", "#734ea6", "#c0afd9"),
-                     c("#3466a5", "#3c74bd", "#a7c1e3"),
-                     c("#00c4d4", "#00dff4", "#89f5ff"))
+                     c("#0b827c", "#06a59a", "#acf3e4"),
+                     c("#3a49da", "#5867e8", "#bec7f6"),
+                     c("#7526e3", "#9050e9", "#d7bff2"),
+                     c("#9602c7", "#cb65ff", "#e5b9fe"),
+                     c("#b60554", "#ff538a", "#fdb6c5"))
 titles <- c("\nX1 - UHH","\nX2 - Puskesmas","\nX3 - Imun","\nX4 - Tenaga Medis",
             "\nX5 - BPJS", "\nX6 - Sanitasi","\nX7 - Sumber Air")
 bin <- c(.8, 85, 10, 700, 7, 5, 6)
