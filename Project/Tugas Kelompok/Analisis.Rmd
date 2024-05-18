@@ -444,19 +444,16 @@ nb <- NbClust(data = dt, distance = "euclidean", method="complete")
 
 Untuk hubert statistic dan dindex, jumlah cluster optimal yang disarankan adalah 2.
 
-### Hasil Clustering
+### Hasil Clustering 1
 
 Beberapa metode untuk menentukan jumlah cluster memiliki jumlah cluster optimal yang cukup beragam. Namun 2 merupakan jumlah cluster yang nampaknya bisa diterima oleh semua metode yang ada. Sehingga jumlah cluster yang akan dicobakan adalah 2.
 
 ```{r message=FALSE, warning=FALSE}
-RNGkind(sample.kind = "Rounding")
 set.seed(100)
 
-data_kmeans <- kmeans(x = dt, centers = 2)
+data_kmeans <- eclust(dt, "kmeans", k = 2, graph = FALSE)
 fviz_cluster(object = data_kmeans, data=dt)
 ```
-
-K-means berhasil membuat cluster berdasarkan kedekatan jaraknya.
 
 > **Proporsi cluster**
 
@@ -464,9 +461,9 @@ K-means berhasil membuat cluster berdasarkan kedekatan jaraknya.
 table(data_kmeans$cluster)
 ```
 
-Proporsi jumlah cluster 1 dan 2 adalah 7 : 27.
+Proporsi jumlah cluster 1 dan 2 adalah 27 : 7.
 
-### Validasi Cluster
+#### Validasi Cluster
 
 > **Silhouette**
 
@@ -474,6 +471,47 @@ Proporsi jumlah cluster 1 dan 2 adalah 7 : 27.
 fviz_silhouette(data_kmeans, palette = "jco",
                 ggtheme = theme_minimal())
 ```
+
+Karena pengamatan dengan nilai siluet negatif yang dapat dilihat pada cluster 1 yang berwarna biru pada plot mengindikasikan bahwa pengamatan tersebut mungkin dikelompokkan secara tidak benar. Mari lihat angka indeks dari pengamatan tersebut.
+
+```{r}
+sil <- data_kmeans$silinfo$widths
+neg_sil_index <- which(sil[, 'sil_width']<0)
+data[neg_sil_index, 1]
+```
+
+Terlihat bahwa provinsi papua merupakan provinsi yang mungkin blm dapat dikelompokkan secara benar oleh K-means, mari kita perbaiki.
+
+### Hasil Clustering 2 
+
+Mari kita tambahkan paramter `nstart = 6` untuk menentukan jumlah awalisasi acak yang akan dilakukan oleh algoritma K-means. K-means adalah algoritma yang sensitif terhadap titik awal centroid yang dipilih secara acak. Untuk mengurangi kemungkinan menemukan solusi yang hanya merupakan minimum lokal (bukan global), sering kali beberapa awalizasi acak dilakukan, dan hasil dengan total inersia (atau sum of squared distances from points to their assigned cluster centroids) terkecil dipilih sebagai hasil akhir.
+
+```{r message=FALSE, warning=FALSE}
+set.seed(100)
+
+data_kmeans <- eclust(dt, "kmeans", k = 2,
+                      nstart = 6, graph = FALSE)
+fviz_cluster(object = data_kmeans, data=dt)
+```
+
+> **Proporsi cluster**
+
+```{r}
+table(data_kmeans$cluster)
+```
+
+Proporsi jumlah cluster 1 dan 2 adalah 30 : 4.
+
+#### Validasi Cluster 
+
+> **Silhouette**
+
+```{r}
+fviz_silhouette(data_kmeans, palette = "jco",
+                ggtheme = theme_minimal())
+```
+
+Terlihat bahwa sudah tidak ada pengamatan dengan niali siluet negatif, sehingga seluruh pengamatan dikelompokkan secara tidak benar sudah kemunkinannya sudah kecil.
 
 ### Cluster Profil
 
@@ -501,7 +539,7 @@ ggplot(cluster_profiles_long2, aes(x = Cluster, y = Value, fill = Variable)) +
   ggtitle("Cluster Profiles")
 ```
 
-Berlainan dengan hasil dari GMM, cluster 1 merupakan cluster dengan aspek kesejahteraan yang paling tinggi dibandingkan dengan cluster 2. Benar-benar unggul semua. Mari kita lihat lebih jelas dengan radar chart dibawah.
+Berlainan dengan hasil dari GMM, cluster 2 merupakan cluster dengan aspek kesejahteraan yang paling tinggi dibandingkan dengan cluster 1. Benar-benar unggul semua. Mari kita lihat lebih jelas dengan radar chart dibawah.
 
 ```{r dpi=300,  fig.height = 10, fig.width = 10, fig.align = "center", warning=FALSE, message = FALSE}
 data.akhir2 <- cbind(raw.data, Cluster =  data_kmeans$cluster) %>% 
@@ -521,7 +559,7 @@ theme(
 )
 ```
 
-Sejalan dengan yang saya bilang diatas, bahwa cluster 1 benar-benar mengungguli cluster 2.
+Sejalan dengan yang saya bilang diatas, bahwa cluster 2 benar-benar mengungguli cluster 1.
 
 ### Map
 
