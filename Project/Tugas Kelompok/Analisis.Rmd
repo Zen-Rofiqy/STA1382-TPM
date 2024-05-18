@@ -68,7 +68,7 @@ kode <- read.csv("Kode Provinsi.csv")
 datatable(raw.data,  options = list(pageLength = 5))
 ```
 
-## Check Data
+## Check Kualitas Data
 
 > **Cek tipe data**
 
@@ -84,7 +84,7 @@ colSums(is.na(raw.data))
 
 Tidak ada data hilang pada setiap kolom.
 
-## Eksplorasi data {.tabset}
+## Eksplorasi data
 
 ### Sebaran data
 
@@ -191,6 +191,8 @@ pairs.panels(dt,
 ```
 
 Jika kita melihat dari scatterplotnya, maka kita akan melihat bahwa pola hubungan antar peubah itu beragam, ada yang memilki hubungan linear ada juga yang nampaknya tidak meiliki hubungan linear. Jika dihitung hubungan linearnya dengan korelasi pearson, maka kita bisa melihat bahwa mayoritas hubungan antarr peubahnya itu lemah. Hubungan lineaer yang paling kuat adalah hubungan antara peubah X2 dan X4 dengan nilai 0.78. Bisa dilihat juga dari scatterplitnya yang memilki pola lurus positif. Ini didukung dnegan garis LOESS Smooth nya yang paling lurus dan paling 45 derajat diantara yang lain. Juga dari bentuk elips korelasinya yang nampak lancip nan bersudut 45 derajat. Yang mana ini tentu make sense karena Jumlah Puskesmas selaras dengan juumlah tenaga medis yang ada.
+
+## Pemeriksaan Masalah Data
 
 # Clustering
 
