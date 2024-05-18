@@ -63,6 +63,8 @@ opts_knit$set(root.dir = "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt
 ```{r}
 raw.data <- read.csv("Data.csv"); data <- raw.data
 colnames(data) <- c("Prov","X1","X2",'X3','X4','X5','X6','X7')
+kode <- read.csv("Kode Provinsi.csv")
+
 datatable(raw.data,  options = list(pageLength = 5))
 ```
 
@@ -251,9 +253,34 @@ indo <- st_read(dsn= "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 5/8
                 quiet = TRUE)
 ```
 
-```{r}
-data.map <- cbind(data.clust1, KODE=raw.data3$KODE[-35])
+```{r dpi=300,  fig.height = 9, fig.width = 16, fig.align = "center", warning=FALSE, message = FALSE}
+data.map <- cbind(data.clust1, KODE=kode$KODE)
   
 data.indo <- indo %>%
   inner_join(data.map, by = c("KODE" = "KODE"))
+
+ggplot() +  
+  geom_sf(data=data.indo, aes(fill=factor(`Cluster`))) +
+  scale_fill_manual(values=c("1" = "indianred", "2" = "lightgreen", "3" = "dodgerblue",
+                             "4"="cyan3", "5"="purple3"), 
+                    name = "Keterangan") +
+  labs(title = "Analisis Cluster Kesejahteraan \n pada Provinsi Indonesia 2021",
+       x = "Longitude",
+       y = "Latitude") +
+  theme_minimal() +
+  theme(legend.text = element_text(size=10),
+        legend.title = element_text(size=10, face="bold"),
+        axis.text.x = element_text(size = 10),
+        axis.text.y = element_text(size = 10),
+        plot.title = element_text(size=12, face="bold", hjust = 0.5)) +
+  scale_x_continuous(labels = function(x) paste0(x, "°")) +
+  scale_y_continuous(labels = function(y) paste0(y, "°"))
+```
+
+> **Tampilan Data dengan cluster**
+
+```{r}
+datatable(data.akhir1)
+#Export data
+write.csv(data.akhir1, "data_clust1.csv", row.names = FALSE)
 ```
