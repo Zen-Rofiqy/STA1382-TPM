@@ -342,7 +342,7 @@ ggplot() +
   scale_fill_manual(values=c("1" = "indianred", "2" = "lightgreen", "3" = "dodgerblue",
                              "4"="cyan3", "5"="purple3"), 
                     name = "Keterangan") +
-  labs(title = "Analisis Cluster Kesejahteraan \n pada Provinsi Indonesia 2021",
+  labs(title = "GMM Clustering - Kesejahteraan \n pada Provinsi Indonesia 2021",
        x = "Longitude",
        y = "Latitude") +
   theme_minimal() +
@@ -513,3 +513,69 @@ theme(
 ```
 
 Sejalan dengan yang saya bilang diatas, bahwa cluster 1 benar-benar mengungguli cluster 2.
+
+### Map
+
+```{r dpi=300,  fig.height = 9, fig.width = 16, fig.align = "center", warning=FALSE, message = FALSE}
+data.map <- cbind(data.clust2, KODE=kode$KODE)
+  
+data.indo <- indo %>%
+  inner_join(data.map, by = c("KODE" = "KODE"))
+
+ggplot() +  
+  geom_sf(data=data.indo, aes(fill=factor(`Cluster`))) +
+  scale_fill_manual(values=c("1" = "lightgreen", "2" = "indianred"), 
+                    name = "Keterangan") +
+  labs(title = "K-means Clustering -  Kesejahteraan \n pada Provinsi Indonesia 2021",
+       x = "Longitude",
+       y = "Latitude") +
+  theme_minimal() +
+  theme(legend.text = element_text(size=10),
+        legend.title = element_text(size=10, face="bold"),
+        axis.text.x = element_text(size = 10),
+        axis.text.y = element_text(size = 10),
+        plot.title = element_text(size=12, face="bold", hjust = 0.5)) +
+  scale_x_continuous(labels = function(x) paste0(x, "°")) +
+  scale_y_continuous(labels = function(y) paste0(y, "°"))
+```
+
+Berbeda dengan GMM, hasil dari k-means itu lebih make sense, mari kita lihat keanggotaan clusternya.
+
+### Anggota Cluster
+
+> **Tampilan Data dengan cluster**
+
+```{r}
+datatable(data.akhir2, options = list(pageLength = 5))
+#Export data
+write.csv(data.akhir2, "data_clust2.csv", row.names = FALSE)
+```
+
+```{r fig.height=15, fig.width=30, dpi=300}
+colors <- c("1" = "#27b376", "2" = "#bf212f")
+
+# List of variable names (excluding Provinsi and Cluster)
+variables <- names(data.akhir2)[!names(data.akhir2) %in% c("Provinsi", "Cluster")]
+
+plots <- list()
+
+for (var in variables) {
+  # Sort data based on the current variable
+  sorted_data <- data.akhir2 %>%
+    arrange(!!sym(var)) %>%
+    mutate(Provinsi = factor(Provinsi, levels = Provinsi))
+  
+  p <- ggplot(sorted_data, aes_string(x = var, y = "Provinsi", fill = "factor(Cluster)")) +
+    geom_bar(stat = "identity") +
+    scale_fill_manual(values = colors) +
+    labs(x = var, y = "Provinsi", fill = "Cluster") +
+    theme_minimal()
+  
+  plots[[var]] <- p
+}
+
+combined_plot <- plot_grid(plotlist = plots, ncol = 4)
+combined_plot
+```
+
+Bisa dilihat bahwa memang K-Means menghasilkan cluster yang lebih make sense daripada GMM. Karena hampir di semua aspek memang cluster 1 lebih unggul daripada cluster 2.
