@@ -45,7 +45,7 @@ install_load <- function (package1, ...)  {
 
 path <- function() gsub  ( "\\\\",  "/",  readClipboard ()  )
 
-install_load("readxl","ggplot2","dplyr","DT","cowplot","factoextra","mclust")
+install_load("readxl","ggplot2","dplyr","DT","cowplot","factoextra","mclust","psych")
 
 export.chart <- "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 6/2. Teknik Pembelajaran Mesin/Project/Tugas Kelompok/Chart"
 ```
@@ -86,7 +86,7 @@ Tidak ada data hilang pada setiap kolom.
 
 ## Eksplorasi data {.tabset}
 
-> **Sebaran data**
+### Sebaran data
 
 ```{r fig.height=15, fig.width=30, dpi=300}
 colors <- c("#0f2c3a","#357a87","#6ec1c1","#a9ded7","#9a3b1a","#ce572b","#e9865b")
@@ -104,7 +104,8 @@ for (i in 1:(ncol(data)-1) ) {
                    binwidth = bin[i], 
                    fill = colors[i], color = "black", lwd=1) +
     geom_density(color = "black", lwd=2, fill = colors[i], alpha = .5) +
-    ylab("Density") + theme_void()
+    ylab("Density") + theme_void() +
+    xlab(colnames(data[,1+i])[i]) 
   
   # Boxplot
   p2 <- ggplot(data, aes(y = data[,1+i] )) +
@@ -136,15 +137,33 @@ ggsave("Sebaran Data.png", chart, path = export.chart,
         dpi = 300, height = 15, width = 30)
 ```
 
+Terdapat beberapa variabel dengan range yang kecil yaitu UHH(X1) dan Sumber Air(X7), yang artinya untuk variabel-variabel tersebut tidak jauh berbeda di tiap provinsinya.
+
+-   Sebaliknya terdapat variabel-variabel dengan range sangat besar (dapat dilihat dari nilai Max. dan Min.) seperti variabel Puskesmas(X2) dan Tenaga Medis(X4).
+
+-   Dari informasi diatas dapat diketahui bahwa tiap provinsi memiliki karakteristik tersendiri, maka dari itu provinsi-provinsi akan diklasterkan berdasarkan kemiripan dari karakteristiknya.
+
+> **Hubungan antar peubah**
+
+```{r fig.height=5, fig.width=10, dpi=300}
+# Standarisasi Data
+dt <- scale(data[,-1])
+# Korelasi
+pairs.panels(dt,
+             method = "pearson", # correlation method
+             hist.col = "#00AFBB", #Coloring histogram
+             density = TRUE,  # show density plots
+             ellipses = TRUE, # show correlation ellipses
+             smooth = TRUE, #show loess smooths
+             pch = 20, #Scatter = cirlce / dot
+             rug = TRUE, #Rug under histogram
+             stars = TRUE #Significance of corr
+             )
+```
+
 # Clustering
 
 ## GMM
-
-> **Standarisasi Data**
-
-```{r}
-dt <- scale(data[,-1])
-```
 
 ### Banyaknya Cluster
 
@@ -311,3 +330,5 @@ for (var in variables) {
 combined_plot <- plot_grid(plotlist = plots, ncol = 4)
 combined_plot
 ```
+
+## K-Means
