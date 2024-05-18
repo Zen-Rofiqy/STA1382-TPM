@@ -211,9 +211,11 @@ Pada setiap variabel tidak ada yang memiliki nilai VIF \> 10 sehingga antar vari
 
 ## GMM
 
-### Banyaknya Cluster
+### n Cluster Optimum
 
 > **Pemilihan banyak culster**
+
+Pada dasarnya nilai k optimum dapat ditentukan sendiri oleh peneliti, selain itu nilai k dapat ditentukan juga menggunakan bantuan nilai dari setiap sebaran gaussian yang dihasilkan dan dilihat mana yang memiliki nilai BIC terbesar. Tak harus melihat nilai dari sebarannya, ini juga bisa dibuat plot agar mudah untuk menentukan mana jumlah cluster yang optimal.
 
 ```{r}
 # GMM clustering dengan mclust
@@ -258,11 +260,15 @@ gmm_model2$classification <- recode(gmm_model2$classification,
 table(gmm_model2$classification)
 ```
 
+Proporsi jumlah cluster 1 dan 2 adalah 26 : 8.
+
 > **Plot culster**
 
 ```{r}
 fviz_cluster(gmm_model2, data = dt, repel = TRUE, labelsize =8)
 ```
+
+Terlihat bahwa GMM tidak membuat cluster berdararkan kedekatan titik, melainkan berdasarkan sebaran berbagai sebaran gaussian.
 
 ### Cluster Profil
 
@@ -290,6 +296,8 @@ ggplot(cluster_profiles_long1, aes(x = Cluster, y = Value, fill = Variable)) +
   ggtitle("Cluster Profiles")
 ```
 
+Terlihat dari nilai yang sudah distandarisasi bahwa profil dari cuslter 2 memilki nilai yang hampir unggul dalam segala peubah dibandingan dengan cluster 1. Notes: adanya nilai negatif karena hasil dari standarisasi memang mengandung nilai positif dan negatif. Agar mudah perbandingannya, mari kita lihat dengan diagram spider web dibawah ini.
+
 ```{r dpi=300,  fig.height = 10, fig.width = 10, fig.align = "center", warning=FALSE, message = FALSE}
 library(ggiraphExtra)
 
@@ -309,6 +317,8 @@ theme(
   legend.text = element_text(size = 8)  # Mengubah ukuran font legenda
 )
 ```
+
+Selaras dengan yang sudah saya sampaikan diatas, bahwa cluster 2 hampir unggul dalam segala aspek. Cluster 1 hanya bisa dunggul dalam sanitasi dan imun saja, sedangkan yang lainnya tidak mampu mengungguli atau bahkan tidak ada harapan untuk mengungguli cluster 2.
 
 ### Map
 
@@ -378,3 +388,7 @@ combined_plot
 ```
 
 ## K-Means
+
+### n Cluster Optimum
+
+Menentukan jumlah klaster paling optimum untuk membagi 34 provinsi yang ada di Indonesia. Pada dasarnya nilai k optimum dapat ditentukan sendiri oleh peneliti, selain itu nilai k dapat ditentukan juga menggunakan bantuan grafik Elbow berikut. Dimana k minimum akan didapat ketika grafik sudah tidak bergerak menurun dengan tajam.
