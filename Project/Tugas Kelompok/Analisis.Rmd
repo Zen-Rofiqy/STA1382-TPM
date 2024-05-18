@@ -275,11 +275,6 @@ fviz_cluster(gmm_model2, data = dt, repel = TRUE, labelsize =8)
 
 Terlihat bahwa GMM tidak membuat cluster berdararkan kedekatan titik, melainkan berdasarkan sebaran berbagai sebaran gaussian.
 
-```{r}
-fviz_silhouette(gmm_model2, palette = "jco",
-                ggtheme = theme_minimal())
-```
-
 ### Cluster Profil
 
 ```{r}
