@@ -275,6 +275,11 @@ fviz_cluster(gmm_model2, data = dt, repel = TRUE, labelsize =8)
 
 Terlihat bahwa GMM tidak membuat cluster berdararkan kedekatan titik, melainkan berdasarkan sebaran berbagai sebaran gaussian.
 
+```{r}
+fviz_silhouette(gmm_model2, palette = "jco",
+                ggtheme = theme_minimal())
+```
+
 ### Cluster Profil
 
 ```{r}
@@ -571,7 +576,7 @@ data.indo <- indo %>%
 
 ggplot() +  
   geom_sf(data=data.indo, aes(fill=factor(`Cluster`))) +
-  scale_fill_manual(values=c("1" = "lightgreen", "2" = "indianred"), 
+  scale_fill_manual(values=c("1" = "indianred", "2" = "lightgreen"), 
                     name = "Keterangan") +
   labs(title = "K-means Clustering -  Kesejahteraan \n pada Provinsi Indonesia 2021",
        x = "Longitude",
@@ -599,7 +604,7 @@ write.csv(data.akhir2, "data_clust2.csv", row.names = FALSE)
 ```
 
 ```{r fig.height=15, fig.width=30, dpi=300}
-colors <- c("1" = "#27b376", "2" = "#bf212f")
+colors <- c("1" = "#bf212f", "2" = "#27b376")
 
 # List of variable names (excluding Provinsi and Cluster)
 variables <- names(data.akhir2)[!names(data.akhir2) %in% c("Provinsi", "Cluster")]
@@ -631,7 +636,7 @@ Bisa dilihat bahwa memang K-Means menghasilkan cluster yang lebih make sense dar
 
 Untuk FCM pemilihan jumlah clusternya sama dengan K-Means, sehingga jumlah cluster yang akan digunakan adalah 2.
 
-### Hasil Clustering
+### Hasil Clustering 1
 
 ```{r}
 # clustering menggunakan fanny()
@@ -647,7 +652,7 @@ table(data_fcm$cluster)
 
 Berbeda dengan 2 metode sebelumnya, FCM menghasilkan proporsi jumlah cluster yang berbeda, yakni lebih proporsional antar clusternya yakni 16 : 18.
 
-### Validasi Cluster
+#### Validasi Cluster
 
 > **Dunn Index**
 
@@ -657,7 +662,7 @@ data_fcm$coeff
 
 Nilai Dunn index yang kita peroleh sebesar 0.5, sangat kecil tbh. Untuk mengetahui hasil cluster yang kita bentuk sudah baik berdasarkan nilai Dunn index yaitu dengan mendapatkan Dunn index yang semakin besar.
 
-Sebelum membuat visualisasi dari cluster, kita perlu mengetahui berapa banyak cluster yang terbentuk dari nilai derajat keanggotaan yang ada.
+Kita perlu mengetahui berapa banyak cluster yang terbentuk dari nilai derajat keanggotaan yang ada.
 
 > **Pengelompokkan**
 
@@ -682,16 +687,184 @@ neg_sil_index <- which(sil[, 'sil_width']<0)
 data[neg_sil_index, 1]
 ```
 
-Terlihat bahwa 7 provinsi tersebut merupakan provinsi yang mungkin blm dapat dikelompokkan secara benar oleh FCM.
+Terlihat bahwa 7 provinsi tersebut merupakan provinsi yang mungkin blm dapat dikelompokkan secara benar oleh FCM. Mari kita perbaiki.
 
-Walau demikian, FCM tidak mampu untuk membuat cluster lebih dari 2 pada kasus ini, tadi saya sudah mencobanya. Sehingga ini adalah hasil terbaik dari FCM
+### Hasil Cluster 2
+
+```{r}
+data_fcm <- fanny(x = dt, k = 2, metric = "manhattan", memb.exp = 3)
+fviz_cluster(object = data_fcm, data=dt) 
+```
+
+> **Proporsi Cluster**
+
+```{r}
+table(data_fcm$cluster)
+```
+
+Berbeda dengan 2 metode sebelumnya, FCM menghasilkan proporsi jumlah cluster yang berbeda, yakni lebih proporsional antar clusternya yakni 19 : 15.
+
+#### Validasi Cluster
+
+> **Dunn Index**
+
+```{r}
+data_fcm$coeff
+```
+
+Nilai Dunn index yang kita peroleh masih sebesar 0.5.
+
+Dari hasil pengelompokan menjadi 2 kelompok, ternyata 2 kelompok tersebut berhasil terisi. Artinya bahwa dengan menggunakan k=2, fuzzy c-means mampu menseparasikan data berdasarkan 2 kelompok yang berbeda. Sehingga juumlah cluster 2 merupakan jumlah cluster yang sudah tepat.
+
+Kita perlu mengetahui berapa banyak cluster yang terbentuk dari nilai derajat keanggotaan yang ada.
+
+> **Pengelompokkan**
+
+```{r}
+data_fcm$clustering %>% unique()
+```
+
+Dari hasil pengelompokan menjadi 2 kelompok, ternyata 2 kelompok tersebut berhasil terisi. Artinya bahwa dengan menggunakan k=2, fuzzy c-means mampu menseparasikan data berdasarkan 2 kelompok yang berbeda. Sehingga juumlah cluster 2 merupakan jumlah cluster yang sudah tepat.
+
+```{r}
+fviz_silhouette(data_fcm, palette = "jco",
+                ggtheme = theme_minimal())
+```
+
+Masih ada pengamatan dengan nilai siluet negatif yang dapat dilihat pada cluster 1 yang berwarna kuning pada plot mengindikasikan bahwa pengamatan tersebut mungkin dikelompokkan secara tidak benar. Mari lihat angka indeks dari pengamatan tersebut.
+
+```{r}
+sil <- data_fcm$silinfo$widths
+neg_sil_index <- which(sil[, 'sil_width']<0)
+data[neg_sil_index, 1]
+```
+
+Terlihat bahwa 3 provinsi tersebut merupakan provinsi yang mungkin blm dapat dikelompokkan secara benar oleh FCM. Namun saya rasa, saya sudah mencoba berbagai hal untuk memperbaikinya, dan ini adalah hasil terbaik dari FCM. Jadi ya, kita sudahi.
 
 ### Cluster Profil
+
+```{r}
+data.clust3 <- cbind(dt %>% as.data.frame() %>% mutate(across(everything(), as.numeric)), 
+                     Cluster = data_fcm$cluster) 
+
+# Calculate the mean of each variable for each cluster
+cluster_profiles3 <- aggregate(. ~ Cluster, data.clust3, mean)
+
+# Print the cluster profiles
+print(cluster_profiles3)
+```
+
+```{r}
+# Convert the data to long format for plotting
+cluster_profiles_long3 <- tidyr::pivot_longer(cluster_profiles3, -Cluster, 
+                                             names_to = "Variable", values_to = "Value")
+
+# Create the bar plot
+ggplot(cluster_profiles_long3, aes(x = Cluster, y = Value, fill = Variable)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(x = "Cluster", y = "Mean Value", fill = "Variable") +
+  theme_minimal() +
+  ggtitle("Cluster Profiles")
+```
+
+Dari sini kita tahu bahwa cluster 1 dan cluster 2 cenderung memiliki bentuk bar yang mirip namun kebalik. Tidak tahu pasti apa artinya, namun cluster 2 merupakan cluster yang lebih unggul dalam segala aspek daripada cluster 1. Mari kita lihat radar chart nya.
+
+```{r dpi=300,  fig.height = 10, fig.width = 10, fig.align = "center", warning=FALSE, message = FALSE}
+data.akhir3 <- cbind(raw.data, Cluster =  data_fcm$cluster) %>% 
+  relocate(Cluster, .before = 2)
+
+# Radar Plot
+ggRadar(
+  data = data.akhir3,
+  mapping = aes(colours = Cluster)
+) + 
+theme_light() +
+theme(
+  text = element_text(size = 10),  # Mengubah ukuran font global
+  title = element_text(size = 12),  # Mengubah ukuran font judul
+  axis.text = element_text(size = 10),  # Mengubah ukuran font label sumbu
+  legend.text = element_text(size = 8)  # Mengubah ukuran font legenda
+)
+```
+
+Selaras dengan yang saya sampaikan di atas, bawahwa cluster 1 dan cluster 2 memang mirip, namun cluster 2 memiliki nilai yang lebih besar daripada cluster 1.
+
+### Map
+
+```{r dpi=300,  fig.height = 9, fig.width = 16, fig.align = "center", warning=FALSE, message = FALSE}
+data.map <- cbind(data.clust3, KODE=kode$KODE)
+  
+data.indo <- indo %>%
+  inner_join(data.map, by = c("KODE" = "KODE"))
+
+ggplot() +  
+  geom_sf(data=data.indo, aes(fill=factor(`Cluster`))) +
+  scale_fill_manual(values=c("1" = "indianred", "2" = "lightgreen"), 
+                    name = "Keterangan") +
+  labs(title = "FCM Clustering -  Kesejahteraan \n pada Provinsi Indonesia 2021",
+       x = "Longitude",
+       y = "Latitude") +
+  theme_minimal() +
+  theme(legend.text = element_text(size=10),
+        legend.title = element_text(size=10, face="bold"),
+        axis.text.x = element_text(size = 10),
+        axis.text.y = element_text(size = 10),
+        plot.title = element_text(size=12, face="bold", hjust = 0.5)) +
+  scale_x_continuous(labels = function(x) paste0(x, "°")) +
+  scale_y_continuous(labels = function(y) paste0(y, "°"))
+```
+
+Beginilah penampakan dari hasil clustering FCM. Apakah lebih bagus daripada metode yang lain? Mari kita pastikan dengan melihat keanggotaan clusternya.
+
+### Anggota Cluster
+
+> **Tampilan Data dengan cluster**
+
+```{r}
+datatable(data.akhir3, options = list(pageLength = 5))
+#Export data
+write.csv(data.akhir3, "data_clust1.csv", row.names = FALSE)
+```
+
+```{r fig.height=15, fig.width=30, dpi=300}
+colors <- c("1" = "#bf212f", "2" = "#27b376")
+
+# List of variable names (excluding Provinsi and Cluster)
+variables <- names(data.akhir3)[!names(data.akhir3) %in% c("Provinsi", "Cluster")]
+
+plots <- list()
+
+for (var in variables) {
+  # Sort data based on the current variable
+  sorted_data <- data.akhir3 %>%
+    arrange(!!sym(var)) %>%
+    mutate(Provinsi = factor(Provinsi, levels = Provinsi))
+  
+  p <- ggplot(sorted_data, aes_string(x = var, y = "Provinsi", fill = "factor(Cluster)")) +
+    geom_bar(stat = "identity") +
+    scale_fill_manual(values = colors) +
+    labs(x = var, y = "Provinsi", fill = "Cluster") +
+    theme_minimal()
+  
+  plots[[var]] <- p
+}
+
+combined_plot <- plot_grid(plotlist = plots, ncol = 4)
+combined_plot
+```
+
+Walaupun dalam validasi cluster dengan metode siluet masih ada yang bernilai negatif, namun saya rasa metode FCM mampu membuat cluster yang jauh lebih baik daripada yang lainnya. Tidak seperti K-means yang pada profil nya seolah berkata bahwa cluster 2 itu jauh lebih baik daripada cluster 1 di segala aspek. Namun pada saat kita tampilkan sebaran tiap peubah pada semua provinsi nya, cluster 2 tidak selalu berada di puncak.
+
+Sedangkan untuk FCM itu sesuai dengan apa yang dikatakan oleh profil nya. Yakni clsuter 1 dan cluster 2 itu mirip, namun cluster 2 lebih tinggi daripada cluster 1. Ini juga sesuai dengan sebaran yang kita lihat di atas.
 
 # Referensi
 
 -   [**Validasi Cluster**](https://medium.com/@ozturkfemre/unsupervised-learning-in-r-cluster-validation-8c691ce37784){.uri}
 
+-   [**Clustering**](http://www.sthda.com/english/wiki/wiki.php?id_contents=7952){.uri}
+
 -   <https://rpubs.com/inayatus/fuzzy-c-means>
 
 -   <https://rpubs.com/Anoe/lbb-kmeans>
+
+-   
