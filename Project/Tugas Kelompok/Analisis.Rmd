@@ -110,8 +110,9 @@ for (i in 1:(ncol(data)-1) ) {
   # Boxplot
   p2 <- ggplot(data, aes(y = data[,1+i] )) +
     geom_boxplot(fill = colors[i], color = "black", 
-                 outlier.size = 3, lwd=2, alpha=.5) +
-    xlab("Nilai") + theme_void() + coord_flip()
+                 outlier.size = 3, lwd=1, alpha=.5) +
+    xlab("Nilai") + theme_set(theme_void() + theme(axis.text.x = element_text())) + 
+    coord_flip()
   
   # Gabung plot
   combined_plot <- plot_grid(p1, p2, ncol = 1, align = 'v', 
