@@ -284,3 +284,30 @@ datatable(data.akhir1)
 #Export data
 write.csv(data.akhir1, "data_clust1.csv", row.names = FALSE)
 ```
+
+```{r fig.height=15, fig.width=30, dpi=300}
+colors <- c("1" = "#bf212f", "2" = "#27b376")
+
+# List of variable names (excluding Provinsi and Cluster)
+variables <- names(data.akhir1)[!names(data.akhir1) %in% c("Provinsi", "Cluster")]
+
+plots <- list()
+
+for (var in variables) {
+  # Sort data based on the current variable
+  sorted_data <- data.akhir1 %>%
+    arrange(!!sym(var)) %>%
+    mutate(Provinsi = factor(Provinsi, levels = Provinsi))
+  
+  p <- ggplot(sorted_data, aes_string(x = var, y = "Provinsi", fill = "factor(Cluster)")) +
+    geom_bar(stat = "identity") +
+    scale_fill_manual(values = colors) +
+    labs(x = var, y = "Provinsi", fill = "Cluster") +
+    theme_minimal()
+  
+  plots[[var]] <- p
+}
+
+combined_plot <- plot_grid(plotlist = plots, ncol = 4)
+combined_plot
+```
