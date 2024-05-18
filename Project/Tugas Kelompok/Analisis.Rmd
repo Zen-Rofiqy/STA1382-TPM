@@ -192,7 +192,20 @@ pairs.panels(dt,
 
 Jika kita melihat dari scatterplotnya, maka kita akan melihat bahwa pola hubungan antar peubah itu beragam, ada yang memilki hubungan linear ada juga yang nampaknya tidak meiliki hubungan linear. Jika dihitung hubungan linearnya dengan korelasi pearson, maka kita bisa melihat bahwa mayoritas hubungan antarr peubahnya itu lemah. Hubungan lineaer yang paling kuat adalah hubungan antara peubah X2 dan X4 dengan nilai 0.78. Bisa dilihat juga dari scatterplitnya yang memilki pola lurus positif. Ini didukung dnegan garis LOESS Smooth nya yang paling lurus dan paling 45 derajat diantara yang lain. Juga dari bentuk elips korelasinya yang nampak lancip nan bersudut 45 derajat. Yang mana ini tentu make sense karena Jumlah Puskesmas selaras dengan juumlah tenaga medis yang ada.
 
-## Pemeriksaan Masalah Data
+### Multikolinearitas
+
+```{r}
+CekVIF <- function(data) {
+  corr = as.matrix(cor(data))
+  VIF = diag(solve(corr))
+  
+  return(VIF)
+}
+
+CekVIF(data[,-1])
+```
+
+Pada setiap variabel tidak ada yang memiliki nilai VIF \> 10 sehingga antar variabel tidak terjadi multikolinearitas.
 
 # Clustering
 
