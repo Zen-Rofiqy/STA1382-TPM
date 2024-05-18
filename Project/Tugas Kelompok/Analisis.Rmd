@@ -45,8 +45,8 @@ install_load <- function (package1, ...)  {
 
 path <- function() gsub  ( "\\\\",  "/",  readClipboard ()  )
 
-install_load("readxl","ggplot2","dplyr","DT","cowplot","factoextra","mclust","psych",
-             "cluster","ggiraphExtra","cluster")
+install_load("readxl","ggplot2","dplyr","DT","cowplot","factoextra","mclust"
+             ,"psych","cluster","ggiraphExtra","cluster","NbClust")
 
 export.chart <- "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 6/2. Teknik Pembelajaran Mesin/Project/Tugas Kelompok/Chart"
 ```
@@ -439,12 +439,10 @@ Untuk wss nampaknya agak sulit untuk melihat berapa jumlah cluster yang optimumn
 #### Hubert Statistic & Dindex
 
 ```{r fig.height=5, fig.width=10, dpi=300}
-library(NbClust)
-library("factoextra")
-nb <- NbClust(data = dt, distance = "euclidean", method="kmeans")
+nb <- NbClust(data = dt, distance = "euclidean", method="complete")
 ```
 
-Untuk hubert statistic dan dindex, jumlah cluster optimal yang disarankan adalah 4.
+Untuk hubert statistic dan dindex, jumlah cluster optimal yang disarankan adalah 2.
 
 ### Hasil Clustering
 
@@ -458,6 +456,8 @@ data_kmeans <- kmeans(x = dt, centers = 2)
 fviz_cluster(object = data_kmeans, data=dt)
 ```
 
+K-means berhasil membuat cluster berdasarkan kedekatan jaraknya.
+
 > **Proporsi cluster**
 
 ```{r}
@@ -465,6 +465,15 @@ table(data_kmeans$cluster)
 ```
 
 Proporsi jumlah cluster 1 dan 2 adalah 7 : 27.
+
+### Validasi Cluster
+
+> **Silhouette**
+
+```{r}
+fviz_silhouette(data_kmeans, palette = "jco",
+                ggtheme = theme_minimal())
+```
 
 ### Cluster Profil
 
@@ -579,3 +588,72 @@ combined_plot
 ```
 
 Bisa dilihat bahwa memang K-Means menghasilkan cluster yang lebih make sense daripada GMM. Karena hampir di semua aspek memang cluster 1 lebih unggul daripada cluster 2.
+
+## Fuzzy C-Means
+
+Untuk FCM pemilihan jumlah clusternya sama dengan K-Means, sehingga jumlah cluster yang akan digunakan adalah 2.
+
+### Hasil Clustering
+
+```{r}
+# clustering menggunakan fanny()
+data_fcm <- fanny(x = dt, k = 2, metric = "euclidean")
+fviz_cluster(object = data_fcm, data=dt) 
+```
+
+> **Proporsi Cluster**
+
+```{r}
+table(data_fcm$cluster)
+```
+
+Berbeda dengan 2 metode sebelumnya, FCM menghasilkan proporsi jumlah cluster yang berbeda, yakni lebih proporsional antar clusternya yakni 16 : 18.
+
+### Validasi Cluster
+
+> **Dunn Index**
+
+```{r}
+data_fcm$coeff
+```
+
+Nilai Dunn index yang kita peroleh sebesar 0.5, sangat kecil tbh. Untuk mengetahui hasil cluster yang kita bentuk sudah baik berdasarkan nilai Dunn index yaitu dengan mendapatkan Dunn index yang semakin besar.
+
+Sebelum membuat visualisasi dari cluster, kita perlu mengetahui berapa banyak cluster yang terbentuk dari nilai derajat keanggotaan yang ada.
+
+> **Pengelompokkan**
+
+```{r}
+data_fcm$clustering %>% unique()
+```
+
+Dari hasil pengelompokan menjadi 2 kelompok, ternyata 2 kelompok tersebut berhasil terisi. Artinya bahwa dengan menggunakan k=2, fuzzy c-means mampu menseparasikan data berdasarkan 2 kelompok yang berbeda. Sehingga juumlah cluster 2 merupakan jumlah cluster yang sudah tepat.
+
+> **Silhouette**
+
+```{r}
+fviz_silhouette(data_fcm, palette = "jco",
+                ggtheme = theme_minimal())
+```
+
+Karena pengamatan dengan nilai siluet negatif yang dapat dilihat pada cluster 1 yang berwarna biru pada plot mengindikasikan bahwa pengamatan tersebut mungkin dikelompokkan secara tidak benar. Mari lihat angka indeks dari pengamatan tersebut.
+
+```{r}
+sil <- data_fcm$silinfo$widths
+neg_sil_index <- which(sil[, 'sil_width']<0)
+data[neg_sil_index, 1]
+```
+
+Terlihat bahwa 7 provinsi tersebut merupakan provinsi yang mungkin blm dapat dikelompokkan secara benar oleh FCM.
+
+Walau demikian, FCM tidak mampu untuk membuat cluster lebih dari 2 pada kasus ini, tadi saya sudah mencobanya. Sehingga ini adalah hasil terbaik dari FCM
+
+### Cluster Profil
+
+# Referensi
+
+-   [**Validasi Cluster**](https://medium.com/@ozturkfemre/unsupervised-learning-in-r-cluster-validation-8c691ce37784){.uri}
+
+-   <https://rpubs.com/inayatus/fuzzy-c-means>
+
+-   <https://rpubs.com/Anoe/lbb-kmeans>
