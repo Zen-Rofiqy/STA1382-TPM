@@ -45,7 +45,7 @@ install_load <- function (package1, ...)  {
 
 path <- function() gsub  ( "\\\\",  "/",  readClipboard ()  )
 
-install_load("readxl","ggplot2","dplyr","DT","cowplot")
+install_load("readxl","ggplot2","dplyr","DT","cowplot","factoextra","mclust")
 
 export.chart <- "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 6/2. Teknik Pembelajaran Mesin/Project/Tugas Kelompok/Chart"
 ```
@@ -72,12 +72,6 @@ datatable(raw.data,  options = list(pageLength = 5))
 
 ```{r}
 str(raw.data)
-```
-
-```{r}
-data <- data %>%
-  mutate(across(-1, as.numeric))
-str(data)
 ```
 
 > **Cek data hilang**
@@ -138,4 +132,128 @@ chart
 #Export Chart
 ggsave("Sebaran Data.png", chart, path = export.chart,
         dpi = 300, height = 15, width = 30)
+```
+
+# Clustering
+
+## GMM
+
+> **Standarisasi Data**
+
+```{r}
+dt <- scale(data[,-1])
+```
+
+### Banyaknya Cluster
+
+> **Pemilihan banyak culster**
+
+```{r}
+# GMM clustering dengan mclust
+gmm_model <- Mclust(dt)
+
+gmm_model$BIC
+```
+
+```{r fig.height=5, fig.width=10, dpi=300}
+# Menampilkan hasil BIC untuk berbagai jumlah cluster
+plot(gmm_model, what = "BIC")
+```
+
+```{r}
+optimal_clusters <- gmm_model$G
+cat("Optimal number of clusters: ", optimal_clusters, "\n")
+```
+
+Juumlah culster optimal adalah 2, ini bisa dilihat dengan mncari titik dengan nilai BIC terbesar. Dalam kasus ini niali BIC terbesar adalah model EVE dengan jumlah komponen 2.
+
+> **Summary Jumlah Cluster optimal**
+
+```{r}
+gmm_model2 = Mclust(dt, G = 2, modelNames = c("EVE"))
+summary(gmm_model2, parameters = TRUE)
+```
+
+```{r}
+# Menghitung frekuensi observasi di setiap kluster
+cluster_frequencies <- table(gmm_model2$classification)
+
+# Mengurutkan kluster berdasarkan frekuensinya
+sorted_clusters <- names(sort(cluster_frequencies, decreasing = TRUE))
+
+# Membuat urutan kluster yang diinginkan (1, 2, 3, 4, 5)
+new_order <- 1:length(sorted_clusters)
+
+# Menukar isi kluster dengan urutan yang dihasilkan
+gmm_model2$classification <- recode(gmm_model2$classification, 
+                               !!!setNames(as.character(new_order), sorted_clusters))
+
+table(gmm_model2$classification)
+```
+
+> **Plot culster**
+
+```{r}
+fviz_cluster(gmm_model2, data = dt, repel = TRUE, labelsize =8)
+```
+
+### Cluster Profil
+
+```{r}
+data.clust1 <- cbind(dt %>% as.data.frame() %>% mutate(across(everything(), as.numeric)), 
+                     Cluster = gmm_model2[["classification"]]) 
+
+# Calculate the mean of each variable for each cluster
+cluster_profiles1 <- aggregate(. ~ Cluster, data.clust1, mean)
+
+# Print the cluster profiles
+print(cluster_profiles1)
+```
+
+```{r}
+# Convert the data to long format for plotting
+cluster_profiles_long1 <- tidyr::pivot_longer(cluster_profiles1, -Cluster, 
+                                             names_to = "Variable", values_to = "Value")
+
+# Create the bar plot
+ggplot(cluster_profiles_long1, aes(x = Cluster, y = Value, fill = Variable)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(x = "Cluster", y = "Mean Value", fill = "Variable") +
+  theme_minimal() +
+  ggtitle("Cluster Profiles")
+```
+
+```{r dpi=300,  fig.height = 10, fig.width = 10, fig.align = "center", warning=FALSE, message = FALSE}
+library(ggiraphExtra)
+
+data.akhir1 <- cbind(raw.data, Cluster =  gmm_model2[["classification"]]) %>% 
+  relocate(Cluster, .before = 2)
+
+# Radar Plot
+ggRadar(
+  data = data.akhir1,
+  mapping = aes(colours = Cluster)
+) + 
+theme_light() +
+theme(
+  text = element_text(size = 10),  # Mengubah ukuran font global
+  title = element_text(size = 12),  # Mengubah ukuran font judul
+  axis.text = element_text(size = 10),  # Mengubah ukuran font label sumbu
+  legend.text = element_text(size = 8)  # Mengubah ukuran font legenda
+)
+```
+
+### Map
+
+```{r message=FALSE, warning=FALSE}
+install_load("spdep","rgdal")
+indo <- st_read(dsn= "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 5/8. Pengantar Sains Data/Tugas/Tugas Akhir/SHP Indonesia/prov.shp", 
+                quiet = TRUE)
+```
+
+```{r}
+data.map <- cbind(data.clust1, KODE=raw.data3$KODE[-35])
+  
+data.indo <- indo %>%
+  inner_join(data.map, by = c("KODE" = "KODE"))
 ```
