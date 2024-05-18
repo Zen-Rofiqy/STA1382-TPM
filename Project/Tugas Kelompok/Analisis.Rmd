@@ -352,13 +352,19 @@ ggplot() +
   scale_y_continuous(labels = function(y) paste0(y, "°"))
 ```
 
+Ada yang aneh? ya memang. Kenapa bisa provinsi papua masuk kedalam cluster 2 yang sebelumnya disebut-sebut sebagai cluster yang unggul dalam segala aspek kesejahteraan. Mari kita telurusi lebih lanjut.
+
+### Eksplorasi cluster lebih jauh
+
 > **Tampilan Data dengan cluster**
 
 ```{r}
-datatable(data.akhir1)
+datatable(data.akhir1, options = list(pageLength = 5))
 #Export data
 write.csv(data.akhir1, "data_clust1.csv", row.names = FALSE)
 ```
+
+Jika anda ingin melihat bagaimana tampilan data dengan cluster nya. Atau lebih mudah dengan bar chart dibawah.
 
 ```{r fig.height=15, fig.width=30, dpi=300}
 colors <- c("1" = "#bf212f", "2" = "#27b376")
@@ -386,6 +392,8 @@ for (var in variables) {
 combined_plot <- plot_grid(plotlist = plots, ncol = 4)
 combined_plot
 ```
+
+Memang terlihat keanehannya, bahwa salah satu anggota cluster 2 tidak bisa meungguli semua aspek kesejahteraan yang ada. Bahwakan kalah jauh daripada yang lain. Sepertinya memang clustering dengan GMM bukanlah ide yang tepat.
 
 ## K-Means
 
