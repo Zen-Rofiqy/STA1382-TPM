@@ -138,13 +138,41 @@ ggsave("Sebaran Data.png", chart, path = export.chart,
         dpi = 300, height = 15, width = 30)
 ```
 
-Terdapat beberapa variabel dengan range yang kecil yaitu UHH(X1) dan Sumber Air(X7), yang artinya untuk variabel-variabel tersebut tidak jauh berbeda di tiap provinsinya.
+Peubah X2, X4, dan X5 menyebar dengan menjulur ke kanan. Ini bisa dilihat dari density plot dan histogram nya yang menjulur ke kanan, serta dengan adanya outlier di sebelah kanan pada boxplotnya. Artinya mayoritas provinsi memiliki nilai yang jauh lebih sedikit daripada provinsi lainnya. Dalam kasus ini nilai yang dimaksud adalah banyaknya puskesmas, tenaga medis, dan persentase penerima BPJS.
 
--   Sebaliknya terdapat variabel-variabel dengan range sangat besar (dapat dilihat dari nilai Max. dan Min.) seperti variabel Puskesmas(X2) dan Tenaga Medis(X4).
+Peubah X3, X6, dan X7 menyebar dengan menjulur ke kiri. Ini bisa dilihat dari density plot dan histogram nya yang menjulur ke kiri, serta dengan adanya outlier di sebelah kiri pada boxplotnya. Artinya masih ada beberapa provinsi yang nilai nya tertinggal jauh dari pada kebanyakan provinsi. Dalam kasus ini nilai yang dimaksud adalah Persentase balita sudah imunisasi dasar lengkap, Persentase rumah tangga dengan sanitasi layak, dan Persentase rumah tangga dengan pelayanan sumber air minum layak.
 
--   Dari informasi diatas dapat diketahui bahwa tiap provinsi memiliki karakteristik tersendiri, maka dari itu provinsi-provinsi akan diklasterkan berdasarkan kemiripan dari karakteristiknya.
+Sedangkan untuk umur harapan hidup nampak hampir simetris jika dilihat dari histogram, density plot dan boxplot nya. Artinya sebaran UHH di setiap provinsi terdistribusi secara merata di sekitar rata-rata, tanpa ada kemenjuluran yang signifikan ke arah tertentu.
 
-> **Hubungan antar peubah**
+### Sebaran per provinsi
+
+```{r fig.height=15, fig.width=30, dpi=300}
+# List of variable names (excluding Provinsi and Cluster)
+variables <- names(raw.data)[!names(raw.data) %in% c("Provinsi")]
+
+plots <- list()
+
+for (var in variables) {
+  # Sort data based on the current variable
+  sorted_data <- raw.data %>%
+    arrange(!!sym(var)) %>%
+    mutate(Provinsi = factor(Provinsi, levels = Provinsi))
+  
+  p <- ggplot(sorted_data, aes_string(x = var, y = "Provinsi")) +
+    geom_bar(stat = "identity", fill = "#357a87") +
+    labs(x = var, y = "Provinsi") +
+    theme_minimal()
+  
+  plots[[var]] <- p
+}
+
+combined_plot <- plot_grid(plotlist = plots, ncol = 4)
+combined_plot
+```
+
+Untuk sebaran lebih detail nya seperti ini. Bisa dilihat bahwa selaras dengan yang sudah diinterpretasikan di plot sebelumnya, bahwa UHH hampir menyebar simetris, lalu X2, X4, dan X5 menyebar dengan menjulur ke kanan yang ditandai banyaknya bar yang kecil, lalu terakhir X3, X6, dan X7 menyebar dengan menjulur ke kiri yang ditandai dengan ada beberapa bar yang ukurannya lebih kecil dari mayoritas.
+
+### Hubungan antar peubah
 
 ```{r fig.height=5, fig.width=10, dpi=300}
 # Standarisasi Data
@@ -161,6 +189,8 @@ pairs.panels(dt,
              stars = TRUE #Significance of corr
              )
 ```
+
+Jika kita melihat dari scatterplotnya, maka kita akan melihat bahwa pola hubungan antar peubah itu beragam, ada yang memilki hubungan linear ada juga yang nampaknya tidak meiliki hubungan linear. Jika dihitung hubungan linearnya dengan korelasi pearson, maka kita bisa melihat bahwa mayoritas hubungan antarr peubahnya itu lemah. Hubungan lineaer yang paling kuat adalah hubungan antara peubah X2 dan X4 dengan nilai 0.78. Bisa dilihat juga dari scatterplitnya yang memilki pola lurus positif. Ini didukung dnegan garis LOESS Smooth nya yang paling lurus dan paling 45 derajat diantara yang lain. Juga dari bentuk elips korelasinya yang nampak lancip nan bersudut 45 derajat. Yang mana ini tentu make sense karena Jumlah Puskesmas selaras dengan juumlah tenaga medis yang ada.
 
 # Clustering
 
