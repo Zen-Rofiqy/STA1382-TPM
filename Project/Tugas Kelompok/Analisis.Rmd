@@ -1,24 +1,51 @@
 ---
-title: "Tugas Akhir TPM"
+title: "Tugas Akhir Teknik Pembelajaran Mesin"
 author: "Angga Fathan Rofiqy"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
-  rmdformats::downcute:
+  html_document:
     self_contained: true
     thumbnails: false
     lightbox: true
     gallery: true
     highlight: tango
     code_folding: hide
-    toc_depth: 3
-    number_sections: true
+    toc_depth: 5
+    number_sections: false
+    theme: flatly
+    toc: yes
     toc_float:
       collapsed: true
       smooth_scroll: true
     fig_caption: true
-pkgdown:
-  as_is: true
 ---
+
+![](images/Angga_Kemeja Hitam-01.png){width="176"}
+
+[**Email:**]{style="color: #083c5c"} [zenr.prog\@gmail.com](zenr.prog@gmail.com)
+
+[**Github:**]{style="color: #083c5c"} <https://github.com/Zen-Rofiqy>
+
+[**Rpubs:**]{style="color: #083c5c"} <https://rpubs.com/ZenR_Prog/>
+
+[**Kaggle:**]{style="color: #083c5c"} <https://www.kaggle.com/zenrofiqy>
+
+# Perkenalan
+
+Angga Fathan Rofiqy adalah mahasiswa semester 6 di IPB University yang tengah menempuh studi di bidang Statistika. Untuk memenuhi tugas akhir mata kuliah Teknik Pembelajaran Mesin, Angga dan timnya melakukan penelitian berjudul "Perbandingan Metode Clustering dalam Analisis Kesejahteraan di Indonesia tahun 2021: K-Means, Fuzzy C-Means, dan Gaussian Mixture Model (GMM)." Penelitian ini dipublikasikan di RPubs dengan tujuan memberikan bahan pembelajaran yang bermanfaat bagi semua orang.
+
+## Anggota Kelompok
+
+> **Kelompok 8 Pararel 2**
+
+| Nama                     | NIM           |
+|--------------------------|---------------|
+| Angga Fathan Rofiqy      | `G1401211006` |
+| Natasha Muti Hafiza      | `G1401211019` |
+| Arfiah Kania Sektiaruni  | `G1401211023` |
+| Naswa Nabila Zahrani     | `G1401211056` |
+| Kamilah Nurul Azizah     | `G1401211073` |
+| Angel Martha Pradina .P. | `G1401211105` |
 
 ```{r setup, include=FALSE, echo=FALSE, warning=FALSE, message = FALSE}
 knitr::opts_chunk$set(warning = FALSE, message = FALSE)
@@ -45,8 +72,8 @@ install_load <- function (package1, ...)  {
 
 path <- function() gsub  ( "\\\\",  "/",  readClipboard ()  )
 
-install_load("readxl","ggplot2","dplyr","DT","cowplot","factoextra","mclust"
-             ,"psych","cluster","ggiraphExtra","cluster","NbClust",
+install_load("ggplot2","dplyr","DT","cowplot","factoextra","mclust","rio",
+             "psych","cluster","ggiraphExtra","cluster","NbClust",
              "RColorBrewer")
 
 export.chart <- "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 6/2. Teknik Pembelajaran Mesin/Project/Tugas Kelompok/Chart"
@@ -58,19 +85,23 @@ require("knitr")
 opts_knit$set(root.dir = "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 6/2. Teknik Pembelajaran Mesin/Project/Tugas Kelompok")
 ```
 
-# Data
+# **Data**
 
-## Input Data
+## **Input Data**
+
+Data untuk analais bisa di dapatkan di [data.github](https://github.com/Zen-Rofiqy/STA1382-TPM/blob/main/Project/Tugas%20Kelompok/Data.csv){.uri} dan data kode provinsi ada di [kode.github](https://github.com/Zen-Rofiqy/STA1382-TPM/blob/main/Project/Tugas%20Kelompok/Kode%20Provinsi.csv){.uri}
 
 ```{r}
-raw.data <- read.csv("Data.csv"); data <- raw.data
+raw.data <- read.csv("https://raw.githubusercontent.com/Zen-Rofiqy/STA1382-TPM/main/Project/Tugas%20Kelompok/Data.csv")
+data <- raw.data # Untuk menjaga data awal
 colnames(data) <- c("Prov","X1","X2",'X3','X4','X5','X6','X7')
-kode <- read.csv("Kode Provinsi.csv")
+
+kode <- import("https://raw.githubusercontent.com/Zen-Rofiqy/STA1382-TPM/main/Project/Tugas%20Kelompok/Kode%20Provinsi.csv")
 
 datatable(raw.data,  options = list(pageLength = 5))
 ```
 
-## Check Kualitas Data
+## **Check Kualitas Data**
 
 > **Cek tipe data**
 
@@ -86,9 +117,9 @@ colSums(is.na(raw.data))
 
 Tidak ada data hilang pada setiap kolom.
 
-## Eksplorasi data
+## **Eksplorasi data**
 
-### Sebaran data
+### **Sebaran data**
 
 ```{r fig.height=15, fig.width=30, dpi=300}
 colors <- c("#0f2c3a","#357a87","#6ec1c1","#a9ded7","#9a3b1a","#ce572b","#e9865b")
@@ -146,7 +177,7 @@ Peubah X3, X6, dan X7 menyebar dengan menjulur ke kiri. Ini bisa dilihat dari de
 
 Sedangkan untuk umur harapan hidup nampak hampir simetris jika dilihat dari histogram, density plot dan boxplot nya. Artinya sebaran UHH di setiap provinsi terdistribusi secara merata di sekitar rata-rata, tanpa ada kemenjuluran yang signifikan ke arah tertentu.
 
-### Sebaran per provinsi
+### **Sebaran per provinsi**
 
 ```{r fig.height=15, fig.width=30, dpi=300}
 # List of variable names (excluding Provinsi and Cluster)
@@ -178,7 +209,7 @@ ggsave("Bar Chart.png", combined_plot, path = export.chart,
 
 Untuk sebaran lebih detail nya seperti ini. Bisa dilihat bahwa selaras dengan yang sudah diinterpretasikan di plot sebelumnya, bahwa UHH hampir menyebar simetris, lalu X2, X4, dan X5 menyebar dengan menjulur ke kanan yang ditandai banyaknya bar yang kecil, lalu terakhir X3, X6, dan X7 menyebar dengan menjulur ke kiri yang ditandai dengan ada beberapa bar yang ukurannya lebih kecil dari mayoritas.
 
-### Hubungan antar peubah
+### **Hubungan antar peubah**
 
 ```{r fig.height=5, fig.width=10, dpi=300}
 # Standarisasi Data
@@ -198,7 +229,7 @@ pairs.panels(dt,
 
 Jika kita melihat dari scatterplotnya, maka kita akan melihat bahwa pola hubungan antar peubah itu beragam, ada yang memilki hubungan linear ada juga yang nampaknya tidak meiliki hubungan linear. Jika dihitung hubungan linearnya dengan korelasi pearson, maka kita bisa melihat bahwa mayoritas hubungan antarr peubahnya itu lemah. Hubungan lineaer yang paling kuat adalah hubungan antara peubah X2 dan X4 dengan nilai 0.78. Bisa dilihat juga dari scatterplitnya yang memilki pola lurus positif. Ini didukung dnegan garis LOESS Smooth nya yang paling lurus dan paling 45 derajat diantara yang lain. Juga dari bentuk elips korelasinya yang nampak lancip nan bersudut 45 derajat. Yang mana ini tentu make sense karena Jumlah Puskesmas selaras dengan juumlah tenaga medis yang ada.
 
-### Multikolinearitas
+### **Multikolinearitas**
 
 ```{r}
 CekVIF <- function(data) {
@@ -213,11 +244,11 @@ CekVIF(data[,-1])
 
 Pada setiap variabel tidak ada yang memiliki nilai VIF \> 10 sehingga antar variabel tidak terjadi multikolinearitas.
 
-# Clustering
+# **Clustering**
 
-## GMM
+## **GMM**
 
-### n Cluster Optimum
+### **n Cluster Optimum**
 
 > **Pemilihan banyak culster**
 
@@ -242,7 +273,7 @@ cat("Optimal number of clusters: ", optimal_clusters, "\n")
 
 Juumlah culster optimal adalah 2, ini bisa dilihat dengan mncari titik dengan nilai BIC terbesar. Dalam kasus ini niali BIC terbesar adalah model EVE dengan jumlah komponen 2.
 
-### Hasil Clustering
+### **Hasil Clustering**
 
 > **Summary Jumlah Cluster optimal**
 
@@ -275,8 +306,12 @@ Proporsi jumlah cluster 1 dan 2 adalah 26 : 8.
 > **Plot culster**
 
 ```{r fig.height=5, fig.width=7, dpi=300}
+colors <- c("1" = "#d3a83c", "2" = "#4fbaa9")
+
 chart <-
-fviz_cluster(gmm_model2, data = dt, repel = TRUE, labelsize =8)
+fviz_cluster(gmm_model2, data = dt, repel = TRUE, labelsize =8) + 
+  scale_colour_manual(values = colors) +
+  scale_fill_manual(values = colors)
 chart
 
 # Eksport
@@ -286,7 +321,7 @@ ggsave("GMM 2D.png", chart, path = export.chart,
 
 Terlihat bahwa GMM tidak membuat cluster berdararkan kedekatan titik, melainkan berdasarkan sebaran berbagai sebaran gaussian.
 
-### Cluster Profil
+### **Cluster Profil**
 
 ```{r}
 data.clust1 <- cbind(dt %>% as.data.frame() %>% mutate(across(everything(), as.numeric)), 
@@ -326,8 +361,6 @@ Terlihat dari nilai yang sudah distandarisasi bahwa profil dari cuslter 2 memilk
 data.akhir1 <- cbind(raw.data, Cluster =  gmm_model2[["classification"]]) %>% 
   relocate(Cluster, .before = 2)
 
-colors <- c("1" = "#e0c377", "2" = "#7dcdc0")
-
 # Radar Plot
 chart <- 
 ggRadar(
@@ -353,7 +386,7 @@ ggsave("GMM Radar.png", chart, path = export.chart,
 
 Selaras dengan yang sudah saya sampaikan diatas, bahwa cluster 2 hampir unggul dalam segala aspek. Cluster 1 hanya bisa dunggul dalam sanitasi dan imun saja, sedangkan yang lainnya tidak mampu mengungguli atau bahkan tidak ada harapan untuk mengungguli cluster 2.
 
-### Map
+### **Map**
 
 ```{r message=FALSE, warning=FALSE}
 install_load("spdep","rgdal")
@@ -392,7 +425,7 @@ ggsave("GMM Map.png", chart, path = export.chart,
 
 Ada yang aneh? ya memang. Kenapa bisa provinsi papua masuk kedalam cluster 2 yang sebelumnya disebut-sebut sebagai cluster yang unggul dalam segala aspek kesejahteraan. Mari kita telurusi lebih lanjut.
 
-### Anggota Cluster
+### **Anggota Cluster**
 
 > **Tampilan Data dengan cluster**
 
@@ -405,7 +438,7 @@ write.csv(data.akhir1, "data_clust1.csv", row.names = FALSE)
 Jika anda ingin melihat bagaimana tampilan data dengan cluster nya. Atau lebih mudah dengan bar chart dibawah.
 
 ```{r fig.height=15, fig.width=30, dpi=300}
-colors <- c("1" = "#e7dec5", "2" = "#7dcdc0")
+colors1 <- c("1" = "#e7dec5", "2" = "#7dcdc0")
 
 # List of variable names (excluding Provinsi and Cluster)
 variables <- names(data.akhir1)[!names(data.akhir1) %in% c("Provinsi", "Cluster")]
@@ -420,7 +453,7 @@ for (var in variables) {
   
   p <- ggplot(sorted_data, aes_string(x = var, y = "Provinsi", fill = "factor(Cluster)")) +
     geom_bar(stat = "identity") +
-    scale_fill_manual(values = colors) +
+    scale_fill_manual(values = colors1) +
     labs(x = var, y = "Provinsi", fill = "Cluster") +
     theme_minimal()
   
@@ -437,13 +470,13 @@ ggsave("GMM Dist.png", combined_plot, path = export.chart,
 
 Memang terlihat keanehannya, bahwa salah satu anggota cluster 2 tidak bisa meungguli semua aspek kesejahteraan yang ada. Bahwakan kalah jauh daripada yang lain. Sepertinya memang clustering dengan GMM bukanlah ide yang tepat.
 
-## K-Means
+## **K-Means**
 
-### n Cluster Optimum {.tabset}
+### **n Cluster Optimum** {.tabset}
 
 Menentukan jumlah klaster paling optimum untuk membagi 34 provinsi yang ada di Indonesia. Pada dasarnya nilai k optimum dapat ditentukan sendiri oleh peneliti, selain itu nilai k dapat ditentukan juga menggunakan bantuan grafik Elbow berikut. Dimana k minimum akan didapat ketika grafik sudah tidak bergerak menurun dengan tajam.
 
-#### Silhouette
+#### **Silhouette**
 
 ```{r}
 fviz_nbclust(x = dt, 
@@ -454,7 +487,7 @@ fviz_nbclust(x = dt,
 
 Dari hasil diatas didapatkan nilai K optimum adalah 2.
 
-#### Gap Statistic
+#### **Gap Statistic**
 
 ```{r}
 library(cluster)
@@ -467,7 +500,7 @@ fviz_gap_stat(gap_stat)
 
 Dari hasil diatas didapatkan nilai K optimum adalah 1.
 
-#### WSS (Elbow)
+#### **WSS (Elbow)**
 
 ```{r}
 fviz_nbclust(dt, kmeans, method = "wss")
@@ -475,7 +508,7 @@ fviz_nbclust(dt, kmeans, method = "wss")
 
 Untuk wss nampaknya agak sulit untuk melihat berapa jumlah cluster yang optimumnya, namun nampaknya 6 atau 2 merupakan jumlah cluster optimumnya.
 
-#### Hubert Statistic & Dindex
+#### **Hubert Statistic & Dindex**
 
 ```{r fig.height=5, fig.width=10, dpi=300}
 nb <- NbClust(data = dt, distance = "euclidean", method="complete")
@@ -483,15 +516,24 @@ nb <- NbClust(data = dt, distance = "euclidean", method="complete")
 
 Untuk hubert statistic dan dindex, jumlah cluster optimal yang disarankan adalah 2.
 
-### Hasil Clustering 1
+### **Hasil Clustering 1**
 
 Beberapa metode untuk menentukan jumlah cluster memiliki jumlah cluster optimal yang cukup beragam. Namun 2 merupakan jumlah cluster yang nampaknya bisa diterima oleh semua metode yang ada. Sehingga jumlah cluster yang akan dicobakan adalah 2.
 
-```{r message=FALSE, warning=FALSE}
+```{r fig.height=5, fig.width=7, dpi=300}
 set.seed(100)
 
 data_kmeans <- eclust(dt, "kmeans", k = 2, graph = FALSE)
-fviz_cluster(object = data_kmeans, data=dt)
+
+chart <- 
+fviz_cluster(object = data_kmeans, data=dt) + 
+  scale_colour_manual(values = colors) +
+  scale_fill_manual(values = colors)
+chart
+
+# Eksport
+ggsave("Kmeans 2D 1.png", chart, path = export.chart,
+        dpi = 300, height = 5, width = 7)
 ```
 
 > **Proporsi cluster**
@@ -502,7 +544,7 @@ table(data_kmeans$cluster)
 
 Proporsi jumlah cluster 1 dan 2 adalah 27 : 7.
 
-#### Validasi Cluster
+#### **Validasi Cluster**
 
 > **Silhouette**
 
@@ -521,16 +563,25 @@ data[neg_sil_index, 1]
 
 Terlihat bahwa provinsi papua merupakan provinsi yang mungkin blm dapat dikelompokkan secara benar oleh K-means, mari kita perbaiki.
 
-### Hasil Clustering 2 
+### **Hasil Clustering 2**
 
 Mari kita tambahkan paramter `nstart = 6` untuk menentukan jumlah awalisasi acak yang akan dilakukan oleh algoritma K-means. K-means adalah algoritma yang sensitif terhadap titik awal centroid yang dipilih secara acak. Untuk mengurangi kemungkinan menemukan solusi yang hanya merupakan minimum lokal (bukan global), sering kali beberapa awalizasi acak dilakukan, dan hasil dengan total inersia (atau sum of squared distances from points to their assigned cluster centroids) terkecil dipilih sebagai hasil akhir.
 
-```{r message=FALSE, warning=FALSE}
+```{r fig.height=5, fig.width=7, dpi=300}
 set.seed(100)
 
 data_kmeans <- eclust(dt, "kmeans", k = 2,
                       nstart = 6, graph = FALSE)
-fviz_cluster(object = data_kmeans, data=dt)
+
+chart <-
+fviz_cluster(object = data_kmeans, data=dt)  + 
+  scale_colour_manual(values = colors) +
+  scale_fill_manual(values = colors)
+chart
+
+# Eksport
+ggsave("Kmeans 2D 2.png", chart, path = export.chart,
+        dpi = 300, height = 5, width = 7)
 ```
 
 > **Proporsi cluster**
@@ -541,7 +592,7 @@ table(data_kmeans$cluster)
 
 Proporsi jumlah cluster 1 dan 2 adalah 30 : 4.
 
-#### Validasi Cluster 
+#### **Validasi Cluster**
 
 > **Silhouette**
 
@@ -552,7 +603,7 @@ fviz_silhouette(data_kmeans, palette = "jco",
 
 Terlihat bahwa sudah tidak ada pengamatan dengan niali siluet negatif, sehingga seluruh pengamatan dikelompokkan secara tidak benar sudah kemunkinannya sudah kecil.
 
-### Cluster Profil
+### **Cluster Profil**
 
 ```{r}
 data.clust2 <- cbind(dt %>% as.data.frame() %>% mutate(across(everything(), as.numeric)), 
@@ -565,7 +616,7 @@ cluster_profiles2 <- aggregate(. ~ Cluster, data.clust2, mean)
 print(cluster_profiles2)
 ```
 
-```{r}
+```{r fig.height=4, fig.width=7, dpi=300}
 # Convert the data to long format for plotting
 cluster_profiles_long2 <- tidyr::pivot_longer(cluster_profiles2, -Cluster, 
                                              names_to = "Variable", values_to = "Value")
@@ -575,7 +626,13 @@ ggplot(cluster_profiles_long2, aes(x = Cluster, y = Value, fill = Variable)) +
   geom_bar(stat = "identity", position = "dodge") +
   labs(x = "Cluster", y = "Mean Value", fill = "Variable") +
   theme_minimal() +
-  ggtitle("Cluster Profiles")
+  ggtitle("Cluster Profiles") +
+  scale_fill_brewer(palette = "GnBu")
+chart
+
+# Eksport
+ggsave("Kmeans Prof.png", chart, path = export.chart,
+        dpi = 300, height = 4, width = 7) 
 ```
 
 Berlainan dengan hasil dari GMM, cluster 2 merupakan cluster dengan aspek kesejahteraan yang paling tinggi dibandingkan dengan cluster 1. Benar-benar unggul semua. Mari kita lihat lebih jelas dengan radar chart dibawah.
@@ -611,7 +668,7 @@ ggsave("Kmeans Radar.png", chart, path = export.chart,
 
 Sejalan dengan yang saya bilang diatas, bahwa cluster 2 benar-benar mengungguli cluster 1.
 
-### Map
+### **Map**
 
 ```{r dpi=300,  fig.height = 9, fig.width = 16, fig.align = "center", warning=FALSE, message = FALSE}
 data.map <- cbind(data.clust2, KODE=kode$KODE)
@@ -619,9 +676,10 @@ data.map <- cbind(data.clust2, KODE=kode$KODE)
 data.indo <- indo %>%
   inner_join(data.map, by = c("KODE" = "KODE"))
 
+chart <- 
 ggplot() +  
   geom_sf(data=data.indo, aes(fill=factor(`Cluster`))) +
-  scale_fill_manual(values=c("1" = "indianred", "2" = "lightgreen"), 
+  scale_fill_manual(values=c("1" = "#e0c377", "2" = "#80cdc0"), 
                     name = "Keterangan") +
   labs(title = "K-means Clustering -  Kesejahteraan \n pada Provinsi Indonesia 2021",
        x = "Longitude",
@@ -634,11 +692,16 @@ ggplot() +
         plot.title = element_text(size=12, face="bold", hjust = 0.5)) +
   scale_x_continuous(labels = function(x) paste0(x, "°")) +
   scale_y_continuous(labels = function(y) paste0(y, "°"))
+chart
+
+# Eksport
+ggsave("Kmeans Map.png", chart, path = export.chart,
+        dpi = 300, height = 9, width = 16)
 ```
 
 Berbeda dengan GMM, hasil dari k-means itu lebih make sense, mari kita lihat keanggotaan clusternya.
 
-### Anggota Cluster
+### **Anggota Cluster**
 
 > **Tampilan Data dengan cluster**
 
@@ -649,8 +712,6 @@ write.csv(data.akhir2, "data_clust2.csv", row.names = FALSE)
 ```
 
 ```{r fig.height=15, fig.width=30, dpi=300}
-colors <- c("1" = "#bf212f", "2" = "#27b376")
-
 # List of variable names (excluding Provinsi and Cluster)
 variables <- names(data.akhir2)[!names(data.akhir2) %in% c("Provinsi", "Cluster")]
 
@@ -664,7 +725,7 @@ for (var in variables) {
   
   p <- ggplot(sorted_data, aes_string(x = var, y = "Provinsi", fill = "factor(Cluster)")) +
     geom_bar(stat = "identity") +
-    scale_fill_manual(values = colors) +
+    scale_fill_manual(values = colors1) +
     labs(x = var, y = "Provinsi", fill = "Cluster") +
     theme_minimal()
   
@@ -673,20 +734,33 @@ for (var in variables) {
 
 combined_plot <- plot_grid(plotlist = plots, ncol = 4)
 combined_plot
+
+# Eksport
+ggsave("Kmeans Dist.png", combined_plot, path = export.chart,
+        dpi = 300, height = 15, width = 30)
 ```
 
 Bisa dilihat bahwa memang K-Means menghasilkan cluster yang lebih make sense daripada GMM. Karena hampir di semua aspek memang cluster 1 lebih unggul daripada cluster 2.
 
-## Fuzzy C-Means
+## **Fuzzy C-Means**
 
 Untuk FCM pemilihan jumlah clusternya sama dengan K-Means, sehingga jumlah cluster yang akan digunakan adalah 2.
 
-### Hasil Clustering 1
+### **Hasil Clustering 1**
 
-```{r}
+```{r fig.height=5, fig.width=7, dpi=300}
 # clustering menggunakan fanny()
 data_fcm <- fanny(x = dt, k = 2, metric = "euclidean")
-fviz_cluster(object = data_fcm, data=dt) 
+
+chart <-
+fviz_cluster(object = data_fcm, data=dt) + 
+  scale_colour_manual(values = colors) +
+  scale_fill_manual(values = colors)
+chart
+
+# Eksport
+ggsave("FCM 2D 1.png", chart, path = export.chart,
+        dpi = 300, height = 5, width = 7) 
 ```
 
 > **Proporsi Cluster**
@@ -697,7 +771,7 @@ table(data_fcm$cluster)
 
 Berbeda dengan 2 metode sebelumnya, FCM menghasilkan proporsi jumlah cluster yang berbeda, yakni lebih proporsional antar clusternya yakni 16 : 18.
 
-#### Validasi Cluster
+#### **Validasi Cluster**
 
 > **Dunn Index**
 
@@ -734,11 +808,20 @@ data[neg_sil_index, 1]
 
 Terlihat bahwa 7 provinsi tersebut merupakan provinsi yang mungkin blm dapat dikelompokkan secara benar oleh FCM. Mari kita perbaiki.
 
-### Hasil Cluster 2
+### **Hasil Cluster 2**
 
-```{r}
+```{r fig.height=5, fig.width=7, dpi=300}
 data_fcm <- fanny(x = dt, k = 2, metric = "manhattan", memb.exp = 3)
-fviz_cluster(object = data_fcm, data=dt) 
+
+chart <-
+fviz_cluster(object = data_fcm, data=dt) + 
+  scale_colour_manual(values = colors) +
+  scale_fill_manual(values = colors)
+chart
+
+# Eksport
+ggsave("FCM 2D 2.png", chart, path = export.chart,
+        dpi = 300, height = 5, width = 7)  
 ```
 
 > **Proporsi Cluster**
@@ -749,7 +832,7 @@ table(data_fcm$cluster)
 
 Berbeda dengan 2 metode sebelumnya, FCM menghasilkan proporsi jumlah cluster yang berbeda, yakni lebih proporsional antar clusternya yakni 19 : 15.
 
-#### Validasi Cluster
+#### **Validasi Cluster**
 
 > **Dunn Index**
 
@@ -786,7 +869,7 @@ data[neg_sil_index, 1]
 
 Terlihat bahwa 3 provinsi tersebut merupakan provinsi yang mungkin blm dapat dikelompokkan secara benar oleh FCM. Namun saya rasa, saya sudah mencoba berbagai hal untuk memperbaikinya, dan ini adalah hasil terbaik dari FCM. Jadi ya, kita sudahi.
 
-### Cluster Profil
+### **Cluster Profil**
 
 ```{r}
 data.clust3 <- cbind(dt %>% as.data.frame() %>% mutate(across(everything(), as.numeric)), 
@@ -799,17 +882,24 @@ cluster_profiles3 <- aggregate(. ~ Cluster, data.clust3, mean)
 print(cluster_profiles3)
 ```
 
-```{r}
+```{r fig.height=4, fig.width=7, dpi=300}
 # Convert the data to long format for plotting
 cluster_profiles_long3 <- tidyr::pivot_longer(cluster_profiles3, -Cluster, 
                                              names_to = "Variable", values_to = "Value")
 
 # Create the bar plot
+chart <-
 ggplot(cluster_profiles_long3, aes(x = Cluster, y = Value, fill = Variable)) +
   geom_bar(stat = "identity", position = "dodge") +
   labs(x = "Cluster", y = "Mean Value", fill = "Variable") +
   theme_minimal() +
-  ggtitle("Cluster Profiles")
+  ggtitle("Cluster Profiles")  +
+  scale_fill_brewer(palette = "GnBu")
+chart
+
+# Eksport
+ggsave("FCM Prof.png", chart, path = export.chart,
+        dpi = 300, height = 4, width = 7) 
 ```
 
 Dari sini kita tahu bahwa cluster 1 dan cluster 2 cenderung memiliki bentuk bar yang mirip namun kebalik. Tidak tahu pasti apa artinya, namun cluster 2 merupakan cluster yang lebih unggul dalam segala aspek daripada cluster 1. Mari kita lihat radar chart nya.
@@ -819,6 +909,7 @@ data.akhir3 <- cbind(raw.data, Cluster =  data_fcm$cluster) %>%
   relocate(Cluster, .before = 2)
 
 # Radar Plot
+chart <-
 ggRadar(
   data = data.akhir3,
   mapping = aes(colours = Cluster)
@@ -829,12 +920,19 @@ theme(
   title = element_text(size = 12),  # Mengubah ukuran font judul
   axis.text = element_text(size = 10),  # Mengubah ukuran font label sumbu
   legend.text = element_text(size = 8)  # Mengubah ukuran font legenda
-)
+) + 
+  scale_colour_manual(values = colors) +
+  scale_fill_manual(values = colors)
+chart
+
+# Eksport
+ggsave("FCM Radar.png", chart, path = export.chart,
+        dpi = 300, height = 10, width = 10)
 ```
 
 Selaras dengan yang saya sampaikan di atas, bawahwa cluster 1 dan cluster 2 memang mirip, namun cluster 2 memiliki nilai yang lebih besar daripada cluster 1.
 
-### Map
+### **Map**
 
 ```{r dpi=300,  fig.height = 9, fig.width = 16, fig.align = "center", warning=FALSE, message = FALSE}
 data.map <- cbind(data.clust3, KODE=kode$KODE)
@@ -842,9 +940,10 @@ data.map <- cbind(data.clust3, KODE=kode$KODE)
 data.indo <- indo %>%
   inner_join(data.map, by = c("KODE" = "KODE"))
 
+chart <-
 ggplot() +  
   geom_sf(data=data.indo, aes(fill=factor(`Cluster`))) +
-  scale_fill_manual(values=c("1" = "indianred", "2" = "lightgreen"), 
+  scale_fill_manual(values=c("1" = "#e0c377", "2" = "#80cdc0"), 
                     name = "Keterangan") +
   labs(title = "FCM Clustering -  Kesejahteraan \n pada Provinsi Indonesia 2021",
        x = "Longitude",
@@ -857,11 +956,16 @@ ggplot() +
         plot.title = element_text(size=12, face="bold", hjust = 0.5)) +
   scale_x_continuous(labels = function(x) paste0(x, "°")) +
   scale_y_continuous(labels = function(y) paste0(y, "°"))
+chart
+
+# Eksport
+ggsave("FCM Map.png", chart, path = export.chart,
+        dpi = 300, height = 9, width = 16)
 ```
 
 Beginilah penampakan dari hasil clustering FCM. Apakah lebih bagus daripada metode yang lain? Mari kita pastikan dengan melihat keanggotaan clusternya.
 
-### Anggota Cluster
+### **Anggota Cluster**
 
 > **Tampilan Data dengan cluster**
 
@@ -872,8 +976,6 @@ write.csv(data.akhir3, "data_clust1.csv", row.names = FALSE)
 ```
 
 ```{r fig.height=15, fig.width=30, dpi=300}
-colors <- c("1" = "#bf212f", "2" = "#27b376")
-
 # List of variable names (excluding Provinsi and Cluster)
 variables <- names(data.akhir3)[!names(data.akhir3) %in% c("Provinsi", "Cluster")]
 
@@ -887,7 +989,7 @@ for (var in variables) {
   
   p <- ggplot(sorted_data, aes_string(x = var, y = "Provinsi", fill = "factor(Cluster)")) +
     geom_bar(stat = "identity") +
-    scale_fill_manual(values = colors) +
+    scale_fill_manual(values = colors1) +
     labs(x = var, y = "Provinsi", fill = "Cluster") +
     theme_minimal()
   
@@ -896,13 +998,17 @@ for (var in variables) {
 
 combined_plot <- plot_grid(plotlist = plots, ncol = 4)
 combined_plot
+
+# Eksport
+ggsave("FCM Dist.png", combined_plot, path = export.chart,
+        dpi = 300, height = 15, width = 30)
 ```
 
 Walaupun dalam validasi cluster dengan metode siluet masih ada yang bernilai negatif, namun saya rasa metode FCM mampu membuat cluster yang jauh lebih baik daripada yang lainnya. Tidak seperti K-means yang pada profil nya seolah berkata bahwa cluster 2 itu jauh lebih baik daripada cluster 1 di segala aspek. Namun pada saat kita tampilkan sebaran tiap peubah pada semua provinsi nya, cluster 2 tidak selalu berada di puncak.
 
 Sedangkan untuk FCM itu sesuai dengan apa yang dikatakan oleh profil nya. Yakni clsuter 1 dan cluster 2 itu mirip, namun cluster 2 lebih tinggi daripada cluster 1. Ini juga sesuai dengan sebaran yang kita lihat di atas.
 
-# Referensi
+# **Referensi**
 
 -   [**Validasi Cluster**](https://medium.com/@ozturkfemre/unsupervised-learning-in-r-cluster-validation-8c691ce37784){.uri}
 
@@ -912,4 +1018,4 @@ Sedangkan untuk FCM itu sesuai dengan apa yang dikatakan oleh profil nya. Yakni 
 
 -   <https://rpubs.com/Anoe/lbb-kmeans>
 
--   
+-   <https://blog.datawrapper.de/>
