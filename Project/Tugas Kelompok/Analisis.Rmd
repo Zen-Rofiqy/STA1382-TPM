@@ -46,7 +46,8 @@ install_load <- function (package1, ...)  {
 path <- function() gsub  ( "\\\\",  "/",  readClipboard ()  )
 
 install_load("readxl","ggplot2","dplyr","DT","cowplot","factoextra","mclust"
-             ,"psych","cluster","ggiraphExtra","cluster","NbClust")
+             ,"psych","cluster","ggiraphExtra","cluster","NbClust",
+             "RColorBrewer")
 
 export.chart <- "C:/Users/Fathan/Documents/Obsidian Vault/2. Kuliah/Smt 6/2. Teknik Pembelajaran Mesin/Project/Tugas Kelompok/Chart"
 ```
@@ -169,6 +170,10 @@ for (var in variables) {
 
 combined_plot <- plot_grid(plotlist = plots, ncol = 4)
 combined_plot
+
+#Export Chart
+ggsave("Bar Chart.png", combined_plot, path = export.chart,
+        dpi = 300, height = 15, width = 30)
 ```
 
 Untuk sebaran lebih detail nya seperti ini. Bisa dilihat bahwa selaras dengan yang sudah diinterpretasikan di plot sebelumnya, bahwa UHH hampir menyebar simetris, lalu X2, X4, dan X5 menyebar dengan menjulur ke kanan yang ditandai banyaknya bar yang kecil, lalu terakhir X3, X6, dan X7 menyebar dengan menjulur ke kiri yang ditandai dengan ada beberapa bar yang ukurannya lebih kecil dari mayoritas.
@@ -181,7 +186,7 @@ dt <- scale(data[,-1])
 # Korelasi
 pairs.panels(dt,
              method = "pearson", # correlation method
-             hist.col = "#00AFBB", #Coloring histogram
+             hist.col = "#357a87", #Coloring histogram
              density = TRUE,  # show density plots
              ellipses = TRUE, # show correlation ellipses
              smooth = TRUE, #show loess smooths
@@ -269,8 +274,14 @@ Proporsi jumlah cluster 1 dan 2 adalah 26 : 8.
 
 > **Plot culster**
 
-```{r}
+```{r fig.height=5, fig.width=7, dpi=300}
+chart <-
 fviz_cluster(gmm_model2, data = dt, repel = TRUE, labelsize =8)
+chart
+
+# Eksport
+ggsave("GMM 2D.png", chart, path = export.chart,
+        dpi = 300, height = 5, width = 7)
 ```
 
 Terlihat bahwa GMM tidak membuat cluster berdararkan kedekatan titik, melainkan berdasarkan sebaran berbagai sebaran gaussian.
@@ -288,17 +299,25 @@ cluster_profiles1 <- aggregate(. ~ Cluster, data.clust1, mean)
 print(cluster_profiles1)
 ```
 
-```{r}
+```{r fig.height=4, fig.width=7, dpi=300}
 # Convert the data to long format for plotting
 cluster_profiles_long1 <- tidyr::pivot_longer(cluster_profiles1, -Cluster, 
                                              names_to = "Variable", values_to = "Value")
 
 # Create the bar plot
+chart <-
 ggplot(cluster_profiles_long1, aes(x = Cluster, y = Value, fill = Variable)) +
   geom_bar(stat = "identity", position = "dodge") +
   labs(x = "Cluster", y = "Mean Value", fill = "Variable") +
   theme_minimal() +
-  ggtitle("Cluster Profiles")
+  ggtitle("Cluster Profiles") +
+  scale_fill_brewer(palette = "GnBu")
+
+chart
+
+# Eksport
+ggsave("GMM Prof.png", chart, path = export.chart,
+        dpi = 300, height = 4, width = 7)
 ```
 
 Terlihat dari nilai yang sudah distandarisasi bahwa profil dari cuslter 2 memilki nilai yang hampir unggul dalam segala peubah dibandingan dengan cluster 1. Notes: adanya nilai negatif karena hasil dari standarisasi memang mengandung nilai positif dan negatif. Agar mudah perbandingannya, mari kita lihat dengan diagram spider web dibawah ini.
@@ -307,7 +326,10 @@ Terlihat dari nilai yang sudah distandarisasi bahwa profil dari cuslter 2 memilk
 data.akhir1 <- cbind(raw.data, Cluster =  gmm_model2[["classification"]]) %>% 
   relocate(Cluster, .before = 2)
 
+colors <- c("1" = "#e0c377", "2" = "#7dcdc0")
+
 # Radar Plot
+chart <- 
 ggRadar(
   data = data.akhir1,
   mapping = aes(colours = Cluster)
@@ -318,7 +340,15 @@ theme(
   title = element_text(size = 12),  # Mengubah ukuran font judul
   axis.text = element_text(size = 10),  # Mengubah ukuran font label sumbu
   legend.text = element_text(size = 8)  # Mengubah ukuran font legenda
-)
+) + 
+  scale_colour_manual(values = colors) +
+  scale_fill_manual(values = colors)
+
+chart
+
+# Eksport
+ggsave("GMM Radar.png", chart, path = export.chart,
+        dpi = 300, height = 10, width = 10)
 ```
 
 Selaras dengan yang sudah saya sampaikan diatas, bahwa cluster 2 hampir unggul dalam segala aspek. Cluster 1 hanya bisa dunggul dalam sanitasi dan imun saja, sedangkan yang lainnya tidak mampu mengungguli atau bahkan tidak ada harapan untuk mengungguli cluster 2.
@@ -337,10 +367,10 @@ data.map <- cbind(data.clust1, KODE=kode$KODE)
 data.indo <- indo %>%
   inner_join(data.map, by = c("KODE" = "KODE"))
 
+chart <-
 ggplot() +  
   geom_sf(data=data.indo, aes(fill=factor(`Cluster`))) +
-  scale_fill_manual(values=c("1" = "indianred", "2" = "lightgreen", "3" = "dodgerblue",
-                             "4"="cyan3", "5"="purple3"), 
+  scale_fill_manual(values=c("1" = "#e0c377", "2" = "#80cdc0"), 
                     name = "Keterangan") +
   labs(title = "GMM Clustering - Kesejahteraan \n pada Provinsi Indonesia 2021",
        x = "Longitude",
@@ -353,6 +383,11 @@ ggplot() +
         plot.title = element_text(size=12, face="bold", hjust = 0.5)) +
   scale_x_continuous(labels = function(x) paste0(x, "°")) +
   scale_y_continuous(labels = function(y) paste0(y, "°"))
+chart
+
+# Eksport
+ggsave("GMM Map.png", chart, path = export.chart,
+        dpi = 300, height = 9, width = 16)
 ```
 
 Ada yang aneh? ya memang. Kenapa bisa provinsi papua masuk kedalam cluster 2 yang sebelumnya disebut-sebut sebagai cluster yang unggul dalam segala aspek kesejahteraan. Mari kita telurusi lebih lanjut.
@@ -370,7 +405,7 @@ write.csv(data.akhir1, "data_clust1.csv", row.names = FALSE)
 Jika anda ingin melihat bagaimana tampilan data dengan cluster nya. Atau lebih mudah dengan bar chart dibawah.
 
 ```{r fig.height=15, fig.width=30, dpi=300}
-colors <- c("1" = "#bf212f", "2" = "#27b376")
+colors <- c("1" = "#e7dec5", "2" = "#7dcdc0")
 
 # List of variable names (excluding Provinsi and Cluster)
 variables <- names(data.akhir1)[!names(data.akhir1) %in% c("Provinsi", "Cluster")]
@@ -394,6 +429,10 @@ for (var in variables) {
 
 combined_plot <- plot_grid(plotlist = plots, ncol = 4)
 combined_plot
+
+# Eksport
+ggsave("GMM Dist.png", combined_plot, path = export.chart,
+        dpi = 300, height = 15, width = 30)
 ```
 
 Memang terlihat keanehannya, bahwa salah satu anggota cluster 2 tidak bisa meungguli semua aspek kesejahteraan yang ada. Bahwakan kalah jauh daripada yang lain. Sepertinya memang clustering dengan GMM bukanlah ide yang tepat.
@@ -545,7 +584,10 @@ Berlainan dengan hasil dari GMM, cluster 2 merupakan cluster dengan aspek keseja
 data.akhir2 <- cbind(raw.data, Cluster =  data_kmeans$cluster) %>% 
   relocate(Cluster, .before = 2)
 
+colors <- c("1" = "#e0c377", "2" = "#7dcdc0")
+
 # Radar Plot
+chart <- 
 ggRadar(
   data = data.akhir2,
   mapping = aes(colours = Cluster)
@@ -556,7 +598,15 @@ theme(
   title = element_text(size = 12),  # Mengubah ukuran font judul
   axis.text = element_text(size = 10),  # Mengubah ukuran font label sumbu
   legend.text = element_text(size = 8)  # Mengubah ukuran font legenda
-)
+) + 
+  scale_colour_manual(values = colors) +
+  scale_fill_manual(values = colors)
+
+chart
+
+# Eksport
+ggsave("Kmeans Radar.png", chart, path = export.chart,
+        dpi = 300, height = 10, width = 10)
 ```
 
 Sejalan dengan yang saya bilang diatas, bahwa cluster 2 benar-benar mengungguli cluster 1.
